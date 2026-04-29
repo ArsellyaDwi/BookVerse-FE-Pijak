@@ -45,7 +45,7 @@ const useMutation = ({
    * @returns {Promise<any>} Response data or null
    */
   const mutate = useCallback(
-    async (payload = {}) => {
+    async (payload = {}, urlParams = "") => {
       try {
         setLoading(true);
         setError(null);
@@ -65,22 +65,22 @@ const useMutation = ({
 
         switch (method.toUpperCase()) {
           case "POST":
-            response = await axios.post(url, payload);
+            response = await axios.post(url + urlParams, payload);
             break;
           case "PUT":
-            response = await axios.put(url, payload);
+            response = await axios.put(url + urlParams, payload);
             break;
           case "DELETE":
-            response = await axios.delete(url, { data: payload });
+            response = await axios.delete(url + urlParams, { data: payload });
             break;
           case "PATCH":
-            response = await axios.patch(url, payload);
+            response = await axios.patch(url + urlParams, payload);
             break;
           default:
-            response = await axios.post(url, payload);
+            response = await axios.post(url + urlParams, payload);
         }
 
-        setData(response.data);
+        setData(response?.data);
 
         if (onSuccess) onSuccess(response.data);
         return response.data;

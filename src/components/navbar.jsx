@@ -26,7 +26,7 @@ export default function Navbar() {
   const { wishlistItems } = useWishlist();
   const { getTotalItems } = useCart();
   const navigate = useNavigate();
-  const { isAuthenticated, login } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -192,7 +192,20 @@ export default function Navbar() {
               {/* Login Icon Button with Dropdown */}
               <div className="relative flex items-center">
                 {isAuthenticated ? (
-                  <div>Sudah Login</div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex flex-col items-end">
+                      <span className="text-xs font-semibold text-slate-700">{user?.name}</span>
+                      <button 
+                        onClick={logout}
+                        className="text-[10px] text-red-500 hover:underline bg-none border-none cursor-pointer p-0"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center border border-blue-200">
+                      <User className="w-4 h-4 text-blue-600" />
+                    </div>
+                  </div>
                 ) : (
                   <button
                     onClick={() => setIsLoginOpen(!isLoginOpen)}

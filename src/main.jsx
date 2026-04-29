@@ -15,11 +15,7 @@ createRoot(document.getElementById("root")).render(
     <Toaster />
     <LoadingProvider>
       <GlobalLoadingSpinner />
-      <WishlistProvider>
-        <CartProvider>
           <RouterProvider router={router} />
-        </CartProvider>
-      </WishlistProvider>
     </LoadingProvider>
   </StrictMode>
 );

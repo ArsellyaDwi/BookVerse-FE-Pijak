@@ -30,17 +30,7 @@ export default function BookCard({
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
-    addToCart({
-      id,
-      title,
-      author,
-      price,
-      rating,
-      image,
-      category,
-      description,
-      reviews: [],
-    });
+    addToCart(id);
   };
 
   const handleCardClick = () => {
@@ -52,9 +42,9 @@ export default function BookCard({
 
   return (
     <div className="group cursor-pointer" onClick={handleCardClick}>
-      <div className="bg-white rounded-2xl p-6 transition-all duration-300 shadow-md hover:shadow-lg">
+      <div className="bg-white rounded-2xl p-6 transition-all duration-300 shadow-md hover:shadow-lg h-full flex flex-col">
         {/* Image Container with Floating Buttons */}
-        <div className="relative mb-6 overflow-hidden rounded-2xl">
+        <div className="relative mb-6 overflow-hidden rounded-2xl flex-shrink-0">
           <div className="aspect-[3/4] bg-gray-100 rounded-2xl overflow-hidden">
             <ImageWithFallback
               src={image}
@@ -93,38 +83,40 @@ export default function BookCard({
           </div>
         </div>
 
-        {/* Product Info */}
-        <div>
-          <h3 className="font-poppins text-base font-semibold leading-relaxed text-gray-800 mt-4 mb-2 line-clamp-2 min-h-[3rem] hover:text-blue-600 transition-colors duration-300">
-            {title}
-          </h3>
+        {/* Product Info - Flex column with auto margins */}
+        <div className="flex flex-col flex-grow">
+          <div>
+            <h3 className="font-poppins text-base font-semibold leading-relaxed text-gray-800 mb-2 line-clamp-2 min-h-[3rem] hover:text-blue-600 transition-colors duration-300">
+              {title}
+            </h3>
 
-          <p className="font-poppins text-xs font-normal leading-relaxed text-gray-500 mb-2">
-            {author}
-          </p>
+            <p className="font-poppins text-xs font-normal leading-relaxed text-gray-500 mb-2 line-clamp-1">
+              {author}
+            </p>
 
-          {/* Rating */}
-          <div className="flex items-center gap-1 mb-2">
-            {[...Array(5)].map((_, i) => (
-              <svg
-                key={i}
-                className={`w-4 h-4 ${
-                  i < Math.floor(rating)
-                    ? "text-yellow-400 fill-yellow-400"
-                    : "text-gray-300 fill-gray-300"
-                }`}
-                viewBox="0 0 20 20"
-              >
-                <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-              </svg>
-            ))}
-            <span className="font-poppins text-xs font-normal text-gray-500 ml-1">
-              ({rating})
-            </span>
+            {/* Rating */}
+            <div className="flex items-center gap-1 mb-2">
+              {[...Array(5)].map((_, i) => (
+                <svg
+                  key={i}
+                  className={`w-4 h-4 ${
+                    i < Math.floor(rating)
+                      ? "text-yellow-400 fill-yellow-400"
+                      : "text-gray-300 fill-gray-300"
+                  }`}
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                </svg>
+              ))}
+              <span className="font-poppins text-xs font-normal text-gray-500 ml-1">
+                ({rating})
+              </span>
+            </div>
           </div>
 
-          {/* Price */}
-          <div className="pt-4 mt-4 border-t border-slate-100">
+          {/* Price - Pushed to bottom with auto margin */}
+          <div className="pt-4 mt-auto border-t border-slate-100">
             <span className="font-poppins text-sm font-medium leading-relaxed text-blue-600">
               Rp {formattedPrice}
             </span>

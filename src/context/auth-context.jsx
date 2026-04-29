@@ -31,6 +31,7 @@ export const AuthProvider = ({ children }) => {
     method: "POST",
     guard: false,
     onSuccess: (data) => {
+      console.log({ data });
       const { token, user } = data;
 
       localStorage.setItem("token", token);
@@ -40,7 +41,7 @@ export const AuthProvider = ({ children }) => {
       setUser(user);
 
       toast.success("Login successful!");
-      navigate("/dashboard");
+      navigate("/");
     },
     onError: (error) => {
       const message = error.response?.data?.message || "Login failed";
@@ -142,15 +143,12 @@ export const AuthProvider = ({ children }) => {
     };
 
     initializeAuth();
-  }, [fetchUser]);
+  }, []);
 
   const login = useCallback(
     async (email, password) => {
       const result = await loginMutation(
         { email, password },
-        {
-          showLoadingToast: true,
-        }
       );
       return result;
     },

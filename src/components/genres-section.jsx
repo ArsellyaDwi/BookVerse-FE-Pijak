@@ -1,60 +1,29 @@
-import { Link } from "react-router";
-import { ImageWithFallback } from "./image-with-fallback";
-
-const genres = [
-  {
-    name: "Romance",
-    slug: "romance",
-    image:
-      "https://images.unsplash.com/photo-1735805819333-19bed84b654e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyb21hbmNlJTIwbm92ZWwlMjBib29rfGVufDF8fHx8MTc3NTEzMzgwN3ww&ixlib=rb-4.1.0&q=80&w=1080",
-  },
-  {
-    name: "Fantasy",
-    slug: "fantasy",
-    image:
-      "https://images.unsplash.com/photo-1772389634170-481480aa05b0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmYW50YXN5JTIwYWR2ZW50dXJlJTIwYm9va3xlbnwxfHx8fDE3NzUwODAzOTN8MA&ixlib=rb-4.1.0&q=80&w=1080",
-  },
-  {
-    name: "Mystery",
-    slug: "mystery",
-    image:
-      "https://images.unsplash.com/photo-1698956483970-a47edef29331?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxteXN0ZXJ5JTIwdGhyaWxsZXIlMjBib29rfGVufDF8fHx8MTc3NTA0NjMzMXww&ixlib=rb-4.1.0&q=80&w=1080",
-  },
-  {
-    name: "History",
-    slug: "history",
-    image:
-      "https://images.unsplash.com/photo-1767596657164-1ec901bf24f2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxoYXJkY292ZXIlMjBmaWN0aW9uJTIwYm9va3xlbnwxfHx8fDE3NzUxMzM4MDR8MA&ixlib=rb-4.1.0&q=80&w=1080",
-  },
-  {
-    name: "Self Development",
-    slug: "self-development",
-    image:
-      "https://images.unsplash.com/photo-1772380407481-81b8f13bd010?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjbGFzc2ljJTIwbGl0ZXJhdHVyZSUyMGJvb2t8ZW58MXx8fHwxNzc1MDQ4ODM0fDA&ixlib=rb-4.1.0&q=80&w=1080",
-  },
-  {
-    name: "Comics",
-    slug: "comics",
-    image:
-      "https://images.unsplash.com/photo-1767050401645-5fe0eebc0289?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwYXBlcmJhY2slMjBub3ZlbCUyMHN0YWNtfGVufDF8fHx8MTc3NTEzMzgwNXww&ixlib=rb-4.1.0&q=80&w=1080",
-  },
-];
+import { useNavigate } from "react-router";
+import useQuery from "@/hooks/use-query";
 
 export default function GenresSection() {
+  const navigate = useNavigate();
+
+  const getGenres = useQuery({
+    url: "genre",
+  });
+
   const handleGenreClick = (slug) => {
-    window.location.href = `/genres/${slug}`;
+    navigate(`/genres/${slug}`);
   };
+
+  const genres = getGenres.data?.slice(0, 10) || [];
 
   return (
     <section className="max-w-[1440px] mx-auto px-20 mb-8">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-[#333333] font-poppins text-[28px] font-bold leading-relaxed">
-          Bestselling Genres
+        <h2 className="text-[#333333] font-poppins text-[28px] font-bold">
+          Genres
         </h2>
 
         <button
-          onClick={() => (window.location.href = "/genre/all")}
-          className="flex items-center gap-2 text-[#64748B] hover:text-[#2563EB] transition-all duration-300 font-poppins text-sm font-medium bg-none border-none cursor-pointer"
+          onClick={() => navigate("/genres/all")}
+          className="flex items-center gap-2 text-[#64748B] hover:text-[#2563EB] transition-all duration-300 font-poppins text-sm font-medium"
         >
           View All
           <svg
@@ -73,39 +42,49 @@ export default function GenresSection() {
         </button>
       </div>
 
-      <div className="grid grid-cols-6 gap-8">
-        {genres.map((genre) => (
-          <button
-            key={genre.slug}
-            onClick={() => handleGenreClick(genre.slug)}
-            className="group cursor-pointer relative overflow-hidden aspect-[3/2] rounded-xl shadow-sm transition-all duration-300 ease-out hover:shadow-lg hover:-translate-y-1 border-none p-0 bg-transparent"
-          >
-            {/* Background Image with Zoom Effect */}
-            <div className="absolute inset-0 overflow-hidden rounded-xl">
-              <ImageWithFallback
-                src={genre.image}
-                alt={genre.name}
-                className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
-              />
-            </div>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+        {getGenres.loading &&
+          Array.from({ length: 10 }).map((_, i) => (
+            <div
+              key={i}
+              className="h-28 rounded-xl bg-slate-200 animate-pulse"
+            />
+          ))}
 
-            {/* Gradient Overlay with Hover Effect */}
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-t from-black/70 via-black/20 to-transparent transition-opacity duration-300 group-hover:opacity-90" />
+        {!getGenres.loading &&
+          genres.map((genre) => (
+            <button
+              key={genre.id}
+              onClick={() => handleGenreClick(genre.slug)}
+              className="group relative h-28 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1"
+            >
+              {genre.image ? (
+                <img
+                  src={genre.image}
+                  alt={genre.name}
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-slate-100 to-slate-200" />
+              )}
 
-            {/* Hover Border Highlight */}
-            <div className="absolute inset-0 rounded-xl border-2 border-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+              <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-all duration-300" />
 
-            {/* Genre Name - Bottom Left */}
-            <div className="absolute bottom-0 left-0 p-4">
-              <h3 className="text-white font-poppins text-base font-semibold leading-relaxed text-left transition-colors duration-300 group-hover:text-blue-100">
-                {genre.name}
-              </h3>
-            </div>
-          </button>
-        ))}
+              <div className="absolute bottom-0 left-0 p-3">
+                <span className="text-white font-poppins text-sm font-semibold">
+                  {genre.name}
+                </span>
+              </div>
+            </button>
+          ))}
+
+        {!getGenres.loading && genres.length === 0 && (
+          <div className="col-span-full text-center py-4 text-gray-500 font-poppins text-sm">
+            No genres found.
+          </div>
+        )}
       </div>
 
-      {/* Section Divider - 8pt Grid System */}
       <div className="h-px bg-gray-300 my-8 w-full" />
     </section>
   );

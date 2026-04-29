@@ -1,31 +1,63 @@
 import { useParams, Link } from "react-router";
 import { ImageWithFallback } from "@/components/image-with-fallback";
-import { booksData } from "@/data/booksData";
 import { useWishlist } from "@/context/wishlist-context";
 import { useCart } from "@/context/cart-context";
 import { useState } from "react";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
+import useQuery from "@/hooks/use-query";
+import { buildStorageUrl } from "@/lib/helper";
 
 export default function BookDetail() {
   const { id } = useParams();
-  const book = booksData.find((b) => b.id === Number(id));
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
 
+  const { data: bookResponse, loading: bookLoading } = useQuery({
+    url: `books/${id}`,
+  });
+
+  const book = bookResponse;
+
+  if (bookLoading) {
+    return (
+      <div className="bg-white min-h-screen">
+        <Navbar />
+        <div className="max-w-[1440px] mx-auto py-16 px-10">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-32 mb-10" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-20">
+              <div className="aspect-[3/4] bg-gray-200 rounded-2xl" />
+              <div className="space-y-4">
+                <div className="h-8 bg-gray-200 rounded w-3/4" />
+                <div className="h-6 bg-gray-200 rounded w-1/2" />
+                <div className="h-24 bg-gray-200 rounded" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   if (!book) {
     return (
-      <div className="max-w-[1440px] mx-auto py-16 px-10 text-center">
-        <h2 className="font-poppins text-[28px] font-bold text-gray-800 mb-4 leading-relaxed">
-          Book Not Found
-        </h2>
-        <Link
-          to="/"
-          className="font-poppins text-sm text-blue-600 no-underline leading-relaxed hover:underline"
-        >
-          Back to Home
-        </Link>
+      <div className="bg-white min-h-screen">
+        <Navbar />
+        <div className="max-w-[1440px] mx-auto py-16 px-10 text-center">
+          <h2 className="font-poppins text-[28px] font-bold text-gray-800 mb-4 leading-relaxed">
+            Book Not Found
+          </h2>
+          <Link
+            to="/"
+            className="font-poppins text-sm text-blue-600 no-underline leading-relaxed hover:underline"
+          >
+            Back to Home
+          </Link>
+        </div>
+        <Footer />
       </div>
     );
   }
@@ -42,13 +74,27 @@ export default function BookDetail() {
 
   const handleAddToCart = () => {
     for (let i = 0; i < quantity; i++) {
-      addToCart(book);
+      addToCart({
+        id: book.id,
+        title: book.title,
+        author: book.author,
+        price: parseFloat(book.price),
+        rating: book.rating,
+        image: book.cover_img,
+        category: book.genres?.[0]?.name || "General",
+        description: book.description,
+      });
     }
   };
 
   const incrementQuantity = () => setQuantity((prev) => prev + 1);
   const decrementQuantity = () =>
     setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+
+  // Helper function to generate slug from genre name
+  const getGenreSlug = (genreName) => {
+    return genreName.toLowerCase().replace(/\s+/g, '-');
+  };
 
   return (
     <div className="bg-white min-h-screen">
@@ -84,7 +130,7 @@ export default function BookDetail() {
             {/* Main Image - HD & Clean */}
             <div className="w-full aspect-[3/4] rounded-2xl overflow-hidden bg-gray-50 shadow-md">
               <ImageWithFallback
-                src={book.image}
+                src={buildStorageUrl (book.cover_img || book.image)}
                 alt={book.title}
                 className="w-full h-full object-cover"
               />
@@ -95,9 +141,24 @@ export default function BookDetail() {
           <div className="flex flex-col justify-between h-auto min-h-full">
             {/* TOP SECTION: Category, Title, Author, Rating, Price, Details */}
             <div>
-              {/* Category Badge - Bordered Capsule Tag */}
-              <div className="inline-block px-3.5 py-1.5 bg-transparent text-blue-600 border border-gray-300 rounded-full font-poppins text-sm font-medium mb-2 leading-relaxed">
-                {book.category}
+              {/* Genre Badges - Multiple genres as clickable links */}
+              <div className="flex flex-wrap gap-2 mb-2">
+                {book.genres && book.genres.length > 0 ? (
+                  book.genres.slice(0, 5).map((genre) => (
+                    <Link
+                      key={genre.id}
+                      to={`/genres/${genre.slug || getGenreSlug(genre.name)}`}
+                      className="inline-block px-3.5 py-1.5 bg-transparent text-blue-600 border border-gray-300 rounded-full font-poppins text-sm font-medium leading-relaxed hover:bg-blue-50 hover:border-blue-600 hover:text-blue-700 transition-all duration-300"
+                    >
+                      {genre.name}
+                    </Link>
+                  ))
+                ) : (
+                  // Fallback to single category if no genres array
+                  <div className="inline-block px-3.5 py-1.5 bg-transparent text-blue-600 border border-gray-300 rounded-full font-poppins text-sm font-medium leading-relaxed">
+                    {book.category || "General"}
+                  </div>
+                )}
               </div>
 
               {/* Book Title */}
@@ -128,7 +189,7 @@ export default function BookDetail() {
                   ))}
                 </div>
                 <span className="font-poppins text-sm text-gray-500 leading-relaxed">
-                  {book.rating} ({book.reviews.length} reviews)
+                  {book.rating} ({book.ratings?.toLocaleString() || book.reviews?.length || 0} reviews)
                 </span>
               </div>
 
@@ -138,8 +199,13 @@ export default function BookDetail() {
               {/* Price */}
               <div className="mb-4">
                 <span className="font-poppins text-2xl font-semibold text-blue-600 leading-relaxed">
-                  Rp {book.price.toLocaleString("id-ID")}
+                  Rp {parseFloat(book.price).toLocaleString("id-ID")}
                 </span>
+                {book.stock === 0 && (
+                  <span className="ml-4 inline-block px-2 py-1 bg-red-100 text-red-600 rounded-md text-xs font-medium">
+                    Out of Stock
+                  </span>
+                )}
               </div>
 
               {/* Divider */}
@@ -161,10 +227,18 @@ export default function BookDetail() {
                   </div>
                   <div className="flex justify-between">
                     <span className="font-poppins text-sm text-gray-500 leading-relaxed">
-                      Publication Year
+                      Publisher
                     </span>
                     <span className="font-poppins text-sm font-medium text-gray-800 leading-relaxed">
-                      2024
+                      {book.publisher || "N/A"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-poppins text-sm text-gray-500 leading-relaxed">
+                      Publication Date
+                    </span>
+                    <span className="font-poppins text-sm font-medium text-gray-800 leading-relaxed">
+                      {book.publish_date ? new Date(book.publish_date).getFullYear() : "N/A"}
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -172,7 +246,7 @@ export default function BookDetail() {
                       ISBN
                     </span>
                     <span className="font-poppins text-sm font-medium text-gray-800 leading-relaxed">
-                      978-602-1234-56-7
+                      {book.isbn || "N/A"}
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -180,7 +254,15 @@ export default function BookDetail() {
                       Pages
                     </span>
                     <span className="font-poppins text-sm font-medium text-gray-800 leading-relaxed">
-                      304 pages
+                      {book.pages || "N/A"} pages
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-poppins text-sm text-gray-500 leading-relaxed">
+                      Language
+                    </span>
+                    <span className="font-poppins text-sm font-medium text-gray-800 leading-relaxed">
+                      {book.language || "English"}
                     </span>
                   </div>
                 </div>
@@ -250,7 +332,12 @@ export default function BookDetail() {
                 {/* Add to Cart Button */}
                 <button
                   onClick={handleAddToCart}
-                  className="flex-1 py-2.5 px-6 bg-blue-600 text-white border-none rounded-full font-poppins text-sm font-semibold cursor-pointer flex items-center justify-center gap-2 transition-all duration-300 leading-relaxed shadow-md hover:bg-blue-700"
+                  disabled={book.stock === 0}
+                  className={`flex-1 py-2.5 px-6 text-white border-none rounded-full font-poppins text-sm font-semibold cursor-pointer flex items-center justify-center gap-2 transition-all duration-300 leading-relaxed shadow-md ${
+                    book.stock === 0
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-blue-600 hover:bg-blue-700"
+                  }`}
                 >
                   {/* Shopping Cart SVG */}
                   <svg
@@ -266,7 +353,7 @@ export default function BookDetail() {
                       d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.5 6M17 13l1.5 6M9 21h6M12 17v4"
                     />
                   </svg>
-                  Add to Cart
+                  {book.stock === 0 ? "Out of Stock" : "Add to Cart"}
                 </button>
 
                 {/* Wishlist Button */}
@@ -299,8 +386,17 @@ export default function BookDetail() {
 
               {/* Buy Now Button */}
               <Link
-                to="/checkout"
-                className="flex w-full py-2.5 px-6 bg-gray-800 text-white border-none rounded-full font-poppins text-sm font-semibold no-underline items-center justify-center transition-all duration-300 leading-relaxed shadow-md hover:bg-gray-900"
+                to={book.stock > 0 ? "/checkout" : "#"}
+                className={`flex w-full py-2.5 px-6 text-white border-none rounded-full font-poppins text-sm font-semibold no-underline items-center justify-center transition-all duration-300 leading-relaxed shadow-md ${
+                  book.stock === 0
+                    ? "bg-gray-400 cursor-not-allowed pointer-events-none"
+                    : "bg-gray-800 hover:bg-gray-900"
+                }`}
+                onClick={(e) => {
+                  if (book.stock === 0) {
+                    e.preventDefault();
+                  }
+                }}
               >
                 Buy Now
               </Link>
@@ -321,8 +417,30 @@ export default function BookDetail() {
           </p>
         </div>
 
+        {/* Characters Section (if available) */}
+        {book.characters && book.characters.length > 0 && (
+          <>
+            <div className="h-px bg-gray-300 my-16 mb-8" />
+            <div className="mb-16">
+              <h2 className="font-poppins text-[28px] font-bold text-gray-800 mb-6 leading-relaxed">
+                Key Characters
+              </h2>
+              <div className="flex flex-wrap gap-3">
+                {book.characters.slice(0, 10).map((character) => (
+                  <span
+                    key={character.id}
+                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full font-poppins text-sm font-medium"
+                  >
+                    {character.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+
         {/* Reviews Section */}
-        {book.reviews.length > 0 && (
+        {book.reviews && book.reviews.length > 0 && (
           <>
             {/* Horizontal Divider */}
             <div className="h-px bg-gray-300 my-16 mb-8" />

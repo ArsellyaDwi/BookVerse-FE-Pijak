@@ -16,13 +16,13 @@ export default function Homepage() {
         <Navbar />
 
         <HeroSection />
-        <PromoBannerGrid />
+        {/* <PromoBannerGrid /> */}
         <ValuePropositionBar />
         <GenresSection />
         <BestSellersSection />
-        <NewArrivalsSection />
+        {/* <NewArrivalsSection />
         <MerchandiseSection />
-        <BlogJournalSection />
+        <BlogJournalSection /> */}
 
         <Footer />
       </div>

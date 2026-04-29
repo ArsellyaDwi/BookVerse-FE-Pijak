@@ -67,9 +67,9 @@ const useQuery = ({
             response = await axios.get(url, { params: queryParams });
         }
 
-        setData(response.data);
-        if (onSuccess) onSuccess(response.data);
-        return response.data;
+        setData(response.data?.data);
+        if (onSuccess) onSuccess(response.data?.data);
+        return response.data?.data;
       } catch (err) {
         const errorMessage =
           err.response?.data?.message || err.message || "An error occurred";
@@ -95,7 +95,7 @@ const useQuery = ({
     if (immediate) {
       execute();
     }
-  }, [immediate, execute]);
+  }, []);
 
   return {
     data,

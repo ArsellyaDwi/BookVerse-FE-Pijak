@@ -9,15 +9,29 @@ import CartPage from "./pages/cart-page";
 import GenresPage from "./pages/genres-page";
 import AuthLayout from "./layouts/AuthLayout";
 import { AuthProvider } from "./context/auth-context";
+import LoginPage from "./pages/login-page";
+import { CartProvider } from "./context/cart-context";
+import { WishlistProvider } from "./context/wishlist-context";
 
 const router = createBrowserRouter([
   {
     path: "",
-    element: <AuthProvider children={<Outlet />} />,
+    element: <AuthProvider children={
+      <WishlistProvider>
+        <CartProvider>
+          <Outlet />
+        </CartProvider>
+      </WishlistProvider>
+
+    } />,
     children: [
       {
         path: "/",
         element: <Homepage />,
+      },
+      {
+        path: "/login",
+        element: <LoginPage />,
       },
       {
         path: "books/:id",

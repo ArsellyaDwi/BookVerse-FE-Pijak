@@ -20,9 +20,12 @@ export default function LoginDropdown({ isOpen, onClose }) {
     }
   }, [isOpen]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    login(email, password);
+    const result  = await login(email, password);
+    if (result) {
+      onClose?.();
+    }    
   };
 
   if (!shouldRender) return null;
