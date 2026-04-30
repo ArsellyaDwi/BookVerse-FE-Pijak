@@ -112,7 +112,7 @@ export default function LoginDropdown({ isOpen, onClose }) {
               {/* Forgot Password Link */}
               <div className="text-right mb-5">
                 <Link
-                  to="/login"
+                  to="/forgot-password"
                   onClick={onClose}
                   className="font-poppins text-xs font-medium text-blue-600 no-underline hover:underline transition-all duration-200"
                 >
