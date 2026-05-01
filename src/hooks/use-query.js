@@ -21,9 +21,11 @@ const useQuery = ({
     if (guard) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      delete axios.defaults.headers.common["Authorization"];
-      toast.error("Session expired. Please login again.");
-      navigate("/login");
+      if (axios.defaults.headers.common["Authorization"]) {
+        delete axios.defaults.headers.common["Authorization"];
+        toast.error("Session expired. Please login again.");
+        navigate("/login");
+      }
     }
   }, [guard, navigate]);
 
@@ -71,14 +73,8 @@ const useQuery = ({
         if (onSuccess) onSuccess(response.data?.data);
         return response.data?.data;
       } catch (err) {
-        const errorMessage =
-          err.response?.data?.message || err.message || "An error occurred";
-
         if (err.response?.status === 401) {
           handleUnauthorized();
-          toast.error("Authentication failed. Please login again.");
-        } else {
-          toast.error(errorMessage);
         }
 
         setError(err);
@@ -95,7 +91,7 @@ const useQuery = ({
     if (immediate) {
       execute();
     }
-  }, []);
+  }, [url]);
 
   return {
     data,

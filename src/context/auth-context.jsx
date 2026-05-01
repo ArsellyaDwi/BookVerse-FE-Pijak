@@ -122,13 +122,12 @@ export const AuthProvider = ({ children }) => {
     const initializeAuth = async () => {
       const token = localStorage.getItem("token");
       const storedUser = localStorage.getItem("user");
-
       if (token && storedUser) {
         try {
           axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
           const parsedUser = JSON.parse(storedUser);
           setUser(parsedUser);
+          setLoading(false);
         } catch (error) {
           console.error("Failed to initialize auth:", error);
           localStorage.removeItem("token");
@@ -147,9 +146,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = useCallback(
     async (email, password) => {
-      const result = await loginMutation(
-        { email, password },
-      );
+      const result = await loginMutation({ email, password });
       return result;
     },
     [loginMutation]
@@ -177,7 +174,7 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user,
-    loading: loading || fetchLoading,
+    loading: loading,
 
     login,
     register,

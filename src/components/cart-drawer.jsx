@@ -1,13 +1,14 @@
-import React, { useEffect } from 'react';
+import React, { useEffect } from "react";
 import { useCart } from "@/context/cart-context";
 import { ImageWithFallback } from "@/components/image-with-fallback";
 import { buildStorageUrl } from "@/lib/helper";
 import { Minus, Plus, Trash2, X } from "lucide-react";
+import { useNavigate } from "react-router";
 
 export default function CartDrawer({ isOpen, onClose }) {
-  const { 
-    cartItems, 
-    loading, 
+  const {
+    cartItems,
+    loading,
     addToCart,
     minusCart,
     removeByBookId,
@@ -16,8 +17,9 @@ export default function CartDrawer({ isOpen, onClose }) {
     addToCartLoading,
     minusCartLoading,
     removeByBookIdLoading,
-    refetchCart
+    refetchCart,
   } = useCart();
+  const navigate = useNavigate();
 
   const handleIncrement = async (bookId) => {
     await addToCart(bookId, 1);
@@ -33,44 +35,20 @@ export default function CartDrawer({ isOpen, onClose }) {
 
   const handleCheckout = () => {
     onClose();
-    window.location.href = "/checkout";
+    navigate("/checkout");
   };
-
-  if (loading) {
-    return (
-      <>
-        {isOpen && <div className="fixed inset-0 bg-black/50 z-50" onClick={onClose} />}
-        <div className="fixed top-0 right-0 h-full bg-white z-50 transform transition-transform duration-300 w-[400px]">
-          <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between p-6 border-b">
-              <h2 className="text-xl font-bold">Shopping Cart</h2>
-              <button onClick={onClose} className="p-2">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="flex-1 flex items-center justify-center">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                <p className="text-gray-500">Loading cart...</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </>
-    );
-  }
 
   return (
     <>
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-50 transition-opacity duration-300"
+          className="fixed inset-0 bg-black/50 z-88 transition-opacity duration-300"
           onClick={onClose}
         />
       )}
 
       <div
-        className={`fixed top-0 right-0 h-full bg-white z-50 transform transition-transform duration-300 font-poppins shadow-[-4px_0_24px_rgba(0,0,0,0.12)] ${
+        className={`fixed top-0 right-0 h-full bg-white z-89 transform transition-transform duration-300 font-poppins shadow-[-4px_0_24px_rgba(0,0,0,0.12)] ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
         style={{ width: "400px" }}
@@ -99,8 +77,18 @@ export default function CartDrawer({ isOpen, onClose }) {
             {cartItems.length === 0 ? (
               <div className="text-center py-20">
                 <div className="w-20 h-20 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
-                  <svg className="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.5 6M17 13l1.5 6M9 21h6M12 17v4" />
+                  <svg
+                    className="w-10 h-10 text-gray-300"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.5 6M17 13l1.5 6M9 21h6M12 17v4"
+                    />
                   </svg>
                 </div>
                 <p className="font-poppins text-[15px] font-normal text-slate-500 mb-6">
@@ -109,7 +97,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                 <button
                   onClick={() => {
                     onClose();
-                    window.location.href = "/";
+                    navigate("/");
                   }}
                   className="px-8 py-3 font-poppins text-sm font-semibold text-white bg-blue-600 rounded-full hover:bg-blue-700"
                 >
@@ -122,21 +110,28 @@ export default function CartDrawer({ isOpen, onClose }) {
                   const book = item.book;
                   const itemPrice = parseFloat(book?.price) || 0;
                   const itemTotal = itemPrice * (item.quantity || 0);
-                  
+
                   return (
-                    <div key={item.id} className="p-4 rounded-2xl border border-slate-200 bg-gray-50">
+                    <div
+                      key={item.id}
+                      className="p-4 rounded-2xl border border-slate-200 bg-gray-50"
+                    >
                       <div className="flex gap-3">
                         {/* Product Image */}
                         <button
                           onClick={() => {
                             onClose();
-                            window.location.href = `/books/${item.book_id}`;
+                            navigate(`/books/${item.book_id}`);
                           }}
                           className="flex-shrink-0"
                         >
                           <div className="w-[72px] h-24 overflow-hidden bg-gray-100 rounded-lg">
                             <ImageWithFallback
-                              src={book?.cover_img ? buildStorageUrl(book.cover_img) : null}
+                              src={
+                                book?.cover_img
+                                  ? buildStorageUrl(book.cover_img)
+                                  : null
+                              }
                               alt={book?.title || "Book cover"}
                               className="w-full h-full object-cover"
                             />
@@ -149,7 +144,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                             <button
                               onClick={() => {
                                 onClose();
-                                window.location.href = `/books/${item.book_id}`;
+                                navigate(`/books/${item.book_id}`);
                               }}
                               className="text-left block w-full"
                             >
@@ -165,7 +160,10 @@ export default function CartDrawer({ isOpen, onClose }) {
                           {/* Price & Quantity Controls */}
                           <div className="flex items-center justify-between">
                             <p className="font-poppins text-sm font-semibold text-blue-600">
-                              Rp {!isNaN(itemPrice) ? itemPrice.toLocaleString("id-ID") : "0"}
+                              Rp{" "}
+                              {!isNaN(itemPrice)
+                                ? itemPrice.toLocaleString("id-ID")
+                                : "0"}
                             </p>
                             <div className="flex items-center gap-2">
                               <button
@@ -207,9 +205,14 @@ export default function CartDrawer({ isOpen, onClose }) {
           {cartItems.length > 0 && (
             <div className="border-t border-slate-100 p-6 space-y-4">
               <div className="flex justify-between items-center">
-                <span className="font-poppins text-sm font-medium text-gray-600">Total</span>
+                <span className="font-poppins text-sm font-medium text-gray-600">
+                  Total
+                </span>
                 <span className="font-poppins text-xl font-bold text-blue-600">
-                  Rp {!isNaN(getTotalPrice()) ? getTotalPrice().toLocaleString("id-ID") : "0"}
+                  Rp{" "}
+                  {!isNaN(getTotalPrice())
+                    ? getTotalPrice().toLocaleString("id-ID")
+                    : "0"}
                 </span>
               </div>
               <div className="flex gap-3">
@@ -232,4 +235,4 @@ export default function CartDrawer({ isOpen, onClose }) {
       </div>
     </>
   );
-};
+}

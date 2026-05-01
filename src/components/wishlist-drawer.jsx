@@ -3,12 +3,12 @@ import { ImageWithFallback } from "@/components/image-with-fallback";
 import { buildStorageUrl } from "@/lib/helper";
 
 export default function WishlistDrawer({ isOpen, onClose }) {
-  const { 
-    wishlistItems, 
-    loading, 
-    removeFromWishlist, 
+  const {
+    wishlistItems,
+    loading,
+    removeFromWishlist,
     removeFromWishlistLoading,
-    refetchWishlist 
+    refetchWishlist,
   } = useWishlist();
 
   const handleViewBook = (bookId) => {
@@ -26,14 +26,14 @@ export default function WishlistDrawer({ isOpen, onClose }) {
       {/* Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-50 transition-opacity duration-300"
+          className="fixed inset-0 bg-black/50 z-88 transition-opacity duration-300"
           onClick={onClose}
         />
       )}
 
       {/* Right Drawer - WIDTH: 400px */}
       <div
-        className={`fixed top-0 right-0 h-full bg-white z-50 transform transition-transform duration-300 font-poppins shadow-[-4px_0_24px_rgba(0,0,0,0.12)] ${
+        className={`fixed top-0 right-0 h-full bg-white z-89 transform transition-transform duration-300 font-poppins shadow-[-4px_0_24px_rgba(0,0,0,0.12)] ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
         style={{ width: "400px" }}
@@ -46,7 +46,11 @@ export default function WishlistDrawer({ isOpen, onClose }) {
                 Wishlist
               </h2>
               <p className="text-slate-500 font-normal text-[13px] leading-relaxed">
-                {loading ? "Loading..." : `${wishlistItems.length} ${wishlistItems.length === 1 ? "book" : "books"} saved`}
+                {loading
+                  ? "Loading..."
+                  : `${wishlistItems.length} ${
+                      wishlistItems.length === 1 ? "book" : "books"
+                    } saved`}
               </p>
             </div>
             <button
@@ -76,7 +80,10 @@ export default function WishlistDrawer({ isOpen, onClose }) {
               // Loading State
               <div className="space-y-4">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="p-4 rounded-2xl border border-slate-200 bg-gray-50 animate-pulse">
+                  <div
+                    key={i}
+                    className="p-4 rounded-2xl border border-slate-200 bg-gray-50 animate-pulse"
+                  >
                     <div className="flex gap-3">
                       <div className="w-[72px] h-24 bg-gray-200 rounded-lg" />
                       <div className="flex-1 space-y-2">
@@ -163,7 +170,12 @@ export default function WishlistDrawer({ isOpen, onClose }) {
                         {/* Price & Delete Button */}
                         <div className="flex items-center justify-between">
                           <p className="font-poppins text-sm font-semibold text-blue-600">
-                            Rp {item.book?.price ? parseFloat(item.book.price).toLocaleString("id-ID") : "0"}
+                            Rp{" "}
+                            {item.book?.price
+                              ? parseFloat(item.book.price).toLocaleString(
+                                  "id-ID"
+                                )
+                              : "0"}
                           </p>
                           <button
                             onClick={() => handleRemoveFromWishlist(item.id)}

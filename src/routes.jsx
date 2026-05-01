@@ -14,18 +14,27 @@ import { CartProvider } from "./context/cart-context";
 import { WishlistProvider } from "./context/wishlist-context";
 import ForgotPasswordPage from "./pages/forgot-password";
 import ResetPasswordPage from "./pages/reset-password";
+import BookListPage from "./pages/book-list-page";
+import MyAddressPage from "./pages/my-address-page";
+import AddAddressPage from "./pages/add-address-page";
+import EditAddressPage from "./pages/edit-address-page";
+import MyTransactionsPage from "./pages/my-transactions";
+import TransactionDetailPage from "./pages/transaction-detail-page";
 
 const router = createBrowserRouter([
   {
     path: "",
-    element: <AuthProvider children={
-      <WishlistProvider>
-        <CartProvider>
-          <Outlet />
-        </CartProvider>
-      </WishlistProvider>
-
-    } />,
+    element: (
+      <AuthProvider
+        children={
+          <WishlistProvider>
+            <CartProvider>
+              <Outlet />
+            </CartProvider>
+          </WishlistProvider>
+        }
+      />
+    ),
     children: [
       {
         path: "/",
@@ -53,15 +62,23 @@ const router = createBrowserRouter([
         element: <ResetPasswordPage />,
       },
       {
-        path: "genres/:name",
+        path: "/genres/:name",
         element: <GenresPage />,
+      },
+      {
+        path: "/genres/:name",
+        element: <GenresPage />,
+      },
+      {
+        path: "/books",
+        element: <BookListPage />,
       },
       {
         path: "",
         element: <AuthLayout />,
         children: [
           {
-            path: "checkout",
+            path: "/checkout",
             element: <CheckoutPage />,
           },
           {
@@ -75,6 +92,30 @@ const router = createBrowserRouter([
           {
             path: "cart",
             element: <CartPage />,
+          },
+          {
+            path: "my-address",
+            element: <MyAddressPage />,
+          },
+          {
+            path: "/my-address/add",
+            element: <AddAddressPage />,
+          },
+          {
+            path: "/my-address/edit/:id",
+            element: <EditAddressPage />,
+          },
+          {
+            path: "/payment/:id",
+            element: <PaymentPage />,
+          },
+          {
+            path: "/my-transactions",
+            element: <MyTransactionsPage />,
+          },
+          {
+            path: "/my-transactions/:id",
+            element: <TransactionDetailPage />,
           },
         ],
       },

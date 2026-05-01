@@ -1,480 +1,484 @@
 import { useNavigate } from "react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ImageWithFallback } from "@/components/image-with-fallback";
-import { booksData } from "@/data/booksData";
+import useQuery from "@/hooks/use-query";
+import useMutation from "@/hooks/use-mutation";
+import { buildStorageUrl } from "@/lib/helper";
+import { Loader2, MapPin, Calendar, Truck, Store } from "lucide-react";
+import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
+
+const CheckoutShimmer = () => (
+  <div className="bg-white min-h-screen font-poppins">
+    <Navbar />
+    <div className="bg-white border-b border-gray-200 py-6">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-20">
+        <div className="h-8 bg-gray-200 rounded w-48 animate-pulse"></div>
+      </div>
+    </div>
+    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-20 pt-12 pb-20">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <div className="lg:col-span-2">
+          <div className="mb-8">
+            <div className="h-6 bg-gray-200 rounded w-48 mb-4 animate-pulse"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="h-24 bg-gray-200 rounded-xl animate-pulse"></div>
+              <div className="h-24 bg-gray-200 rounded-xl animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+        <div className="lg:col-span-1">
+          <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className="h-6 bg-gray-200 rounded w-32 mb-6 animate-pulse"></div>
+            <div className="space-y-4">
+              <div className="h-20 bg-gray-200 rounded-lg animate-pulse"></div>
+              <div className="h-20 bg-gray-200 rounded-lg animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <Footer />
+  </div>
+);
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
-  const [deliveryMethod, setDeliveryMethod] = useState("delivery"); // 'delivery' or 'pickup'
+  const [deliveryMethodId, setDeliveryMethodId] = useState(null);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
-  const [addresses, setAddresses] = useState([
-    {
-      id: 1,
-      fullName: "John Doe",
-      phone: "081234567890",
-      address: "Jl. Sudirman No. 123",
-      city: "Jakarta Selatan",
-      postalCode: "12190",
-      isDefault: true,
-    },
-    {
-      id: 2,
-      fullName: "John Doe",
-      phone: "081234567891",
-      address: "Jl. Thamrin No. 45",
-      city: "Jakarta Pusat",
-      postalCode: "10350",
-      isDefault: false,
-    },
-  ]);
+  const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState(null);
+  const [shippingCost, setShippingCost] = useState(0);
+  const [total, setTotal] = useState(0);
 
-  const [showAddressForm, setShowAddressForm] = useState(false);
-  const [newAddress, setNewAddress] = useState({
-    fullName: "",
-    phone: "",
-    address: "",
-    city: "",
-    postalCode: "",
+  // Fetch checkout data
+  const { data: checkoutData, loading: checkoutLoading } = useQuery({
+    url: "/checkout/data",
+    method: "GET",
+    immediate: true,
+    guard: true,
   });
 
-  const [selectedPaymentMethod, setSelectedPaymentMethod] =
-    useState("bank_transfer");
+  // Create transaction mutation
+  const { mutate: createTransaction, loading: creatingTransaction } =
+    useMutation({
+      url: "/checkout",
+      method: "POST",
+      guard: true,
+      onSuccess: (data) => {
+        navigate(`/payment/${data.data.transaction_id}`);
+      },
+      onError: (error) => {
+        alert(error.message || "Failed to create transaction");
+      },
+    });
 
-  const paymentMethods = [
-    {
-      id: "bank_transfer",
-      name: "Bank Transfer",
-      icon: "🏦",
-      description: "Transfer via BCA, Mandiri, BNI, BRI",
-    },
-    {
-      id: "credit_card",
-      name: "Credit Card",
-      icon: "💳",
-      description: "Visa, Mastercard, JCB",
-    },
-    {
-      id: "e_wallet",
-      name: "E-Wallet",
-      icon: "📱",
-      description: "GoPay, OVO, Dana, ShopeePay",
-    },
-    {
-      id: "cash_on_delivery",
-      name: "Cash on Delivery",
-      icon: "💰",
-      description: "Pay when package arrives (delivery only)",
-    },
-  ];
+  // Extract data from checkoutData
+  const cartItems = checkoutData?.cart_items || [];
+  const subtotal = checkoutData?.subtotal || 0;
+  const addresses = checkoutData?.addresses || [];
+  const deliveryMethods = checkoutData?.delivery_methods || [];
+  const paymentMethods = checkoutData?.payment_methods || [];
 
-  const cartItems = [
-    { book: booksData[0], quantity: 1 },
-    { book: booksData[1], quantity: 2 },
-  ];
+  // Calculate total books in cart
+  const totalBooks = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
-  const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.book.price * item.quantity,
-    0
-  );
-
-  // Shipping cost based on delivery method
-  const shippingOptions = {
-    "JNE Regular": 15000,
-    "JNE YES": 25000,
-    "SiCepat Regular": 15000,
-    "J&T Express": 12000,
-  };
-
-  const [selectedShipping, setSelectedShipping] = useState("JNE Regular");
-  const shipping =
-    deliveryMethod === "delivery" ? shippingOptions[selectedShipping] : 0;
-  const total = subtotal + shipping;
-
-  const handleAddressChange = (e) => {
-    setNewAddress((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  const handleAddAddress = () => {
-    if (
-      newAddress.fullName &&
-      newAddress.phone &&
-      newAddress.address &&
-      newAddress.city &&
-      newAddress.postalCode
-    ) {
-      const newId = Math.max(...addresses.map((a) => a.id), 0) + 1;
-      setAddresses([
-        ...addresses,
-        { ...newAddress, id: newId, isDefault: false },
-      ]);
-      setNewAddress({
-        fullName: "",
-        phone: "",
-        address: "",
-        city: "",
-        postalCode: "",
-      });
-      setShowAddressForm(false);
+  // Set defaults when data loads
+  useEffect(() => {
+    if (checkoutData && !deliveryMethodId && deliveryMethods.length > 0) {
+      setDeliveryMethodId(deliveryMethods[0].id);
     }
-  };
-
-  const handleDeleteAddress = (id) => {
-    setAddresses(addresses.filter((addr) => addr.id !== id));
-    if (selectedAddressId === id) {
-      setSelectedAddressId(null);
+    if (checkoutData && !selectedPaymentMethodId && paymentMethods.length > 0) {
+      setSelectedPaymentMethodId(paymentMethods[0].id);
     }
+    if (checkoutData && !selectedAddressId && addresses.length > 0) {
+      const defaultAddress = addresses.find((addr) => addr.is_default);
+      if (defaultAddress) {
+        setSelectedAddressId(defaultAddress.id);
+      }
+    }
+  }, [checkoutData, deliveryMethods, paymentMethods, addresses]);
+
+  // Calculate shipping cost based on selected delivery method
+  useEffect(() => {
+    if (deliveryMethodId && deliveryMethods.length > 0 && totalBooks > 0) {
+      const selectedMethod = deliveryMethods.find(
+        (m) => m.id === deliveryMethodId
+      );
+
+      if (selectedMethod) {
+        const isPickup =
+          selectedMethod.name?.toLowerCase().includes("pickup") ||
+          selectedMethod.id === 2;
+
+        if (isPickup) {
+          setShippingCost(0);
+          setTotal(subtotal);
+        } else {
+          // Calculate shipping cost using the same logic as backend
+          const multiplier = Math.ceil(
+            totalBooks / selectedMethod.books_per_multiplier
+          );
+          const calculatedShipping = selectedMethod.base_price * multiplier;
+          setShippingCost(calculatedShipping);
+          setTotal(subtotal + calculatedShipping);
+        }
+      }
+    } else {
+      setShippingCost(0);
+      setTotal(subtotal);
+    }
+  }, [deliveryMethodId, deliveryMethods, totalBooks, subtotal]);
+
+  const formatRupiah = (amount) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
   };
 
-  const handleSetDefaultAddress = (id) => {
-    setAddresses(
-      addresses.map((addr) => ({
-        ...addr,
-        isDefault: addr.id === id,
-      }))
-    );
-    setSelectedAddressId(id);
+  const getEstimatedDaysText = (method) => {
+    if (method.estimated_days_min && method.estimated_days_max) {
+      return `${method.estimated_days_min} - ${method.estimated_days_max} days`;
+    }
+    return method.estimated_days || "Varies";
+  };
+
+  const getShippingCalculationText = (method) => {
+    if (method.books_per_multiplier === 1) {
+      return `${formatRupiah(method.base_price)} per book`;
+    }
+    return `${formatRupiah(method.base_price)} per ${
+      method.books_per_multiplier
+    } books`;
   };
 
   const getSelectedAddress = () => {
     if (selectedAddressId) {
       return addresses.find((addr) => addr.id === selectedAddressId);
     }
-    return addresses.find((addr) => addr.isDefault) || addresses[0];
+    return addresses.find((addr) => addr.is_default) || addresses[0];
   };
 
-  const handleSubmit = (e) => {
+  const isPickupMethod = () => {
+    const selectedMethod = deliveryMethods.find(
+      (m) => m.id === deliveryMethodId
+    );
+    return (
+      selectedMethod?.name?.toLowerCase().includes("pickup") ||
+      selectedMethod?.id === 2
+    );
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (deliveryMethod === "delivery" && addresses.length === 0) {
-      alert("Please add a delivery address");
+    if (!selectedPaymentMethodId) {
+      alert("Please select a payment method");
       return;
     }
 
-    const selectedAddress = getSelectedAddress();
-
-    // Save checkout data for PaymentPage
-    localStorage.setItem(
-      "checkoutData",
-      JSON.stringify({
-        deliveryMethod,
-        shippingAddress: deliveryMethod === "delivery" ? selectedAddress : null,
-        selectedShipping:
-          deliveryMethod === "delivery" ? selectedShipping : null,
-        selectedPaymentMethod,
-        cartItems,
-        subtotal,
-        shipping,
-        total,
-      })
+    const selectedMethod = deliveryMethods.find(
+      (m) => m.id === deliveryMethodId
     );
-    navigate("/payment");
+    const isPickup =
+      selectedMethod?.name?.toLowerCase().includes("pickup") ||
+      selectedMethod?.id === 2;
+
+    // Calculate shipping cost
+    let calculatedShipping = 0;
+    if (!isPickup && selectedMethod) {
+      const multiplier = Math.ceil(
+        totalBooks / selectedMethod.books_per_multiplier
+      );
+      calculatedShipping = selectedMethod.base_price * multiplier;
+    }
+
+    const payload = {
+      delivery_method_id: deliveryMethodId,
+      payment_method_id: selectedPaymentMethodId,
+      shipping_cost: calculatedShipping,
+      total: total,
+    };
+
+    // Only add delivery_address_id if NOT pickup
+    if (!isPickup) {
+      if (addresses.length === 0) {
+        alert("Please add a delivery address");
+        navigate("/my-address");
+        return;
+      }
+
+      const selectedAddress = getSelectedAddress();
+      if (!selectedAddress) {
+        alert("Please select a delivery address");
+        return;
+      }
+      payload.delivery_address_id = selectedAddress.id;
+    }
+
+    await createTransaction(payload);
   };
 
-  return (
-    <div className="bg-white min-h-screen font-poppins">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 py-6">
-        <div className="max-w-[1440px] mx-auto px-20">
-          <h1 className="font-poppins text-[28px] font-bold text-slate-800 m-0 leading-relaxed">
-            Checkout
-          </h1>
+  if (checkoutLoading) {
+    return <CheckoutShimmer />;
+  }
+
+  if (cartItems.length === 0) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-gray-600 mb-4">Your cart is empty</p>
+            <button
+              onClick={() => navigate("/books")}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Continue Shopping
+            </button>
+          </div>
         </div>
-      </div>
+        <Footer />
+      </>
+    );
+  }
 
-      {/* Main Content */}
-      <div className="max-w-[1440px] mx-auto px-20 pt-12 pb-20">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          {/* Left Side - Form (2/3 width) */}
-          <div className="lg:col-span-2">
-            <form onSubmit={handleSubmit}>
-              {/* Delivery Method Selection */}
-              <div className="mb-8">
-                <h2 className="font-poppins text-xl font-semibold text-slate-800 m-0 mb-4 leading-relaxed">
-                  Delivery Method
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <button
-                    type="button"
-                    onClick={() => setDeliveryMethod("delivery")}
-                    className={`p-4 border-2 rounded-xl text-left transition-all duration-300 ${
-                      deliveryMethod === "delivery"
-                        ? "border-blue-600 bg-blue-50"
-                        : "border-gray-200 hover:border-gray-300"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">🚚</span>
-                      <div>
-                        <p className="font-poppins font-semibold text-slate-800 m-0">
-                          Delivery
-                        </p>
-                        <p className="font-poppins text-sm text-slate-500 m-0">
-                          Delivered to your address
-                        </p>
-                      </div>
-                    </div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setDeliveryMethod("pickup")}
-                    className={`p-4 border-2 rounded-xl text-left transition-all duration-300 ${
-                      deliveryMethod === "pickup"
-                        ? "border-blue-600 bg-blue-50"
-                        : "border-gray-200 hover:border-gray-300"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">🏪</span>
-                      <div>
-                        <p className="font-poppins font-semibold text-slate-800 m-0">
-                          Pickup
-                        </p>
-                        <p className="font-poppins text-sm text-slate-500 m-0">
-                          Take at BookVerse Store
-                        </p>
-                      </div>
-                    </div>
-                  </button>
-                </div>
-              </div>
+  const isPickup = isPickupMethod();
+  const selectedMethod = deliveryMethods.find((m) => m.id === deliveryMethodId);
 
-              {/* Pickup Location Info */}
-              {deliveryMethod === "pickup" && (
-                <div className="mb-8 p-4 bg-blue-50 rounded-xl border border-blue-200">
-                  <div className="flex items-start gap-3">
-                    <span className="text-2xl">📍</span>
-                    <div>
-                      <h3 className="font-poppins font-semibold text-slate-800 m-0 mb-1">
-                        Pickup Location
-                      </h3>
-                      <p className="font-poppins text-sm text-slate-600 m-0">
-                        BookVerse Store - Jakarta
-                      </p>
-                      <p className="font-poppins text-sm text-slate-500 m-0 mt-1">
-                        Jl. Sudirman No. 123, Jakarta Selatan
-                        <br />
-                        Open: 09:00 - 20:00 WIB (Daily)
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
+  return (
+    <>
+      <Navbar />
+      <div className="bg-white min-h-screen font-poppins">
+        <div className="bg-white border-b border-gray-200 py-6">
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-20">
+            <h1 className="font-poppins text-[28px] font-bold text-slate-800 m-0 leading-relaxed">
+              Checkout
+            </h1>
+          </div>
+        </div>
 
-              {/* Shipping Information - Only for Delivery */}
-              {deliveryMethod === "delivery" && (
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-20 pt-12 pb-20">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <div className="lg:col-span-2">
+              <form onSubmit={handleSubmit}>
+                {/* Delivery Method Selection */}
                 <div className="mb-8">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="font-poppins text-xl font-semibold text-slate-800 m-0 leading-relaxed">
-                      Shipping Address
-                    </h2>
-                    <button
-                      type="button"
-                      onClick={() => setShowAddressForm(!showAddressForm)}
-                      className="text-blue-600 font-poppins text-sm font-medium hover:underline"
-                    >
-                      + Add New Address
-                    </button>
-                  </div>
-
-                  {/* Address List */}
-                  {addresses.length > 0 && (
-                    <div className="space-y-3 mb-4">
-                      {addresses.map((address) => (
-                        <div
-                          key={address.id}
-                          className={`p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 ${
-                            selectedAddressId === address.id ||
-                            (address.isDefault && !selectedAddressId)
+                  <h2 className="font-poppins text-xl font-semibold text-slate-800 m-0 mb-4 leading-relaxed">
+                    Delivery Method
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {deliveryMethods.map((method) => {
+                      const isPickupMethodItem =
+                        method.name?.toLowerCase().includes("pickup") ||
+                        method.id === 2;
+                      return (
+                        <button
+                          key={method.id}
+                          type="button"
+                          onClick={() => setDeliveryMethodId(method.id)}
+                          className={`p-4 border-2 rounded-xl text-left transition-all duration-300 ${
+                            deliveryMethodId === method.id
                               ? "border-blue-600 bg-blue-50"
                               : "border-gray-200 hover:border-gray-300"
                           }`}
-                          onClick={() => setSelectedAddressId(address.id)}
                         >
-                          <div className="flex justify-between items-start">
+                          <div className="flex items-start gap-3">
+                            {isPickupMethodItem ? (
+                              <Store className="w-6 h-6 text-blue-600 mt-1" />
+                            ) : (
+                              <Truck className="w-6 h-6 text-blue-600 mt-1" />
+                            )}
                             <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                <p className="font-poppins font-semibold text-slate-800 m-0">
-                                  {address.fullName}
-                                </p>
-                                {address.isDefault && (
-                                  <span className="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">
-                                    Default
-                                  </span>
+                              <p className="font-poppins font-semibold text-slate-800 m-0">
+                                {method.name}
+                              </p>
+                              <p className="font-poppins text-sm text-slate-500 m-0 mt-1">
+                                {method.description}
+                              </p>
+                              <div className="flex items-center gap-3 mt-2 flex-wrap">
+                                {!isPickupMethodItem && (
+                                  <>
+                                    <div className="flex items-center gap-1">
+                                      <Calendar className="w-3 h-3 text-slate-400" />
+                                      <p className="font-poppins text-xs text-slate-500 m-0">
+                                        Est. {getEstimatedDaysText(method)}
+                                      </p>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <Truck className="w-3 h-3 text-slate-400" />
+                                      <p className="font-poppins text-xs text-slate-600 m-0">
+                                        {getShippingCalculationText(method)}
+                                      </p>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <p className="font-poppins text-xs font-semibold text-blue-600 m-0">
+                                        {formatRupiah(method.base_price)} base
+                                      </p>
+                                    </div>
+                                  </>
+                                )}
+                                {isPickupMethodItem && (
+                                  <div className="flex items-center gap-1">
+                                    <Store className="w-3 h-3 text-green-600" />
+                                    <p className="font-poppins text-xs font-semibold text-green-600 m-0">
+                                      Free Pickup
+                                    </p>
+                                  </div>
                                 )}
                               </div>
-                              <p className="font-poppins text-sm text-slate-600 m-0">
-                                {address.phone}
-                              </p>
-                              <p className="font-poppins text-sm text-slate-600 m-0 mt-1">
-                                {address.address}, {address.city},{" "}
-                                {address.postalCode}
-                              </p>
-                            </div>
-                            <div className="flex gap-2">
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleSetDefaultAddress(address.id);
-                                }}
-                                className="text-xs text-blue-600 hover:underline"
-                              >
-                                Set Default
-                              </button>
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteAddress(address.id);
-                                }}
-                                className="text-xs text-red-500 hover:underline"
-                              >
-                                Delete
-                              </button>
+                              {!isPickupMethodItem &&
+                                method.books_per_multiplier > 1 && (
+                                  <p className="font-poppins text-xs text-slate-400 m-0 mt-2">
+                                    *Shipping cost multiplies every{" "}
+                                    {method.books_per_multiplier} books
+                                  </p>
+                                )}
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
 
-                  {/* Add New Address Form */}
-                  {showAddressForm && (
-                    <div className="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                      <h3 className="font-poppins font-semibold text-slate-800 mb-3">
-                        New Address
-                      </h3>
-                      <div className="space-y-3">
-                        <input
-                          type="text"
-                          name="fullName"
-                          value={newAddress.fullName}
-                          onChange={handleAddressChange}
-                          placeholder="Full Name"
-                          className="w-full h-11 px-3 font-poppins text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-blue-600"
-                        />
-                        <input
-                          type="tel"
-                          name="phone"
-                          value={newAddress.phone}
-                          onChange={handleAddressChange}
-                          placeholder="Phone Number"
-                          className="w-full h-11 px-3 font-poppins text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-blue-600"
-                        />
-                        <input
-                          type="text"
-                          name="address"
-                          value={newAddress.address}
-                          onChange={handleAddressChange}
-                          placeholder="Full Address"
-                          className="w-full h-11 px-3 font-poppins text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-blue-600"
-                        />
-                        <div className="grid grid-cols-2 gap-3">
-                          <input
-                            type="text"
-                            name="city"
-                            value={newAddress.city}
-                            onChange={handleAddressChange}
-                            placeholder="City"
-                            className="w-full h-11 px-3 font-poppins text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-blue-600"
-                          />
-                          <input
-                            type="text"
-                            name="postalCode"
-                            value={newAddress.postalCode}
-                            onChange={handleAddressChange}
-                            placeholder="Postal Code"
-                            className="w-full h-11 px-3 font-poppins text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-blue-600"
-                          />
-                        </div>
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onClick={handleAddAddress}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg font-poppins text-sm hover:bg-blue-700 transition-colors"
-                          >
-                            Save Address
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setShowAddressForm(false)}
-                            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-poppins text-sm hover:bg-gray-300 transition-colors"
-                          >
-                            Cancel
-                          </button>
-                        </div>
+                {/* Pickup Info */}
+                {isPickup && (
+                  <div className="mb-8 p-4 bg-green-50 rounded-xl border border-green-200">
+                    <div className="flex items-start gap-3">
+                      <Store className="w-6 h-6 text-green-600 mt-1" />
+                      <div>
+                        <h3 className="font-poppins font-semibold text-slate-800 m-0 mb-1">
+                          Pickup Information
+                        </h3>
+                        <p className="font-poppins text-sm text-slate-600 m-0">
+                          You can pick up your order at our store
+                        </p>
+                        <p className="font-poppins text-sm text-slate-500 m-0 mt-2">
+                          📍 BookVerse Store - Jakarta
+                          <br />
+                          Jl. Sudirman No. 123, Jakarta Selatan
+                          <br />
+                          🕒 Open: 09:00 - 20:00 WIB (Daily)
+                          <br />
+                          📞 (021) 1234-5678
+                        </p>
                       </div>
                     </div>
-                  )}
+                  </div>
+                )}
 
-                  {/* Shipping Option */}
-                  {deliveryMethod === "delivery" && (
-                    <div className="mt-6">
-                      <label className="block font-poppins text-sm font-medium text-slate-700 mb-2 leading-relaxed">
-                        Shipping Courier
-                      </label>
-                      <select
-                        value={selectedShipping}
-                        onChange={(e) => setSelectedShipping(e.target.value)}
-                        className="w-full h-12 px-4 font-poppins text-sm text-slate-800 bg-white border border-slate-200 rounded-lg outline-none transition-all duration-300 cursor-pointer focus:border-blue-600"
+                {/* Shipping Information - Only for Delivery */}
+                {!isPickup && (
+                  <div className="mb-8">
+                    <div className="flex justify-between items-center mb-4">
+                      <h2 className="font-poppins text-xl font-semibold text-slate-800 m-0 leading-relaxed">
+                        Shipping Address
+                      </h2>
+                      <button
+                        type="button"
+                        onClick={() => navigate("/my-address")}
+                        className="text-blue-600 font-poppins text-sm font-medium hover:underline flex items-center gap-1"
                       >
-                        <option value="JNE Regular">
-                          JNE Regular (2-3 days) - Rp 15,000
-                        </option>
-                        <option value="JNE YES">
-                          JNE YES (1 day) - Rp 25,000
-                        </option>
-                        <option value="SiCepat Regular">
-                          SiCepat Regular (2-3 days) - Rp 15,000
-                        </option>
-                        <option value="J&T Express">
-                          J&T Express (2-4 days) - Rp 12,000
-                        </option>
-                      </select>
+                        <MapPin className="w-4 h-4" />
+                        Manage Addresses
+                      </button>
                     </div>
-                  )}
-                </div>
-              )}
 
-              {/* Payment Method Section */}
-              <div className="mb-8">
-                <h2 className="font-poppins text-xl font-semibold text-slate-800 m-0 mb-4 leading-relaxed">
-                  Payment Method
-                </h2>
-                <div className="space-y-3">
-                  {paymentMethods.map((method) => {
-                    const isDisabled =
-                      method.id === "cash_on_delivery" &&
-                      deliveryMethod === "pickup";
-                    return (
+                    {addresses.length > 0 ? (
+                      <div className="space-y-3">
+                        {addresses.map((address) => (
+                          <div
+                            key={address.id}
+                            className={`p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 ${
+                              selectedAddressId === address.id ||
+                              (address.is_default && !selectedAddressId)
+                                ? "border-blue-600 bg-blue-50"
+                                : "border-gray-200 hover:border-gray-300"
+                            }`}
+                            onClick={() => setSelectedAddressId(address.id)}
+                          >
+                            <div className="flex justify-between items-start">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <p className="font-poppins font-semibold text-slate-800 m-0">
+                                    {address.province}, {address.city}
+                                  </p>
+                                  {address.is_default && (
+                                    <span className="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">
+                                      Default
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="font-poppins text-sm text-slate-600 m-0">
+                                  {address.address}
+                                </p>
+                                <p className="font-poppins text-sm text-slate-600 m-0">
+                                  {address.district}, {address.village}
+                                </p>
+                              </div>
+                              {(selectedAddressId === address.id ||
+                                (address.is_default && !selectedAddressId)) && (
+                                <svg
+                                  className="w-5 h-5 text-blue-600 flex-shrink-0"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M5 13l4 4L19 7"
+                                  />
+                                </svg>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 bg-gray-50 rounded-xl border border-gray-200">
+                        <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                        <p className="text-gray-500 mb-3">No addresses found</p>
+                        <button
+                          type="button"
+                          onClick={() => navigate("/my-address")}
+                          className="text-blue-600 hover:text-blue-700 font-medium"
+                        >
+                          Add your first address
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Payment Method Section */}
+                <div className="mb-8">
+                  <h2 className="font-poppins text-xl font-semibold text-slate-800 m-0 mb-4 leading-relaxed">
+                    Payment Method
+                  </h2>
+                  <div className="space-y-3">
+                    {paymentMethods.map((method) => (
                       <button
                         key={method.id}
                         type="button"
-                        onClick={() =>
-                          !isDisabled && setSelectedPaymentMethod(method.id)
-                        }
-                        disabled={isDisabled}
+                        onClick={() => setSelectedPaymentMethodId(method.id)}
                         className={`w-full p-4 border-2 rounded-xl text-left transition-all duration-300 ${
-                          selectedPaymentMethod === method.id
+                          selectedPaymentMethodId === method.id
                             ? "border-blue-600 bg-blue-50"
                             : "border-gray-200 hover:border-gray-300"
-                        } ${
-                          isDisabled
-                            ? "opacity-50 cursor-not-allowed bg-gray-50"
-                            : "cursor-pointer"
                         }`}
                       >
                         <div className="flex items-center gap-3">
-                          <span className="text-2xl">{method.icon}</span>
                           <div className="flex-1">
                             <div className="flex justify-between items-center">
                               <p className="font-poppins font-semibold text-slate-800 m-0">
                                 {method.name}
                               </p>
-                              {selectedPaymentMethod === method.id && (
+                              {selectedPaymentMethodId === method.id && (
                                 <svg
                                   className="w-5 h-5 text-blue-600"
                                   fill="none"
@@ -493,138 +497,159 @@ export default function CheckoutPage() {
                             <p className="font-poppins text-sm text-slate-500 m-0 mt-1">
                               {method.description}
                             </p>
-                            {isDisabled && (
-                              <p className="font-poppins text-xs text-orange-500 m-0 mt-1">
-                                Not available for pickup
-                              </p>
-                            )}
                           </div>
                         </div>
                       </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </form>
-          </div>
-
-          {/* Right Side - Order Summary (1/3 width) */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl p-6 shadow-sm sticky top-8">
-              <h2 className="font-poppins text-lg font-semibold text-slate-800 m-0 mb-6 leading-relaxed">
-                Order Summary
-              </h2>
-
-              {/* Book List */}
-              <div className="mb-6">
-                {cartItems.map((item, index) => (
-                  <div
-                    key={item.book.id}
-                    className={`flex gap-3 ${
-                      index < cartItems.length - 1 ? "mb-4" : ""
-                    }`}
-                  >
-                    {/* Thumbnail */}
-                    <div className="w-16 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-slate-100">
-                      <ImageWithFallback
-                        src={item.book.image}
-                        alt={item.book.title}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-
-                    {/* Book Info */}
-                    <div className="flex-1">
-                      <h3 className="font-poppins text-[13px] font-medium text-slate-800 m-0 mb-1 leading-relaxed line-clamp-2">
-                        {item.book.title}
-                      </h3>
-                      <p className="font-poppins text-xs font-normal text-slate-500 m-0 mb-2 leading-relaxed">
-                        x{item.quantity}
-                      </p>
-                      <p className="font-poppins text-sm font-semibold text-slate-800 m-0 leading-relaxed">
-                        Rp{" "}
-                        {(item.book.price * item.quantity).toLocaleString(
-                          "id-ID"
-                        )}
-                      </p>
-                    </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-
-              {/* Divider */}
-              <div className="w-full h-px bg-slate-200 my-6" />
-
-              {/* Cost Details */}
-              <div className="mb-6">
-                <div className="flex justify-between mb-3">
-                  <span className="font-poppins text-sm font-normal text-slate-500 leading-relaxed">
-                    Subtotal
-                  </span>
-                  <span className="font-poppins text-sm font-medium text-slate-800 leading-relaxed">
-                    Rp {subtotal.toLocaleString("id-ID")}
-                  </span>
                 </div>
-                {deliveryMethod === "delivery" && (
-                  <div className="flex justify-between">
+              </form>
+            </div>
+
+            {/* Right Side - Order Summary */}
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-xl p-6 shadow-sm sticky top-24">
+                <h2 className="font-poppins text-lg font-semibold text-slate-800 m-0 mb-6 leading-relaxed">
+                  Order Summary
+                </h2>
+
+                {/* Book List */}
+                <div className="mb-6 max-h-96 overflow-y-auto">
+                  {cartItems.map((item, index) => (
+                    <div
+                      key={item.id}
+                      className={`flex gap-3 ${
+                        index < cartItems.length - 1 ? "mb-4" : ""
+                      }`}
+                    >
+                      <div className="w-16 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-slate-100">
+                        <ImageWithFallback
+                          src={buildStorageUrl(item.cover_img)}
+                          alt={item.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-poppins text-[13px] font-medium text-slate-800 m-0 mb-1 leading-relaxed line-clamp-2">
+                          {item.title}
+                        </h3>
+                        <p className="font-poppins text-xs font-normal text-slate-500 m-0 mb-2 leading-relaxed">
+                          x{item.quantity}
+                        </p>
+                        <p className="font-poppins text-sm font-semibold text-slate-800 m-0 leading-relaxed">
+                          {formatRupiah(item.subtotal)}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Shipping Info Summary */}
+                {!isPickup && selectedMethod && (
+                  <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                    <p className="font-poppins text-xs text-slate-500 m-0 mb-1">
+                      Shipping Calculation
+                    </p>
+                    <p className="font-poppins text-xs text-slate-600 m-0">
+                      {totalBooks} book(s) ×{" "}
+                      {getShippingCalculationText(selectedMethod)}
+                    </p>
+                    <p className="font-poppins text-xs text-slate-600 m-0 mt-1">
+                      Multiplier:{" "}
+                      {Math.ceil(
+                        totalBooks / selectedMethod.books_per_multiplier
+                      )}{" "}
+                      × {formatRupiah(selectedMethod.base_price)}
+                    </p>
+                  </div>
+                )}
+
+                <div className="w-full h-px bg-slate-200 my-6" />
+
+                {/* Cost Details */}
+                <div className="mb-6">
+                  <div className="flex justify-between mb-3">
                     <span className="font-poppins text-sm font-normal text-slate-500 leading-relaxed">
-                      Shipping Cost
+                      Subtotal
                     </span>
                     <span className="font-poppins text-sm font-medium text-slate-800 leading-relaxed">
-                      Rp {shipping.toLocaleString("id-ID")}
+                      {formatRupiah(subtotal)}
                     </span>
                   </div>
-                )}
-                {deliveryMethod === "pickup" && (
-                  <div className="flex justify-between">
-                    <span className="font-poppins text-sm font-normal text-slate-500 leading-relaxed">
-                      Pickup Fee
-                    </span>
-                    <span className="font-poppins text-sm font-medium text-green-600 leading-relaxed">
-                      Free
-                    </span>
+                  {!isPickup && (
+                    <div className="flex justify-between">
+                      <span className="font-poppins text-sm font-normal text-slate-500 leading-relaxed">
+                        Shipping Cost
+                      </span>
+                      <span className="font-poppins text-sm font-medium text-slate-800 leading-relaxed">
+                        {formatRupiah(shippingCost)}
+                      </span>
+                    </div>
+                  )}
+                  {isPickup && (
+                    <div className="flex justify-between">
+                      <span className="font-poppins text-sm font-normal text-slate-500 leading-relaxed">
+                        Pickup Fee
+                      </span>
+                      <span className="font-poppins text-sm font-medium text-green-600 leading-relaxed">
+                        Free
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="w-full h-px bg-slate-200 my-6" />
+
+                {/* Total */}
+                <div className="flex justify-between mb-6">
+                  <span className="font-poppins text-base font-semibold text-blue-600 leading-relaxed">
+                    Total
+                  </span>
+                  <span className="font-poppins text-xl font-bold text-blue-600 leading-relaxed">
+                    {formatRupiah(total)}
+                  </span>
+                </div>
+
+                {/* Payment Method Summary */}
+                {selectedPaymentMethodId && (
+                  <div className="mb-6 p-3 bg-gray-50 rounded-lg">
+                    <p className="font-poppins text-xs text-slate-500 m-0 mb-1">
+                      Payment Method
+                    </p>
+                    <p className="font-poppins text-sm font-medium text-slate-800 m-0">
+                      {
+                        paymentMethods.find(
+                          (m) => m.id === selectedPaymentMethodId
+                        )?.name
+                      }
+                    </p>
                   </div>
                 )}
-              </div>
 
-              {/* Divider */}
-              <div className="w-full h-px bg-slate-200 my-6" />
-
-              {/* Total */}
-              <div className="flex justify-between mb-6">
-                <span className="font-poppins text-base font-semibold text-blue-600 leading-relaxed">
-                  Total
-                </span>
-                <span className="font-poppins text-xl font-bold text-blue-600 leading-relaxed">
-                  Rp {total.toLocaleString("id-ID")}
-                </span>
-              </div>
-
-              {/* Payment Method Summary */}
-              <div className="mb-6 p-3 bg-gray-50 rounded-lg">
-                <p className="font-poppins text-xs text-slate-500 m-0 mb-1">
-                  Payment Method
-                </p>
-                <p className="font-poppins text-sm font-medium text-slate-800 m-0">
-                  {
-                    paymentMethods.find((m) => m.id === selectedPaymentMethod)
-                      ?.name
+                {/* Proceed to Payment Button */}
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={
+                    creatingTransaction || (!isPickup && addresses.length === 0)
                   }
-                </p>
+                  className="w-full h-12 font-poppins text-[15px] font-semibold text-white bg-blue-600 border-none rounded-full cursor-pointer transition-all duration-300 leading-relaxed hover:bg-blue-700 hover:-translate-y-px hover:shadow-md active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                >
+                  {creatingTransaction ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Processing...</span>
+                    </div>
+                  ) : (
+                    "Proceed to Payment"
+                  )}
+                </button>
               </div>
-
-              {/* Proceed to Payment Button */}
-              <button
-                type="button"
-                onClick={handleSubmit}
-                className="w-full h-12 font-poppins text-[15px] font-semibold text-white bg-blue-600 border-none rounded-full cursor-pointer transition-all duration-300 leading-relaxed hover:bg-blue-700 hover:-translate-y-px hover:shadow-md active:translate-y-0"
-              >
-                Proceed to Payment
-              </button>
             </div>
           </div>
         </div>
       </div>
-    </div>
+      <Footer />
+    </>
   );
 }
