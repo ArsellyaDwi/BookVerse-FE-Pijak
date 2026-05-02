@@ -23,7 +23,6 @@ import TransactionDetailPage from "./pages/transaction-detail-page";
 import ContactUsPage from "./pages/contact-us-page";
 import { ContactProvider } from "./context/contact-context";
 import FAQPage from "./pages/faq-page";
-import ContactPage from "./pages/contact";
 
 const router = createBrowserRouter([
   {
@@ -73,15 +72,12 @@ const router = createBrowserRouter([
         element: <BookListPage />,
       },
       {
-        path: "/contact",
-        element: <ContactUsPage />,
-
         path: "/faq",
         element: <FAQPage />,
       },
       {
         path: "/contact",
-        element: <ContactPage />,
+        element: <ContactUsPage />,
       },
       {
         path: "",
