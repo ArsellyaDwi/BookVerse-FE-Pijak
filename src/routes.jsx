@@ -20,6 +20,8 @@ import AddAddressPage from "./pages/add-address-page";
 import EditAddressPage from "./pages/edit-address-page";
 import MyTransactionsPage from "./pages/my-transactions";
 import TransactionDetailPage from "./pages/transaction-detail-page";
+import FAQPage from "./pages/faq-page";
+import ContactPage from "./pages/contact";
 
 const router = createBrowserRouter([
   {
@@ -72,6 +74,14 @@ const router = createBrowserRouter([
       {
         path: "/books",
         element: <BookListPage />,
+      },
+      {
+        path: "/faq",
+        element: <FAQPage />,
+      },
+      {
+        path: "/contact",
+        element: <ContactPage />,
       },
       {
         path: "",
