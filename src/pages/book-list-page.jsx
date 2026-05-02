@@ -530,7 +530,7 @@ export default function BookListPage() {
                       {!hasNextPage && books && (
                         <div className="py-6">
                           <p className="text-gray-500">
-                            ✨ You've seen all {totalItems} books! ✨
+                            You've reached the end of {totalItems} books
                           </p>
                         </div>
                       )}

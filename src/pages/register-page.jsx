@@ -19,17 +19,17 @@ export default function RegisterPage() {
     e.preventDefault();
     
     if (formData.password !== formData.confirm_password) {
-      toast.error("Password tidak cocok!");
+      toast.error("Passwords do not match!");
       return;
     }
     
     if (formData.password.length < 6) {
-      toast.error("Password minimal 6 karakter!");
+      toast.error("Password must be at least 6 characters!");
       return;
     }
     
     if (!agreedToTerms) {
-      toast.error("Anda harus menyetujui Syarat dan Ketentuan!");
+      toast.error("You must agree to the Terms and Conditions!");
       return;
     }
     
@@ -38,7 +38,7 @@ export default function RegisterPage() {
     setLoading(false);
     
     if (result) {
-      toast.success("Registrasi berhasil! Silakan login.");
+      toast.success("Registration successful! Please login.");
       navigate("/login");
     }
   };

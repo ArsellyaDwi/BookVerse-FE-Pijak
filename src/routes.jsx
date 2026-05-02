@@ -20,20 +20,22 @@ import AddAddressPage from "./pages/add-address-page";
 import EditAddressPage from "./pages/edit-address-page";
 import MyTransactionsPage from "./pages/my-transactions";
 import TransactionDetailPage from "./pages/transaction-detail-page";
+import ContactUsPage from "./pages/contact-us-page";
+import { ContactProvider } from "./context/contact-context";
 
 const router = createBrowserRouter([
   {
     path: "",
     element: (
-      <AuthProvider
-        children={
+      <AuthProvider>
+        <ContactProvider>
           <WishlistProvider>
             <CartProvider>
               <Outlet />
             </CartProvider>
           </WishlistProvider>
-        }
-      />
+        </ContactProvider>
+      </AuthProvider>
     ),
     children: [
       {
@@ -48,7 +50,6 @@ const router = createBrowserRouter([
         path: "books/:id",
         element: <BookDetail />,
       },
-
       {
         path: "register",
         element: <RegisterPage />,
@@ -66,12 +67,12 @@ const router = createBrowserRouter([
         element: <GenresPage />,
       },
       {
-        path: "/genres/:name",
-        element: <GenresPage />,
-      },
-      {
         path: "/books",
         element: <BookListPage />,
+      },
+      {
+        path: "/contact",
+        element: <ContactUsPage />,
       },
       {
         path: "",
