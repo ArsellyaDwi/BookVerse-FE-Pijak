@@ -20,8 +20,13 @@ import AddAddressPage from "./pages/add-address-page";
 import EditAddressPage from "./pages/edit-address-page";
 import MyTransactionsPage from "./pages/my-transactions";
 import TransactionDetailPage from "./pages/transaction-detail-page";
+<<<<<<< HEAD
 import ContactUsPage from "./pages/contact-us-page";
 import { ContactProvider } from "./context/contact-context";
+=======
+import FAQPage from "./pages/faq-page";
+import ContactPage from "./pages/contact";
+>>>>>>> d68e8358205000f67108ac3a09fb1d0548cb362c
 
 const router = createBrowserRouter([
   {
@@ -71,8 +76,17 @@ const router = createBrowserRouter([
         element: <BookListPage />,
       },
       {
+<<<<<<< HEAD
         path: "/contact",
         element: <ContactUsPage />,
+=======
+        path: "/faq",
+        element: <FAQPage />,
+      },
+      {
+        path: "/contact",
+        element: <ContactPage />,
+>>>>>>> d68e8358205000f67108ac3a09fb1d0548cb362c
       },
       {
         path: "",
