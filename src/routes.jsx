@@ -22,6 +22,7 @@ import MyTransactionsPage from "./pages/my-transactions";
 import TransactionDetailPage from "./pages/transaction-detail-page";
 import FAQPage from "./pages/faq-page";
 import ContactPage from "./pages/contact";
+import MyAccountPage from "./pages/my-account";
 
 const router = createBrowserRouter([
   {
@@ -127,6 +128,10 @@ const router = createBrowserRouter([
             path: "/my-transactions/:id",
             element: <TransactionDetailPage />,
           },
+          {
+            path: "/my-account",
+            element: <MyAccountPage />,
+          }
         ],
       },
     ],
