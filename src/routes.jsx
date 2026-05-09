@@ -6,7 +6,6 @@ import PaymentPage from "./pages/payment-page";
 import RegisterPage from "./pages/register-page";
 import TransactionsPage from "./pages/transactions-page";
 import CartPage from "./pages/cart-page";
-import GenresPage from "./pages/genres-page";
 import AuthLayout from "./layouts/AuthLayout";
 import { AuthProvider } from "./context/auth-context";
 import LoginPage from "./pages/login-page";
@@ -24,6 +23,8 @@ import ContactUsPage from "./pages/contact-us-page";
 import { ContactProvider } from "./context/contact-context";
 import FAQPage from "./pages/faq-page";
 import MyAccountPage from "./pages/my-account";
+import GenresPage from "./pages/genre-page";
+import GenreDetailPage from "./pages/genre-detail-page";
 
 const router = createBrowserRouter([
   {
@@ -65,8 +66,12 @@ const router = createBrowserRouter([
         element: <ResetPasswordPage />,
       },
       {
-        path: "/genres/:name",
+        path: "/genres/all",
         element: <GenresPage />,
+      },
+      {
+        path: "/genres/:slug",
+        element: <GenreDetailPage />,
       },
       {
         path: "/books",
