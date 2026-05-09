@@ -7,6 +7,7 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import useQuery from "@/hooks/use-query";
 import { buildStorageUrl } from "@/lib/helper";
+import { Truck, AlertCircle, ShoppingBag, Heart, CreditCard } from "lucide-react";
 
 export default function BookDetail() {
   const { id } = useParams();
@@ -24,16 +25,14 @@ export default function BookDetail() {
     return (
       <div className="bg-white min-h-screen">
         <Navbar />
-        <div className="max-w-[1440px] mx-auto py-16 px-10">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-32 mb-10" />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-20">
-              <div className="aspect-[3/4] bg-gray-200 rounded-2xl" />
-              <div className="space-y-4">
-                <div className="h-8 bg-gray-200 rounded w-3/4" />
-                <div className="h-6 bg-gray-200 rounded w-1/2" />
-                <div className="h-24 bg-gray-200 rounded" />
-              </div>
+        <div className="max-w-[1200px] mx-auto py-8 px-4">
+          <div className="animate-pulse flex gap-8">
+            <div className="bg-gray-200 rounded-xl w-56 h-80" />
+            <div className="flex-1 space-y-4">
+              <div className="h-5 bg-gray-200 rounded w-1/4" />
+              <div className="h-8 bg-gray-200 rounded w-3/4" />
+              <div className="h-5 bg-gray-200 rounded w-1/2" />
+              <div className="h-24 bg-gray-200 rounded" />
             </div>
           </div>
         </div>
@@ -46,14 +45,11 @@ export default function BookDetail() {
     return (
       <div className="bg-white min-h-screen">
         <Navbar />
-        <div className="max-w-[1440px] mx-auto py-16 px-10 text-center">
-          <h2 className="font-poppins text-[28px] font-bold text-gray-800 mb-4 leading-relaxed">
+        <div className="max-w-[1200px] mx-auto py-20 px-4 text-center">
+          <h2 className="font-poppins text-2xl font-bold text-gray-800 mb-4">
             Book Not Found
           </h2>
-          <Link
-            to="/"
-            className="font-poppins text-sm text-blue-600 no-underline leading-relaxed hover:underline"
-          >
+          <Link to="/" className="text-blue-600 hover:underline font-poppins">
             Back to Home
           </Link>
         </div>
@@ -62,28 +58,20 @@ export default function BookDetail() {
     );
   }
 
-  const inWishlist = isInWishlist(book.id);
+const inWishlist = isInWishlist(book.id);
 
-  const handleWishlistToggle = () => {
-    if (inWishlist) {
-      removeFromWishlist(book.id);
-    } else {
-      addToWishlist(book.id);
-    }
-  };
+const handleWishlistToggle = () => {
+  console.log("Wishlist clicked, book.id:", book.id);
+  if (inWishlist) {
+    removeFromWishlist(book.id);
+  } else {
+    addToWishlist(book.id);
+  }
+};
 
   const handleAddToCart = () => {
     for (let i = 0; i < quantity; i++) {
-      addToCart({
-        id: book.id,
-        title: book.title,
-        author: book.author,
-        price: parseFloat(book.price),
-        rating: book.rating,
-        image: book.cover_img,
-        category: book.genres?.[0]?.name || "General",
-        description: book.description,
-      });
+        addToCart(book.id);
     }
   };
 
@@ -91,376 +79,327 @@ export default function BookDetail() {
   const decrementQuantity = () =>
     setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
-  // Helper function to generate slug from genre name
   const getGenreSlug = (genreName) => {
     return genreName.toLowerCase().replace(/\s+/g, '-');
   };
 
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("id-ID").format(Math.floor(price));
+  };
+
+  const originalPrice = parseFloat(book.price);
+  const discountedPrice = originalPrice * 0.9;
+  const hasDiscount = true;
+
   return (
     <div className="bg-white min-h-screen">
       <Navbar />
-      {/* Container with 40px padding */}
-      <div className="max-w-[1440px] mx-auto py-16 px-10">
-        {/* Back Button */}
-        <Link
-          to="/"
-          className="inline-flex items-center gap-2 font-poppins text-sm font-medium text-slate-500 no-underline mb-10 transition-opacity hover:opacity-70"
-        >
-          {/* Back Arrow SVG */}
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M10 19l-7-7m0 0l7-7m-7 7h18"
-            />
-          </svg>
-          Back
-        </Link>
+      
+      <div className="max-w-[1200px] mx-auto py-6 px-4">
+        
+        {/* Breadcrumb */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 text-sm font-poppins text-gray-500">
+            <Link to="/" className="hover:text-blue-600">Home</Link>
+            <span>›</span>
+            <Link to="/books" className="hover:text-blue-600">Buku</Link>
+            <span>›</span>
+            {book.genres && book.genres.length > 0 && (
+              <>
+                <Link 
+                  to={`/genres/${book.genres[0].slug || getGenreSlug(book.genres[0].name)}`} 
+                  className="hover:text-blue-600"
+                >
+                  {book.genres[0].name}
+                </Link>
+                <span>›</span>
+              </>
+            )}
+            <span className="text-gray-800 truncate max-w-[200px]">{book.title}</span>
+          </div>
+        </div>
 
-        {/* Main Content: 2 Column Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-20 mb-16 items-start">
-          {/* LEFT COLUMN: Single Main Image Only */}
-          <div>
-            {/* Main Image - HD & Clean */}
-            <div className="w-full aspect-[3/4] rounded-2xl overflow-hidden bg-gray-50 shadow-md">
-              <ImageWithFallback
-                src={buildStorageUrl (book.cover_img || book.image)}
+        {/* Main Content - 2 kolom */}
+        <div className="flex gap-10 flex-col md:flex-row">
+          
+          {/* LEFT: Gambar */}
+          <div className="flex-shrink-0">
+            <div className="w-56 md:w-64">
+              <img
+                src={buildStorageUrl(book.cover_img || book.image)}
                 alt={book.title}
-                className="w-full h-full object-cover"
+                className="w-full h-auto object-cover rounded-lg shadow-sm"
               />
             </div>
           </div>
 
-          {/* RIGHT COLUMN: Book Information */}
-          <div className="flex flex-col justify-between h-auto min-h-full">
-            {/* TOP SECTION: Category, Title, Author, Rating, Price, Details */}
-            <div>
-              {/* Genre Badges - Multiple genres as clickable links */}
-              <div className="flex flex-wrap gap-2 mb-2">
-                {book.genres && book.genres.length > 0 ? (
-                  book.genres.slice(0, 5).map((genre) => (
-                    <Link
-                      key={genre.id}
-                      to={`/genres/${genre.slug || getGenreSlug(genre.name)}`}
-                      className="inline-block px-3.5 py-1.5 bg-transparent text-blue-600 border border-gray-300 rounded-full font-poppins text-sm font-medium leading-relaxed hover:bg-blue-50 hover:border-blue-600 hover:text-blue-700 transition-all duration-300"
-                    >
-                      {genre.name}
-                    </Link>
-                  ))
-                ) : (
-                  // Fallback to single category if no genres array
-                  <div className="inline-block px-3.5 py-1.5 bg-transparent text-blue-600 border border-gray-300 rounded-full font-poppins text-sm font-medium leading-relaxed">
-                    {book.category || "General"}
-                  </div>
-                )}
-              </div>
-
-              {/* Book Title */}
-              <h1 className="font-poppins text-[32px] font-bold text-gray-800 mb-2 leading-tight">
-                {book.title}
-              </h1>
-
-              {/* Author */}
-              <p className="font-poppins text-base font-normal text-gray-500 mb-4 leading-relaxed">
-                by {book.author}
-              </p>
-
-              {/* Rating */}
-              <div className="flex items-center gap-2 mb-4">
-                <div className="flex gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <svg
-                      key={i}
-                      className={`w-5 h-5 ${
-                        i < Math.floor(book.rating)
-                          ? "text-yellow-400 fill-yellow-400"
-                          : "text-gray-300 fill-gray-300"
-                      }`}
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                    </svg>
-                  ))}
-                </div>
-                <span className="font-poppins text-sm text-gray-500 leading-relaxed">
-                  {book.rating} ({book.ratings?.toLocaleString() || book.reviews?.length || 0} reviews)
+          {/* RIGHT: Book Info */}
+          <div className="flex-1">
+            {/* Genre Tags */}
+            <div className="flex flex-wrap gap-2 mb-4">
+              {book.genres && book.genres.length > 0 ? (
+                book.genres.slice(0, 4).map((genre) => (
+                  <Link
+                    key={genre.id}
+                    to={`/genres/${genre.slug || getGenreSlug(genre.name)}`}
+                    className="px-4 py-1.5 bg-gray-100 text-gray-600 rounded-full font-poppins text-sm font-medium hover:bg-blue-500 hover:text-white transition-all"
+                  >
+                    {genre.name}
+                  </Link>
+                ))
+              ) : (
+                <span className="px-4 py-1.5 bg-gray-100 text-gray-600 rounded-full font-poppins text-sm">
+                  {book.category || "General"}
                 </span>
+              )}
+            </div>
+
+            {/* Title */}
+            <h1 className="font-poppins text-3xl md:text-4xl font-bold text-gray-900 mb-3 leading-tight">
+              {book.title}
+            </h1>
+
+            {/* Author */}
+            <p className="font-poppins text-base text-gray-500 mb-4">
+              oleh <span className="text-gray-700 font-medium">{book.author}</span>
+            </p>
+
+            {/* Rating */}
+            <div className="flex items-center gap-2 mb-5">
+              <div className="flex gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <svg
+                    key={i}
+                    className={`w-5 h-5 ${i < Math.floor(book.rating) ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`}
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                  </svg>
+                ))}
               </div>
+              <span className="font-poppins text-sm text-gray-500">
+                {book.rating} ({book.ratings?.toLocaleString() || book.reviews?.length || 0} ulasan)
+              </span>
+            </div>
 
-              {/* Divider */}
-              <div className="h-px bg-gray-300 my-4" />
-
-              {/* Price */}
-              <div className="mb-4">
-                <span className="font-poppins text-2xl font-semibold text-blue-600 leading-relaxed">
-                  Rp {parseFloat(book.price).toLocaleString("id-ID")}
-                </span>
-                {book.stock === 0 && (
-                  <span className="ml-4 inline-block px-2 py-1 bg-red-100 text-red-600 rounded-md text-xs font-medium">
-                    Out of Stock
+            {/* Price */}
+            <div className="mb-5">
+              {hasDiscount ? (
+                <div className="flex items-baseline gap-3 flex-wrap">
+                  <span className="text-2xl md:text-3xl font-poppins font-bold text-red-600">
+                    Rp {formatPrice(discountedPrice)}
                   </span>
-                )}
-              </div>
+                  <span className="text-sm md:text-base font-poppins text-gray-400 line-through">
+                    Rp {formatPrice(originalPrice)}
+                  </span>
+                  <span className="text-xs md:text-sm font-poppins text-green-600 font-semibold">
+                    Hemat Rp {formatPrice(originalPrice - discountedPrice)}
+                  </span>
+                </div>
+              ) : (
+                <span className="text-2xl md:text-3xl font-poppins font-bold text-red-600">
+                  Rp {formatPrice(originalPrice)}
+                </span>
+              )}
+            </div>
 
-              {/* Divider */}
-              <div className="h-px bg-gray-300 my-4" />
-
-              {/* Book Specifications */}
-              <div className="mb-4">
-                <h3 className="font-poppins text-base font-semibold text-gray-800 mb-3 leading-relaxed">
-                  Book Details
-                </h3>
-                <div className="flex flex-col gap-2">
-                  <div className="flex justify-between">
-                    <span className="font-poppins text-sm text-gray-500 leading-relaxed">
-                      Author
-                    </span>
-                    <span className="font-poppins text-sm font-medium text-gray-800 leading-relaxed">
-                      {book.author}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-poppins text-sm text-gray-500 leading-relaxed">
-                      Publisher
-                    </span>
-                    <span className="font-poppins text-sm font-medium text-gray-800 leading-relaxed">
-                      {book.publisher || "N/A"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-poppins text-sm text-gray-500 leading-relaxed">
-                      Publication Date
-                    </span>
-                    <span className="font-poppins text-sm font-medium text-gray-800 leading-relaxed">
-                      {book.publish_date ? new Date(book.publish_date).getFullYear() : "N/A"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-poppins text-sm text-gray-500 leading-relaxed">
-                      ISBN
-                    </span>
-                    <span className="font-poppins text-sm font-medium text-gray-800 leading-relaxed">
-                      {book.isbn || "N/A"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-poppins text-sm text-gray-500 leading-relaxed">
-                      Pages
-                    </span>
-                    <span className="font-poppins text-sm font-medium text-gray-800 leading-relaxed">
-                      {book.pages || "N/A"} pages
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-poppins text-sm text-gray-500 leading-relaxed">
-                      Language
-                    </span>
-                    <span className="font-poppins text-sm font-medium text-gray-800 leading-relaxed">
-                      {book.language || "English"}
-                    </span>
-                  </div>
+            {/* Detail Buku */}
+            <div className="mb-6">
+              <h3 className="font-poppins text-base md:text-lg font-semibold text-gray-800 mb-3">
+                Detail Buku
+              </h3>
+              <div className="space-y-2 text-sm md:text-base">
+                <div className="flex gap-4">
+                  <span className="text-gray-500 w-28">Penulis</span>
+                  <span className="text-gray-800">{book.author}</span>
+                </div>
+                <div className="flex gap-4">
+                  <span className="text-gray-500 w-28">Penerbit</span>
+                  <span className="text-gray-800">{book.publisher || "-"}</span>
+                </div>
+                <div className="flex gap-4">
+                  <span className="text-gray-500 w-28">Tahun Terbit</span>
+                  <span className="text-gray-800">{book.publish_date ? new Date(book.publish_date).getFullYear() : "-"}</span>
+                </div>
+                <div className="flex gap-4">
+                  <span className="text-gray-500 w-28">ISBN</span>
+                  <span className="text-gray-800">{book.isbn || "-"}</span>
+                </div>
+                <div className="flex gap-4">
+                  <span className="text-gray-500 w-28">Halaman</span>
+                  <span className="text-gray-800">{book.pages || "-"}</span>
+                </div>
+                <div className="flex gap-4">
+                  <span className="text-gray-500 w-28">Bahasa</span>
+                  <span className="text-gray-800">{book.language || "-"}</span>
                 </div>
               </div>
             </div>
 
-            {/* BOTTOM SECTION: Quantity & Action Buttons */}
-            <div>
-              {/* Divider */}
-              <div className="h-px bg-gray-300 my-4" />
+            {/* Quantity */}
+            <div className="flex items-center gap-5 mb-6">
+              <span className="font-poppins text-base text-gray-700">Jumlah</span>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={decrementQuantity}
+                  disabled={quantity <= 1}
+                  className="w-9 h-9 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-50 transition-all text-lg"
+                >
+                  -
+                </button>
+                <span className="w-14 text-center font-poppins text-base font-medium text-gray-800">
+                  {quantity}
+                </span>
+                <button
+                  onClick={incrementQuantity}
+                  className="w-9 h-9 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 transition-all text-lg"
+                >
+                  +
+                </button>
+              </div>
+            </div>
 
-              {/* Quantity Selector */}
-              <div className="mb-4">
-                <label className="font-poppins text-sm font-medium text-gray-800 block mb-2 leading-relaxed">
-                  Quantity
-                </label>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={decrementQuantity}
-                    className="w-10 h-10 border border-gray-300 rounded-lg bg-white cursor-pointer flex items-center justify-center transition-all duration-300 shadow-sm hover:bg-gray-50"
-                  >
-                    {/* Minus SVG */}
-                    <svg
-                      className="w-4 h-4 text-gray-500"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      strokeWidth={2}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M20 12H4"
-                      />
-                    </svg>
-                  </button>
-                  <input
-                    type="text"
-                    value={quantity}
-                    readOnly
-                    className="w-16 h-10 border border-gray-300 rounded-lg text-center font-poppins text-sm font-medium text-gray-800 shadow-sm"
-                  />
-                  <button
-                    onClick={incrementQuantity}
-                    className="w-10 h-10 border border-gray-300 rounded-lg bg-white cursor-pointer flex items-center justify-center transition-all duration-300 shadow-sm hover:bg-gray-50"
-                  >
-                    {/* Plus SVG */}
-                    <svg
-                      className="w-4 h-4 text-gray-500"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      strokeWidth={2}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M12 4v16m8-8H4"
-                      />
-                    </svg>
-                  </button>
+            {/* Info Promo Section - 2 kolom */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+              {/* Pick up at Store */}
+              <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
+                <div className="flex items-start gap-3">
+                  <Truck className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-poppins text-sm font-semibold text-blue-800">
+                      Pick up at Store, Free Shipping
+                    <p className="font-poppins text-xs text-blue-600 mt-1">
+                      Available at stores with special icon. Free shipping on minimum purchase Rp50,000
+                    </p>
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex gap-2 mb-2">
-                {/* Add to Cart Button */}
-                <button
-                  onClick={handleAddToCart}
-                  disabled={book.stock === 0}
-                  className={`flex-1 py-2.5 px-6 text-white border-none rounded-full font-poppins text-sm font-semibold cursor-pointer flex items-center justify-center gap-2 transition-all duration-300 leading-relaxed shadow-md ${
-                    book.stock === 0
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-blue-600 hover:bg-blue-700"
-                  }`}
-                >
-                  {/* Shopping Cart SVG */}
-                  <svg
-                    className="w-[18px] h-[18px]"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.5 6M17 13l1.5 6M9 21h6M12 17v4"
-                    />
-                  </svg>
-                  {book.stock === 0 ? "Out of Stock" : "Add to Cart"}
-                </button>
-
-                {/* Wishlist Button */}
-                <button
-                  onClick={handleWishlistToggle}
-                  className={`w-11 h-11 rounded-full cursor-pointer flex items-center justify-center transition-all duration-300 shadow-sm ${
-                    inWishlist
-                      ? "bg-red-500 border border-red-500 shadow-md"
-                      : "bg-transparent border border-gray-300 hover:bg-gray-50"
-                  }`}
-                >
-                  {/* Heart SVG */}
-                  <svg
-                    className={`w-[18px] h-[18px] ${
-                      inWishlist ? "text-white fill-white" : "text-gray-500"
-                    }`}
-                    fill={inWishlist ? "white" : "none"}
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                    />
-                  </svg>
-                </button>
+              {/* Non-refundable */}
+              <div className="bg-amber-50 rounded-xl p-4 border border-amber-100">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-poppins text-sm font-semibold text-amber-800">
+                      Non-refundable & Non-returnable
+                    </p>
+                    <p className="font-poppins text-xs text-amber-600 mt-1">
+                      This item cannot be canceled, returned, or refunded once purchased
+                    </p>
+                  </div>
+                </div>
               </div>
-
-              {/* Buy Now Button */}
-              <Link
-                to={book.stock > 0 ? "/checkout" : "#"}
-                className={`flex w-full py-2.5 px-6 text-white border-none rounded-full font-poppins text-sm font-semibold no-underline items-center justify-center transition-all duration-300 leading-relaxed shadow-md ${
-                  book.stock === 0
-                    ? "bg-gray-400 cursor-not-allowed pointer-events-none"
-                    : "bg-gray-800 hover:bg-gray-900"
-                }`}
-                onClick={(e) => {
-                  if (book.stock === 0) {
-                    e.preventDefault();
-                  }
-                }}
-              >
-                Buy Now
-              </Link>
             </div>
           </div>
         </div>
 
-        {/* Horizontal Divider */}
-        <div className="h-px bg-gray-300 my-16" />
+{/* ACTION PANEL - DI KANAN SAJA */}
+<div className="flex justify-end mt-6 pt-4 border-t border-gray-200">
+  <div className="w-80">
+    {/* Baris 1: Status + Wishlist di kiri, pajak di kanan */}
+    <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center gap-3">
+        {book.stock === 0 ? (
+          <span className="px-3 py-1.5 bg-red-500 text-white text-sm font-poppins font-semibold rounded-lg">
+            Stok Habis
+          </span>
+        ) : (
+          <span className="px-3 py-1.5 bg-green-500 text-white text-sm font-poppins font-semibold rounded-lg">
+            Tersedia
+          </span>
+        )}
+        
+        <button
+          onClick={handleWishlistToggle}
+          className={`flex items-center gap-2 px-4 py-1.5 rounded-lg font-poppins font-medium text-sm transition-all border ${
+            inWishlist
+              ? "bg-red-50 border-red-400 text-red-600"
+              : "bg-white border-gray-300 text-gray-600 hover:border-red-300 hover:text-red-500"
+          }`}
+        >
+          <Heart className="w-4 h-4" /> {/* Lucide Icon */}
+          Wishlist
+        </button>
+      </div>
+      
+      <span className="text-[10px] text-gray-400 font-poppins">*termasuk pajak</span>
+    </div>
 
-        {/* Description Section */}
-        <div className="mb-16">
-          <h2 className="font-poppins text-[28px] font-bold text-gray-800 mb-6 leading-relaxed">
-            Book Description
-          </h2>
-          <p className="font-poppins text-sm font-normal text-gray-600 leading-relaxed text-justify">
-            {book.description}
-          </p>
-        </div>
+    {/* Baris 2: Tombol Aksi - SAMPINGAN (kiri dan kanan) */}
+    <div className="flex gap-3">
+      <button
+        onClick={handleAddToCart}
+        disabled={book.stock === 0}
+        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-poppins font-semibold text-base transition-all ${
+          book.stock === 0
+            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+            : "bg-blue-600 text-white hover:bg-blue-700"
+        }`}
+      >
+        <ShoppingBag className="w-5 h-5" /> {/* Lucide Icon */}
+        + Keranjang
+      </button>
 
-        {/* Characters Section (if available) */}
-        {book.characters && book.characters.length > 0 && (
-          <>
-            <div className="h-px bg-gray-300 my-16 mb-8" />
-            <div className="mb-16">
-              <h2 className="font-poppins text-[28px] font-bold text-gray-800 mb-6 leading-relaxed">
-                Key Characters
+      <Link
+        to={book.stock > 0 ? "/checkout" : "#"}
+        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-poppins font-semibold text-base text-center transition-all ${
+          book.stock === 0
+            ? "bg-gray-300 text-gray-500 cursor-not-allowed pointer-events-none"
+            : "bg-gray-800 text-white hover:bg-gray-900"
+        }`}
+      >
+        <CreditCard className="w-5 h-5" /> {/* Lucide Icon */}
+        Beli Sekarang
+      </Link>
+    </div>
+  </div>
+</div>
+
+          {/* Synopsis Section */}
+          <div className="mt-10 pt-4 border-t border-gray-200">
+            <h2 className="font-poppins text-xl md:text-2xl font-bold text-gray-800 mb-4">
+              Sinopsis
+            </h2>
+            <p className="font-poppins text-sm md:text-base text-gray-600 leading-relaxed text-justify">
+              {book.description}
+            </p>
+          </div>
+
+          {/* Characters Section */}
+          {book.characters && book.characters.length > 0 && (
+            <div className="mt-8 pt-4 border-t border-gray-200">
+              <h2 className="font-poppins text-xl md:text-2xl font-bold text-gray-800 mb-4">
+                Tokoh Utama
               </h2>
               <div className="flex flex-wrap gap-3">
-                {book.characters.slice(0, 10).map((character) => (
+                {book.characters.slice(0, 8).map((character) => (
                   <span
                     key={character.id}
-                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full font-poppins text-sm font-medium"
+                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-poppins text-sm font-medium hover:bg-blue-100 hover:text-blue-700 transition-colors"
                   >
                     {character.name}
                   </span>
                 ))}
               </div>
             </div>
-          </>
-        )}
+          )}
 
-        {/* Reviews Section */}
-        {book.reviews && book.reviews.length > 0 && (
-          <>
-            {/* Horizontal Divider */}
-            <div className="h-px bg-gray-300 my-16 mb-8" />
-
-            <div>
-              <h2 className="font-poppins text-[28px] font-bold text-gray-800 mb-8 leading-relaxed">
-                Reader Reviews
+          {/* Reviews Section */}
+          {book.reviews && book.reviews.length > 0 && (
+            <div className="mt-8 pt-4 border-t border-gray-200">
+              <h2 className="font-poppins text-xl md:text-2xl font-bold text-gray-800 mb-5">
+                Ulasan Pembaca
               </h2>
-              <div className="flex flex-col gap-4">
-                {book.reviews.map((review) => (
-                  <div
-                    key={review.id}
-                    className="p-6 bg-white border border-gray-200 rounded-xl"
-                  >
-                    <div className="flex justify-between items-start mb-3">
+              <div className="space-y-4">
+                {book.reviews.slice(0, 3).map((review) => (
+                  <div key={review.id} className="p-5 bg-gray-50 rounded-xl">
+                    <div className="flex justify-between items-start mb-3 flex-wrap gap-2">
                       <div>
-                        <h4 className="font-poppins text-base font-semibold text-gray-800 mb-1 leading-relaxed">
+                        <h4 className="font-poppins font-semibold text-base text-gray-800">
                           {review.userName}
                         </h4>
-                        <p className="font-poppins text-xs text-gray-400 leading-relaxed">
+                        <p className="font-poppins text-xs text-gray-400 mt-1">
                           {review.date}
                         </p>
                       </div>
@@ -468,11 +407,7 @@ export default function BookDetail() {
                         {[...Array(5)].map((_, i) => (
                           <svg
                             key={i}
-                            className={`w-4 h-4 ${
-                              i < review.rating
-                                ? "text-yellow-400 fill-yellow-400"
-                                : "text-gray-300 fill-gray-300"
-                            }`}
+                            className={`w-4 h-4 ${i < review.rating ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`}
                             viewBox="0 0 20 20"
                           >
                             <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
@@ -480,18 +415,17 @@ export default function BookDetail() {
                         ))}
                       </div>
                     </div>
-                    <p className="font-poppins text-sm text-gray-600 leading-relaxed text-justify">
+                    <p className="font-poppins text-sm text-gray-600 leading-relaxed">
                       {review.comment}
                     </p>
                   </div>
                 ))}
               </div>
             </div>
-          </>
-        )}
-      </div>
+          )}
+        </div>
 
-      <Footer />
-    </div>
-  );
-}
+        <Footer />
+      </div>
+    );
+  }
