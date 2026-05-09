@@ -147,7 +147,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  to="/returns"
+                  to="/return-policy"
                   className="font-poppins text-sm font-normal text-white/90 no-underline leading-relaxed inline-block transition-all duration-300 hover:opacity-100 hover:underline hover:underline-offset-4"
                 >
                   Return Policy

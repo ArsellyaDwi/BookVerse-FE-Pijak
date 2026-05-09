@@ -25,6 +25,9 @@ import FAQPage from "./pages/faq-page";
 import MyAccountPage from "./pages/my-account";
 import GenresPage from "./pages/genre-page";
 import GenreDetailPage from "./pages/genre-detail-page";
+import TermsPage from "./pages/terms";
+import PrivacyPage from "./pages/privacy";
+import ReturnPolicyPage from "./pages/return-policy";
 
 const router = createBrowserRouter([
   {
@@ -84,6 +87,18 @@ const router = createBrowserRouter([
       {
         path: "/contact",
         element: <ContactUsPage />,
+      },
+      {
+        path: "/terms",
+        element: <TermsPage />,
+      },
+      {
+        path: "/privacy",
+        element: <PrivacyPage />,
+      },
+      {
+        path: "/return-policy",
+        element: <ReturnPolicyPage />,
       },
       {
         path: "/my-account",
