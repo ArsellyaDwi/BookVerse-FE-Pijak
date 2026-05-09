@@ -23,6 +23,7 @@ import TransactionDetailPage from "./pages/transaction-detail-page";
 import ContactUsPage from "./pages/contact-us-page";
 import { ContactProvider } from "./context/contact-context";
 import FAQPage from "./pages/faq-page";
+import MyAccountPage from "./pages/my-account";
 
 const router = createBrowserRouter([
   {
@@ -78,6 +79,10 @@ const router = createBrowserRouter([
       {
         path: "/contact",
         element: <ContactUsPage />,
+      },
+      {
+        path: "/my-account",
+        element: <MyAccountPage />,
       },
       {
         path: "",
