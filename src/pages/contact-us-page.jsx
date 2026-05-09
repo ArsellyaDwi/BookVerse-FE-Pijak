@@ -6,7 +6,6 @@ import {
   Mail,
   Clock,
   Send,
-  MessageCircle,
   CheckCircle,
   Globe,
   Share2,
@@ -14,19 +13,21 @@ import {
   Video,
   ArrowLeft,
 } from "lucide-react";
-import { useContact } from "@/context/contact-context";
 import { toast } from "sonner";
+import axios from "axios";
 
 export default function ContactUsPage() {
   const navigate = useNavigate();
-  const { sendMessage, sendingMessage } = useContact();
+  
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     subject: "",
     message: "",
   });
+  
   const [submitted, setSubmitted] = useState(false);
+  const [sendingMessage, setSendingMessage] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -43,20 +44,43 @@ export default function ContactUsPage() {
       return;
     }
     
-    const result = await sendMessage(formData);
+    setSendingMessage(true);
     
-    if (result?.success !== false) {
-      setSubmitted(true);
-      setFormData({
-        name: "",
-        email: "",
-        subject: "",
-        message: "",
+    try {
+      const response = await axios.post('/contact/send', formData, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+        }
       });
-      toast.success("Message sent successfully! We will reply within 24 hours.");
-      setTimeout(() => setSubmitted(false), 5000);
-    } else {
-      toast.error("Failed to send message. Please try again.");
+      
+      if (response.data.success) {
+        setSubmitted(true);
+        setFormData({
+          name: "",
+          email: "",
+          subject: "",
+          message: "",
+        });
+        toast.success(response.data.message || "Message sent successfully! We will reply within 24 hours.");
+        setTimeout(() => setSubmitted(false), 5000);
+      } else {
+        toast.error(response.data.message || "Failed to send message. Please try again.");
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      
+      if (error.response?.data?.errors) {
+        const errors = error.response.data.errors;
+        Object.keys(errors).forEach(key => {
+          toast.error(errors[key][0]);
+        });
+      } else {
+        toast.error(error.response?.data?.message || "An error occurred. Please try again.");
+      }
+    } finally {
+      setSendingMessage(false);
     }
   };
 
@@ -65,9 +89,9 @@ export default function ContactUsPage() {
       icon: <MapPin className="w-6 h-6" />,
       title: "Visit Us",
       details: [
-        "BookVerse Store - Jakarta",
-        "Jl. Sudirman No. 123",
-        "Jakarta Selatan, 12190",
+        "BookVerse Store - Malang",
+        "JL. Raya Karanglo No.KM. 2, Tasikmadu, Kec. Lowokwaru, Kota Malang",
+        "Jawa Timur 65153",
         "Indonesia",
       ],
     },
@@ -75,10 +99,10 @@ export default function ContactUsPage() {
       icon: <Phone className="w-6 h-6" />,
       title: "Call Us",
       details: [
-        "Customer Service: (021) 1234-5678",
-        "WhatsApp: 0812-3456-7890",
+        "Customer Service: customerservicebookverse@gmail.com",
+        "WhatsApp: 0878-2246-3210",
         "Monday - Sunday",
-        "09:00 - 20:00 WIB",
+        "08:00 - 21:00 WIB",
       ],
     },
     {
@@ -94,7 +118,7 @@ export default function ContactUsPage() {
       icon: <Clock className="w-6 h-6" />,
       title: "Store Hours",
       details: [
-        "Monday - Friday: 09:00 - 21:00",
+        "Monday - Friday: 08:00 - 21:00",
         "Saturday: 09:00 - 20:00",
         "Sunday: 10:00 - 18:00",
         "Public Holidays: 10:00 - 15:00",
@@ -126,7 +150,7 @@ export default function ContactUsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white font-poppins">
       {/* Back Button */}
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-20 pt-8">
         <button
@@ -138,11 +162,11 @@ export default function ContactUsPage() {
         </button>
       </div>
 
-      {/* Hero Section - Same Blue as Footer */}
+      {/* Hero Section */}
       <div className="relative bg-blue-600 text-white py-20 mt-4">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="relative max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-20 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 font-poppins">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">
             Contact Us
           </h1>
           <p className="text-lg md:text-xl text-blue-100 max-w-2xl mx-auto">
@@ -152,7 +176,7 @@ export default function ContactUsPage() {
       </div>
 
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-20 py-16">
-        {/* Contact Info Cards - White cards with blue hover */}
+        {/* Contact Info Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
           {contactInfo.map((info, index) => (
             <div
@@ -289,14 +313,14 @@ export default function ContactUsPage() {
               </h2>
               <div className="aspect-video rounded-xl overflow-hidden">
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.521260322238!2d106.82047691536349!3d-6.208764395493943!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f17b00e95b21%3A0x4e5e5e5e5e5e5e5e!2sSudirman%2C%20Jakarta!5e0!3m2!1sen!2sid!4v1641234567890!5m2!1sen!2sid"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3951.3085001320236!2d112.619256!3d-7.9513072!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7883a6b0b5b5b5%3A0x5e5e5e5e5e5e5e5e!2sJL.%20Raya%20Karanglo%20No.KM.%202%2C%20Tasikmadu%2C%20Kec.%20Lowokwaru%2C%20Kota%20Malang%2C%20Jawa%20Timur%2065153!5e0!3m2!1sen!2sid!4v1641234567890!5m2!1sen!2sid"
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
                   allowFullScreen=""
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  title="BookVerse Store Location"
+                  title="BookVerse Store Location - Malang"
                   className="w-full h-full"
                 ></iframe>
               </div>
@@ -304,7 +328,8 @@ export default function ContactUsPage() {
                 <p className="text-sm text-blue-800 flex items-start gap-2">
                   <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
                   <span>
-                    Jl. Sudirman No. 123, Jakarta Selatan, 12190, Indonesia
+                    JL. Raya Karanglo No.KM. 2, Tasikmadu, Kec. Lowokwaru, Kota Malang
+                    Jawa Timur 65153
                   </span>
                 </p>
               </div>
@@ -343,7 +368,7 @@ export default function ContactUsPage() {
               </div>
             </div>
 
-            {/* Social Media - Same style as footer */}
+            {/* Social Media */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">
                 Connect With Us
@@ -365,24 +390,6 @@ export default function ContactUsPage() {
                   </a>
                 ))}
               </div>
-            </div>
-
-            {/* Live Chat CTA - Same blue as footer */}
-            <div className="bg-blue-600 rounded-2xl p-8 text-white text-center">
-              <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-90" />
-              <h3 className="text-xl font-semibold mb-2">
-                Need Immediate Help?
-              </h3>
-              <p className="text-blue-100 mb-4">
-                Our customer support team is ready to assist you
-              </p>
-              <button
-                onClick={() => window.open("https://wa.me/6281234567890", "_blank")}
-                className="px-6 py-2 bg-white text-blue-600 rounded-lg font-medium hover:bg-gray-50 transition-colors inline-flex items-center gap-2"
-              >
-                <MessageCircle className="w-4 h-4" />
-                Start Live Chat
-              </button>
             </div>
           </div>
         </div>

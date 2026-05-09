@@ -159,9 +159,8 @@ export default function Navbar() {
                   >
                     <span>All Genres</span>
                     <ChevronDown
-                      className={`w-4 h-4 transition-transform duration-300 ${
-                        isGenresDropdownOpen ? "rotate-180" : ""
-                      }`}
+                      className={`w-4 h-4 transition-transform duration-300 ${isGenresDropdownOpen ? "rotate-180" : ""
+                        }`}
                     />
                   </button>
 
@@ -302,9 +301,7 @@ export default function Navbar() {
               <button
                 className="p-2 hover:bg-gray-50 rounded-lg transition-all duration-300"
                 title="Contact Us"
-                onClick={() =>
-                  alert("Contact us: contact@bookverse.com or (021) 1234-5678")
-                }
+                onClick={() => navigate("/contact")}
               >
                 <Phone className="w-5 h-5 text-[#64748B]" strokeWidth={1.5} />
               </button>
@@ -349,9 +346,8 @@ export default function Navbar() {
                         <User className="w-4 h-4 text-blue-600" />
                       </div>
                       <ChevronDown
-                        className={`w-4 h-4 text-gray-600 transition-transform duration-300 ${
-                          isUserMenuOpen ? "rotate-180" : ""
-                        }`}
+                        className={`w-4 h-4 text-gray-600 transition-transform duration-300 ${isUserMenuOpen ? "rotate-180" : ""
+                          }`}
                       />
                     </button>
 
