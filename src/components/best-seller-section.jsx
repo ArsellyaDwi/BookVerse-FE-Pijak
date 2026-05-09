@@ -127,7 +127,7 @@ export default function BestSellersSection() {
           {!hasNextPage && books && books.length > 0 && (
             <div className="py-6">
               <p className="text-gray-500 font-poppins">
-                ✨ You've seen all {totalItems} books! ✨
+                You've seen all {totalItems} books!
               </p>
             </div>
           )}
