@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router";
+import { useNavigate, Link } from "react-router";
 import { useState, useEffect } from "react";
 import { ImageWithFallback } from "@/components/image-with-fallback";
 import useQuery from "@/hooks/use-query";
@@ -252,6 +252,17 @@ export default function CheckoutPage() {
     <>
       <Navbar />
       <div className="bg-white min-h-screen font-poppins">
+        <div className="bg-white border-b border-gray-100 py-3">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-20">
+          <div className="flex items-center gap-2 text-sm font-poppins text-gray-500">
+            <Link to="/" className="hover:text-blue-600 transition-colors duration-300 hover:underline underline-offset-4">
+              Home
+            </Link>
+            <span>›</span>
+            <span className="text-gray-800 font-medium">Checkout</span>
+          </div>
+        </div>
+      </div>
         <div className="bg-white border-b border-gray-200 py-6">
           <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-20">
             <h1 className="font-poppins text-[28px] font-bold text-slate-800 m-0 leading-relaxed">
