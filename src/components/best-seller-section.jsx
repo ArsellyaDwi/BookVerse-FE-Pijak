@@ -3,9 +3,8 @@ import { ArrowRight } from "lucide-react";
 import BookCard from "./book-card";
 import useQueryPagination from "@/hooks/use-query-pagination";
 import { buildStorageUrl } from "@/lib/helper";
+import { useNavigate } from "react-router";
 
-
-// Shimmer Loading Component
 const ShimmerCard = () => (
   <div className="animate-pulse">
     <div className="bg-gray-200 rounded-lg h-[300px] w-full"></div>
@@ -26,6 +25,7 @@ const ShimmerLoading = ({ count = 10 }) => (
 );
 
 export default function BestSellersSection() {
+  const navigate = useNavigate();
   const {
     data: books,
     loading,
@@ -68,11 +68,11 @@ export default function BestSellersSection() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-[#333333] font-poppins text-[28px] font-bold">
-            Bestselling Books
+            Books
           </h2>
 
           <button
-            onClick={() => (window.location.href = "/genre/all")}
+            onClick={() => navigate("/books")}
             className="flex items-center gap-2 text-[#64748B] hover:text-[#2563EB] transition-all font-poppins text-sm font-medium cursor-pointer"
           >
             View All
