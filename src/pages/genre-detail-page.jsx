@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router";
-import { 
-  ArrowLeft, 
-  Search, 
+import { useNavigate, useParams, useSearchParams, Link } from "react-router";
+import {
+  ArrowLeft,
+  Search,
   BookOpen,
   Filter,
   X,
@@ -39,7 +39,7 @@ export default function GenreDetailPage() {
   const { slug } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  
+
   // State
   const [searchKeyword, setSearchKeyword] = useState(
     searchParams.get("search") || ""
@@ -51,7 +51,7 @@ export default function GenreDetailPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [allBooks, setAllBooks] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
-  
+
   const itemsPerPage = 12;
   const searchTimeoutRef = useState(null);
 
@@ -80,19 +80,19 @@ export default function GenreDetailPage() {
 
   const filteredAndSortedBooks = useMemo(() => {
     if (!allBooks.length) return [];
-    
+
     let result = [...allBooks];
-    
+
     // Filter (search)
     if (searchKeyword) {
       const keyword = searchKeyword.toLowerCase();
-      result = result.filter(book => 
+      result = result.filter(book =>
         book.title?.toLowerCase().includes(keyword) ||
         book.author?.toLowerCase().includes(keyword) ||
         book.description?.toLowerCase().includes(keyword)
       );
     }
-    
+
     // Sort
     switch (sortBy) {
       case "price_asc":
@@ -115,7 +115,7 @@ export default function GenreDetailPage() {
         result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         break;
     }
-    
+
     return result;
   }, [allBooks, searchKeyword, sortBy]);
 
@@ -135,11 +135,11 @@ export default function GenreDetailPage() {
 
   const handleSearchChange = useCallback((value) => {
     setLocalKeyword(value);
-    
+
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
-    
+
     searchTimeoutRef.current = setTimeout(() => {
       setIsSearching(true);
       setSearchKeyword(value);
@@ -202,18 +202,26 @@ export default function GenreDetailPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
-      
+
       {/* Hero Section */}
       <div className="relative bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-20 py-12">
-          <button
-            onClick={handleBack}
-            className="flex items-center gap-2 text-white/80 hover:text-white transition-colors group mb-6"
-          >
-            <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
-            <span>Back to Genres</span>
-          </button>
+
+          {/* Breadcrumb */}
+          <div className="mb-4">
+            <div className="flex items-center gap-2 text-sm font-poppins text-white/70">
+              <Link to="/" className="hover:text-white transition-colors duration-300 hover:underline underline-offset-4">
+                Home
+              </Link>
+              <span>›</span>
+              <Link to="/genres/all" className="hover:text-white transition-colors duration-300 hover:underline underline-offset-4">
+                Genres
+              </Link>
+              <span>›</span>
+              <span className="text-white font-medium">{genre?.name}</span>
+            </div>
+          </div>
 
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-4 font-poppins">
@@ -346,8 +354,8 @@ export default function GenreDetailPage() {
             <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-700 mb-2">No books found</h3>
             <p className="text-gray-500">
-              {searchKeyword 
-                ? `No books match "${searchKeyword}" in ${genre?.name} genre.` 
+              {searchKeyword
+                ? `No books match "${searchKeyword}" in ${genre?.name} genre.`
                 : `No books available in ${genre?.name} genre yet.`
               }
             </p>
