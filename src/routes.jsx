@@ -5,7 +5,6 @@ import CheckoutPage from "./pages/checkout-page";
 import PaymentPage from "./pages/payment-page";
 import RegisterPage from "./pages/register-page";
 import TransactionsPage from "./pages/transactions-page";
-import CartPage from "./pages/cart-page";
 import AuthLayout from "./layouts/AuthLayout";
 import { AuthProvider } from "./context/auth-context";
 import LoginPage from "./pages/login-page";
@@ -28,6 +27,9 @@ import GenreDetailPage from "./pages/genre-detail-page";
 import TermsPage from "./pages/terms";
 import PrivacyPage from "./pages/privacy";
 import ReturnPolicyPage from "./pages/return-policy";
+import EditorsChoicePage from "./pages/editors-choice-page";
+import NewReleasesPage from "./pages/new-releases-page";
+import RecommendationsPage from "./pages/recommendations-page";
 
 const router = createBrowserRouter([
   {
@@ -51,6 +53,10 @@ const router = createBrowserRouter([
       {
         path: "/login",
         element: <LoginPage />,
+      },
+      {
+        path: "/recommendations",
+        element: <RecommendationsPage />,
       },
       {
         path: "books/:id",
@@ -101,6 +107,14 @@ const router = createBrowserRouter([
         element: <ReturnPolicyPage />,
       },
       {
+        path: "/editors-choice",
+        element: <EditorsChoicePage />,
+      },
+      {
+        path: "/new-releases",
+        element: <NewReleasesPage />,
+      },
+      {
         path: "/my-account",
         element: <MyAccountPage />,
       },
@@ -119,10 +133,6 @@ const router = createBrowserRouter([
           {
             path: "transactions",
             element: <TransactionsPage />,
-          },
-          {
-            path: "cart",
-            element: <CartPage />,
           },
           {
             path: "my-address",
