@@ -1,14 +1,15 @@
 import { useState, useEffect, useRef } from "react";
-import { useSearchParams, useNavigate, useLocation } from "react-router";
+import { useSearchParams, useNavigate, useLocation, Link } from "react-router";
 import {
-  ArrowRight,
   Filter,
   X,
   ChevronDown,
   ChevronUp,
-  SlidersHorizontal,
   Star,
   Search,
+  BookOpen,
+  Clock,
+  Sparkles,
 } from "lucide-react";
 import BookCard from "@/components/book-card";
 import useQueryPagination from "@/hooks/use-query-pagination";
@@ -40,6 +41,7 @@ export default function BookListPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "all");
   const [searchKeyword, setSearchKeyword] = useState(
     searchParams.get("keyword") || ""
   );
@@ -115,8 +117,19 @@ export default function BookListPage() {
     if (filters.min_price) params.min_price = filters.min_price;
     if (filters.max_price) params.max_price = filters.max_price;
     if (filters.min_rating) params.min_rating = filters.min_rating;
-    if (filters.sort_by) params.sort_by = filters.sort_by;
-    if (filters.sort_direction) params.sort_direction = filters.sort_direction;
+    
+    // LOGIKA EDITOR'S CHOICE & NEW RELEASES
+    if (activeTab === "editors") {
+      params.sort_by = "rating";
+      params.sort_direction = "desc";
+    } else if (activeTab === "newreleases") {
+      params.sort_by = "created_at";
+      params.sort_direction = "desc";
+    } else {
+      if (filters.sort_by) params.sort_by = filters.sort_by;
+      if (filters.sort_direction) params.sort_direction = filters.sort_direction;
+    }
+    
     params.per_page = 12;
     return params;
   };
@@ -139,10 +152,29 @@ export default function BookListPage() {
 
   const handleSearch = () => {
     setSearchKeyword(localKeyword);
+    setActiveTab("all");
   };
 
   const handleKeywordChange = (value) => {
     setLocalKeyword(value);
+  };
+
+  const handleTabChange = (tabId) => {
+    setActiveTab(tabId);
+    setSearchKeyword("");
+    setLocalKeyword("");
+    setCurrentPage(1);
+    
+    // Reset filters when changing tabs
+    setFilters({
+      genres: [],
+      language: "",
+      min_price: filterOptions.price_range.min.toString(),
+      max_price: filterOptions.price_range.max.toString(),
+      min_rating: "",
+      sort_by: "",
+      sort_direction: "asc",
+    });
   };
 
   useEffect(() => {
@@ -156,16 +188,16 @@ export default function BookListPage() {
 
     const params = new URLSearchParams();
     if (searchKeyword) params.set("keyword", searchKeyword);
+    if (activeTab !== "all") params.set("tab", activeTab);
     if (filters.genres.length) params.set("genres", filters.genres.join(","));
     if (filters.language) params.set("language", filters.language);
     if (filters.min_price) params.set("min_price", filters.min_price);
     if (filters.max_price) params.set("max_price", filters.max_price);
     if (filters.min_rating) params.set("min_rating", filters.min_rating);
-    if (filters.sort_by) params.set("sort_by", filters.sort_by);
-    if (filters.sort_direction)
-      params.set("sort_direction", filters.sort_direction);
+    if (filters.sort_by && activeTab === "all") params.set("sort_by", filters.sort_by);
+    if (filters.sort_direction && activeTab === "all") params.set("sort_direction", filters.sort_direction);
+    
     setSearchParams(params, { replace: true });
-
     refetchBooks(buildQueryParams());
   }, [
     searchKeyword,
@@ -176,6 +208,7 @@ export default function BookListPage() {
     filters.min_rating,
     filters.sort_by,
     filters.sort_direction,
+    activeTab,
   ]);
 
   const handleFilterChange = (key, value) => {
@@ -194,6 +227,9 @@ export default function BookListPage() {
   const clearFilters = () => {
     setLocalKeyword("");
     setSearchKeyword("");
+    if (activeTab === "all") {
+      setActiveTab("all");
+    }
 
     setFilters({
       genres: [],
@@ -217,12 +253,27 @@ export default function BookListPage() {
     );
   };
 
-  const sortOptions = [
-    { value: "title", label: "Title" },
-    { value: "price", label: "Price" },
-    { value: "rating", label: "Rating" },
-    { value: "publish_date", label: "Publish Date" },
+  const tabs = [
+    { id: "all", label: "All Books", icon: <BookOpen size={16} /> },
+    { id: "editors", label: "Editor's Choice", icon: <Star size={16} /> },
+    { id: "newreleases", label: "New Releases", icon: <Clock size={16} /> },
   ];
+
+  const getTabTitle = () => {
+    switch (activeTab) {
+      case "editors": return "Editor's Choice";
+      case "newreleases": return "New Releases";
+      default: return "All Books";
+    }
+  };
+
+  const getTabDescription = () => {
+    switch (activeTab) {
+      case "editors": return "Curated selections of the finest books, chosen by our editors";
+      case "newreleases": return "Discover the newest books, fresh from the press";
+      default: return "Discover our complete collection of amazing books";
+    }
+  };
 
   const showShimmer = initLoading && !filterOptions.genres.length;
   const showBooksLoading = loading && !books;
@@ -242,7 +293,64 @@ export default function BookListPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
+
+      {/* Hero Section */}
+      <div className="relative bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
+        <div className="absolute inset-0 bg-black/10"></div>
+        <div className="relative max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-20 py-12">
+
+          {/* Breadcrumb */}
+          <div className="mb-4">
+            <div className="flex items-center gap-2 text-sm font-poppins text-white/70">
+              <Link to="/" className="hover:text-white transition-colors duration-300 hover:underline underline-offset-4">
+                Home
+              </Link>
+              <span>›</span>
+              <span className="text-white font-medium">
+                {activeTab === "editors" ? "Editor's Choice" : activeTab === "newreleases" ? "New Releases" : "Books"}
+              </span>
+            </div>
+          </div>
+
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-poppins">
+                {getTabTitle()}
+              </h1>
+            </div>
+            <p className="text-lg text-blue-100 max-w-2xl mx-auto font-poppins">
+              {getTabDescription()}
+            </p>
+            <div className="flex items-center justify-center gap-2 mt-6">
+              <BookOpen className="w-5 h-5 text-blue-200" />
+              <span className="text-blue-100 font-poppins">
+                {activeTab === "editors" ? `${totalItems} curated books` : activeTab === "newreleases" ? `${totalItems} new arrivals` : `${totalItems} books available`}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-20 py-8">
+        
+        {/* Tab Navigation */}
+        <div className="flex flex-wrap justify-center gap-2 mb-6">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => handleTabChange(tab.id)}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
+                activeTab === tab.id
+                  ? "bg-blue-600 text-white shadow-md shadow-blue-200"
+                  : "bg-white text-gray-600 border border-gray-200 hover:border-blue-300 hover:text-blue-600"
+              }`}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => setIsFilterOpen(true)}
@@ -252,257 +360,151 @@ export default function BookListPage() {
             <span>Filters</span>
             {hasActiveFilters() && (
               <span className="ml-1 px-2 py-0.5 bg-blue-600 text-white text-xs rounded-full">
-                {filters.genres.length +
-                  (filters.language ? 1 : 0) +
-                  (filters.min_rating ? 1 : 0)}
+                {filters.genres.length + (filters.language ? 1 : 0) + (filters.min_rating ? 1 : 0)}
               </span>
             )}
           </button>
 
           <div className="text-sm text-gray-600">
-            {!showBooksLoading && books && (
-              <span>{totalItems} books found</span>
-            )}
+            {!showBooksLoading && books && <span>{totalItems} books found</span>}
           </div>
         </div>
 
         <div className="flex gap-8">
-          <div
-            className={`fixed inset-y-0 left-0 z-50 w-full max-w-md bg-white transform transition-transform duration-300 ease-in-out overflow-y-auto ${
-              isFilterOpen ? "translate-x-0" : "-translate-x-full"
-            } lg:relative lg:translate-x-0 lg:block lg:w-72 lg:overflow-y-visible`}
-          >
-            <div className="h-full lg:h-auto lg:sticky lg:top-24 p-6 border-r border-gray-200">
-              <div className="flex items-center justify-between lg:hidden mb-6">
-                <h3 className="text-xl font-bold text-gray-900">Filters</h3>
-                <button
-                  onClick={() => setIsFilterOpen(false)}
-                  className="p-2 hover:bg-gray-100 rounded-lg"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Search Books
-                </label>
-                <div className="flex gap-2 flex-wrap">
-                  <input
-                    type="text"
-                    value={localKeyword}
-                    onChange={(e) => handleKeywordChange(e.target.value)}
-                    placeholder="Search by title, author, or description..."
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                  <button
-                    onClick={handleSearch}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 whitespace-nowrap flex-shrink-0"
-                  >
-                    <Search className="w-4 h-4" />
-                    <span>Search</span>
+          {/* Sidebar Filters */}
+          {activeTab === "all" && (
+            <div
+              className={`fixed inset-y-0 left-0 z-50 w-full max-w-md bg-white transform transition-transform duration-300 ease-in-out overflow-y-auto ${
+                isFilterOpen ? "translate-x-0" : "-translate-x-full"
+              } lg:relative lg:translate-x-0 lg:block lg:w-72 lg:overflow-y-visible`}
+            >
+              <div className="h-full lg:h-auto lg:sticky lg:top-24 p-6 border-r border-gray-200">
+                <div className="flex items-center justify-between lg:hidden mb-6">
+                  <h3 className="text-xl font-bold text-gray-900">Filters</h3>
+                  <button onClick={() => setIsFilterOpen(false)} className="p-2 hover:bg-gray-100 rounded-lg">
+                    <X className="w-5 h-5" />
                   </button>
                 </div>
-              </div>
 
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Genres
-                </label>
-                <div className="space-y-2 max-h-64 overflow-y-auto">
-                  {filterOptions.genres.map((genre) => (
-                    <label
-                      key={genre.id}
-                      className="flex items-center gap-2 cursor-pointer"
+                <div className="mb-6">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Search Books</label>
+                  <div className="flex gap-2 flex-wrap">
+                    <input
+                      type="text"
+                      value={localKeyword}
+                      onChange={(e) => handleKeywordChange(e.target.value)}
+                      placeholder="Search by title, author..."
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      onClick={handleSearch}
+                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2"
                     >
-                      <input
-                        type="checkbox"
-                        checked={filters.genres.includes(genre.id.toString())}
-                        onChange={() => handleGenreToggle(genre.id)}
-                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                      />
-                      <span className="text-sm text-gray-700">
-                        {genre.name}
-                      </span>
-                      {genre.books_count && (
-                        <span className="text-xs text-gray-400">
-                          ({genre.books_count})
-                        </span>
-                      )}
-                    </label>
-                  ))}
+                      <Search className="w-4 h-4" />
+                      <span>Search</span>
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Language
-                </label>
-                <select
-                  value={filters.language}
-                  onChange={(e) =>
-                    handleFilterChange("language", e.target.value)
-                  }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">All Languages</option>
-                  {filterOptions.languages.map((lang) => (
-                    <option key={lang} value={lang}>
-                      {lang}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                <div className="mb-6">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Genres</label>
+                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                    {filterOptions.genres.map((genre) => (
+                      <label key={genre.id} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={filters.genres.includes(genre.id.toString())}
+                          onChange={() => handleGenreToggle(genre.id)}
+                          className="w-4 h-4 text-blue-600 rounded"
+                        />
+                        <span className="text-sm text-gray-700">{genre.name}</span>
+                        {genre.books_count && <span className="text-xs text-gray-400">({genre.books_count})</span>}
+                      </label>
+                    ))}
+                  </div>
+                </div>
 
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Price Range (Rupiah)
-                </label>
-                <div className="flex gap-3">
-                  <div className="relative flex-1">
-                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">
-                      Rp
-                    </span>
+                <div className="mb-6">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Language</label>
+                  <select
+                    value={filters.language}
+                    onChange={(e) => handleFilterChange("language", e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                  >
+                    <option value="">All Languages</option>
+                    {filterOptions.languages.map((lang) => (
+                      <option key={lang} value={lang}>{lang}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="mb-6">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Price Range</label>
+                  <div className="flex gap-3">
                     <input
                       type="number"
                       value={filters.min_price}
-                      onChange={(e) =>
-                        handleFilterChange("min_price", e.target.value)
-                      }
-                      placeholder={formatRupiah(filterOptions.price_range.min)}
-                      className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      onChange={(e) => handleFilterChange("min_price", e.target.value)}
+                      placeholder="Min"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                     />
-                  </div>
-                  <div className="relative flex-1">
-                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">
-                      Rp
-                    </span>
                     <input
                       type="number"
                       value={filters.max_price}
-                      onChange={(e) =>
-                        handleFilterChange("max_price", e.target.value)
-                      }
-                      placeholder={formatRupiah(filterOptions.price_range.max)}
-                      className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      onChange={(e) => handleFilterChange("max_price", e.target.value)}
+                      placeholder="Max"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                     />
                   </div>
                 </div>
-                <div className="mt-2 text-xs text-gray-500">
-                  Range: {formatRupiah(filterOptions.price_range.min)} -{" "}
-                  {formatRupiah(filterOptions.price_range.max)}
-                </div>
-              </div>
 
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Minimum Rating
-                </label>
-                <div className="flex items-center gap-2 flex-wrap">
-                  {[1, 2, 3, 4, 5].map((rating) => (
-                    <button
-                      key={rating}
-                      onClick={() =>
-                        handleFilterChange("min_rating", rating.toString())
-                      }
-                      className={`flex items-center gap-1 px-3 py-1 rounded-lg border transition-all ${
-                        filters.min_rating === rating.toString()
-                          ? "bg-blue-600 text-white border-blue-600"
-                          : "border-gray-300 text-gray-700 hover:border-blue-300"
-                      }`}
-                    >
-                      <Star
-                        className={`w-3 h-3 ${
+                <div className="mb-6">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Minimum Rating</label>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {[1, 2, 3, 4, 5].map((rating) => (
+                      <button
+                        key={rating}
+                        onClick={() => handleFilterChange("min_rating", rating.toString())}
+                        className={`px-3 py-1 rounded-lg border transition-all ${
                           filters.min_rating === rating.toString()
-                            ? "fill-current"
-                            : ""
+                            ? "bg-blue-600 text-white border-blue-600"
+                            : "border-gray-300 text-gray-700 hover:border-blue-300"
                         }`}
-                      />
-                      <span className="text-sm">{rating}+</span>
-                    </button>
-                  ))}
-                  {filters.min_rating && (
-                    <button
-                      onClick={() => handleFilterChange("min_rating", "")}
-                      className="text-xs text-red-500 hover:underline"
-                    >
-                      Clear
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Sort By
-                </label>
-                <div className="space-y-2">
-                  <select
-                    value={filters.sort_by}
-                    onChange={(e) =>
-                      handleFilterChange("sort_by", e.target.value)
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Default</option>
-                    {sortOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
+                      >
+                        <Star className={`w-3 h-3 inline ${filters.min_rating === rating.toString() ? "fill-current" : ""}`} />
+                        <span className="text-sm ml-1">{rating}+</span>
+                      </button>
                     ))}
-                  </select>
-                  {filters.sort_by && (
-                    <button
-                      onClick={() =>
-                        handleFilterChange(
-                          "sort_direction",
-                          filters.sort_direction === "asc" ? "desc" : "asc"
-                        )
-                      }
-                      className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700"
-                    >
-                      {filters.sort_direction === "asc" ? (
-                        <>
-                          <ChevronUp className="w-4 h-4" /> Ascending
-                        </>
-                      ) : (
-                        <>
-                          <ChevronDown className="w-4 h-4" /> Descending
-                        </>
-                      )}
-                    </button>
-                  )}
+                  </div>
                 </div>
+
+                {hasActiveFilters() && (
+                  <button onClick={clearFilters} className="w-full py-2 text-center text-red-600 hover:text-red-700 text-sm">
+                    Clear All Filters
+                  </button>
+                )}
               </div>
-
-              {hasActiveFilters() && (
-                <button
-                  onClick={clearFilters}
-                  className="w-full py-2 text-center text-red-600 hover:text-red-700 text-sm font-medium"
-                >
-                  Clear All Filters
-                </button>
-              )}
             </div>
-          </div>
+          )}
 
-          <div className="flex-1">
+          {/* Books Grid */}
+          <div className={`flex-1 ${activeTab === "all" ? "lg:ml-0" : ""}`}>
             {showBooksLoading ? (
               <ShimmerLoading count={12} />
             ) : (
               <>
                 {books && books.length > 0 ? (
                   <>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
                       {books.map((book) => (
                         <BookCard
                           key={book.id}
                           id={book.id}
                           title={book.title}
-                          author={book.author}
+                          author={book.author?.split(',')[0] || book.author}
                           price={book.price}
-                          rating={book.rating}
-                          image={`${buildStorageUrl(book.cover_img)}`}
+                          rating={book.rating || 0}
+                          image={buildStorageUrl(book.cover_img)}
                         />
                       ))}
                     </div>
@@ -522,49 +524,30 @@ export default function BookListPage() {
                           onClick={() => loadMore()}
                           className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-poppins font-medium shadow-md hover:shadow-lg"
                         >
-                          Load More ({pagination.currentPage} /{" "}
-                          {pagination.lastPage})
+                          Load More ({pagination.currentPage} / {pagination.lastPage})
                         </button>
                       )}
 
                       {!hasNextPage && books && (
                         <div className="py-6">
-                          <p className="text-gray-500">
-                            You've reached the end of {totalItems} books
-                          </p>
+                          <p className="text-gray-500">You've reached the end of {totalItems} books</p>
                         </div>
                       )}
 
                       {books && (
                         <div className="mt-4 text-sm text-gray-400">
-                          Showing{" "}
-                          {(pagination.currentPage - 1) * pagination.perPage +
-                            1}{" "}
-                          -{" "}
-                          {Math.min(
-                            pagination.currentPage * pagination.perPage,
-                            totalItems
-                          )}{" "}
-                          of {totalItems} books
+                          Showing {(pagination.currentPage - 1) * pagination.perPage + 1} -{" "}
+                          {Math.min(pagination.currentPage * pagination.perPage, totalItems)} of {totalItems} books
                         </div>
                       )}
                     </div>
                   </>
                 ) : (
                   <div className="text-center py-20">
-                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-4">
-                      <Filter className="w-10 h-10 text-gray-400" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      No books found
-                    </h3>
-                    <p className="text-gray-500 mb-4">
-                      Try adjusting your filters
-                    </p>
-                    <button
-                      onClick={clearFilters}
-                      className="text-blue-600 hover:text-blue-700 font-medium"
-                    >
+                    <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-700 mb-2">No books found</h3>
+                    <p className="text-gray-500">Try adjusting your filters or search terms</p>
+                    <button onClick={clearFilters} className="mt-4 text-blue-600 hover:text-blue-700 font-medium">
                       Clear all filters
                     </button>
                   </div>
@@ -575,11 +558,8 @@ export default function BookListPage() {
         </div>
       </div>
 
-      {isFilterOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={() => setIsFilterOpen(false)}
-        />
+      {isFilterOpen && activeTab === "all" && (
+        <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setIsFilterOpen(false)} />
       )}
 
       <Footer />
