@@ -37,7 +37,6 @@ export default function BookCard({
     navigate(`/books/${id}`);
   };
 
-  // Format price in IDR (Indonesian Rupiah)
   const formattedPrice = new Intl.NumberFormat("id-ID").format(price);
 
   return (
