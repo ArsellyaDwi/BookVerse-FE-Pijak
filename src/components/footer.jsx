@@ -1,13 +1,37 @@
 import { Link } from "react-router";
 import { useState } from "react";
+import axios from "axios";
 
 export default function Footer() {
   const [email, setEmail] = useState("");
+  const [status, setStatus] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleNewsletterSubmit = (e) => {
+  const handleNewsletterSubmit = async (e) => {
     e.preventDefault();
-    alert(`Thank you! Email ${email} has been registered for the newsletter.`);
-    setEmail("");
+
+    if (!email) return;
+
+    setLoading(true);
+    setStatus(null);
+
+    try {
+      const response = await axios.post('/subscribe', { email });
+
+      if (response.data.success) {
+        setStatus({ type: 'success', message: 'Subscribed successfully! Check your email.' });
+        setEmail('');
+        setTimeout(() => setStatus(null), 5000);
+      }
+    } catch (error) {
+      const errorMsg = error.response?.data?.message ||
+        error.response?.data?.errors?.email?.[0] ||
+        'Subscription failed. Please try again.';
+      setStatus({ type: 'error', message: errorMsg });
+      setTimeout(() => setStatus(null), 5000);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -98,7 +122,7 @@ export default function Footer() {
             <ul className="flex flex-col gap-3">
               <li>
                 <Link
-                  to="/genre/editor-choice"
+                  to="/editors-choice"
                   className="font-poppins text-sm font-normal text-white/90 no-underline leading-relaxed inline-block transition-all duration-300 hover:opacity-100 hover:underline hover:underline-offset-4"
                 >
                   Editor's Choice
@@ -106,7 +130,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  to="/genre/new-releases"
+                  to="/new-releases"
                   className="font-poppins text-sm font-normal text-white/90 no-underline leading-relaxed inline-block transition-all duration-300 hover:opacity-100 hover:underline hover:underline-offset-4"
                 >
                   New Releases
@@ -177,30 +201,43 @@ export default function Footer() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Your Email"
                   required
-                  className="flex-1 bg-transparent focus:outline-none font-poppins text-[13px] text-white py-1.5 px-3 border-none placeholder:text-white/60"
+                  disabled={loading}
+                  className="flex-1 bg-transparent focus:outline-none font-poppins text-[13px] text-white py-1.5 px-3 border-none placeholder:text-white/60 disabled:opacity-50"
                 />
-                {/* Paper Plane Button */}
                 <button
                   type="submit"
-                  className="flex items-center justify-center w-11 h-11 min-w-[44px] min-h-[44px] rounded-full border-none cursor-pointer text-blue-600 bg-white p-3 flex-shrink-0 transition-all duration-300 hover:bg-slate-100 hover:scale-105"
-                  title="Send"
+                  disabled={loading}
+                  className="flex items-center justify-center w-11 h-11 min-w-[44px] min-h-[44px] rounded-full border-none cursor-pointer text-blue-600 bg-white p-3 flex-shrink-0 transition-all duration-300 hover:bg-slate-100 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Subscribe"
                 >
-                  <svg
-                    className="w-5 h-5 block m-auto"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"
-                    />
-                  </svg>
+                  {loading ? (
+                    <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <svg
+                      className="w-5 h-5 block m-auto"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"
+                      />
+                    </svg>
+                  )}
                 </button>
               </div>
             </form>
+
+            {/* Status Message */}
+            {status && (
+              <p className={`text-xs mt-3 font-poppins ${status.type === 'success' ? 'text-green-300' : 'text-red-300'
+                }`}>
+                {status.message}
+              </p>
+            )}
           </div>
         </div>
 
