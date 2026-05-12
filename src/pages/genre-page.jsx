@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { useNavigate, useSearchParams, Link } from "react-router";
 import {
     ArrowLeft,
     Search,
@@ -43,38 +43,25 @@ export default function GenresPage() {
                 genres.map(async (genre) => {
                     try {
                         const url = `/api/genres/${genre.id}/books?per_page=1`;
-                        console.log("🔍 Fetching:", url);
-
                         const response = await fetch(url);
 
                         if (!response.ok) {
-                            console.warn(`⚠️ Genre ${genre.slug} tidak punya endpoint atau buku, skip`);
                             return genre;
                         }
 
                         const result = await response.json();
-
-                        if (!result?.success || !result?.data?.length) {
-                            console.warn(`⚠️ Genre ${genre.slug} tidak memiliki buku`);
-                            return genre;
-                        }
-
-                        const firstBook = result.data[0];
-
-                        console.log(`✅ ${genre.name}: ${firstBook.title}`);
+                        const firstBook = result?.data?.[0];
 
                         return {
                             ...genre,
                             image: firstBook?.cover_img ? buildStorageUrl(firstBook.cover_img) : null,
                         };
                     } catch (error) {
-                        console.warn(`⚠️ Gagal ambil gambar untuk genre ${genre.slug}:`, error.message);
                         return genre;
                     }
                 })
             );
 
-            console.log("✅ Final result:", updatedGenres);
             setGenresWithImages(updatedGenres);
             setIsLoadingImages(false);
         };
@@ -82,20 +69,17 @@ export default function GenresPage() {
         fetchTopBookImages();
     }, [getGenres.data, getGenres.loading]);
 
-    // Gunakan genresWithImages untuk filtering (bukan getGenres.data langsung)
     const filteredGenres = (genresWithImages.length > 0 ? genresWithImages : getGenres.data || []).filter((genre) =>
         genre.name?.toLowerCase().includes(searchTerm.toLowerCase())
     ) || [];
 
-    // Sort genres by name or book count
     const [sortBy, setSortBy] = useState("name");
     const sortedGenres = [...filteredGenres].sort((a, b) => {
         if (sortBy === "name") return (a.name || "").localeCompare(b.name || "");
-        if (sortBy === "books") return (b.book_count || 0) - (a.book_count || 0);
+        if (sortBy === "books") return (b.books_count || 0) - (a.books_count || 0);
         return 0;
     });
 
-    // Pagination
     const totalPages = Math.ceil(sortedGenres.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const paginatedGenres = sortedGenres.slice(startIndex, startIndex + itemsPerPage);
@@ -108,7 +92,7 @@ export default function GenresPage() {
         navigate(-1);
     };
 
-    const totalBooks = (genresWithImages.length > 0 ? genresWithImages : getGenres.data || []).reduce((acc, genre) => acc + (genre.book_count || 0), 0) || 0;
+    const totalBooks = (genresWithImages.length > 0 ? genresWithImages : getGenres.data || []).reduce((acc, genre) => acc + (genre.books_count || 0), 0) || 0;
 
     const sortOptions = [
         { value: "name", label: "Name A-Z" },
@@ -123,13 +107,16 @@ export default function GenresPage() {
             <div className="relative bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
                 <div className="absolute inset-0 bg-black/10"></div>
                 <div className="relative max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-20 py-12">
-                    <button
-                        onClick={handleBack}
-                        className="flex items-center gap-2 text-white/80 hover:text-white transition-colors group mb-6"
-                    >
-                        <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
-                        <span>Back</span>
-                    </button>
+                    {/* Breadcrumb */}
+                    <div className="mb-6">
+                        <div className="flex items-center gap-2 text-sm font-poppins text-white/80">
+                            <Link to="/" className="hover:text-white transition-colors duration-300 hover:underline underline-offset-4">
+                                Home
+                            </Link>
+                            <span>›</span>
+                            <span className="text-white/60">All Genres</span>
+                        </div>
+                    </div>
 
                     <div className="text-center">
                         <h1 className="text-4xl md:text-5xl font-bold mb-4 font-poppins">
@@ -145,7 +132,6 @@ export default function GenresPage() {
             <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-20 py-12">
                 {/* Search & Filter Bar */}
                 <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
-                    {/* Search Input */}
                     <div className="relative w-full md:w-96">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                         <input
@@ -161,7 +147,6 @@ export default function GenresPage() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                        {/* Sort Dropdown */}
                         <select
                             value={sortBy}
                             onChange={(e) => {
@@ -177,29 +162,27 @@ export default function GenresPage() {
                             ))}
                         </select>
 
-                        {/* View Mode Toggle */}
                         <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
                             <button
                                 onClick={() => setViewMode("grid")}
                                 className={`p-2 rounded-lg transition-all ${viewMode === "grid"
-                                        ? "bg-white text-blue-600 shadow-sm"
-                                        : "text-gray-500 hover:text-gray-700"
-                                    }`}
+                                    ? "bg-white text-blue-600 shadow-sm"
+                                    : "text-gray-500 hover:text-gray-700"
+                                }`}
                             >
                                 <Grid3x3 className="w-5 h-5" />
                             </button>
                             <button
                                 onClick={() => setViewMode("list")}
                                 className={`p-2 rounded-lg transition-all ${viewMode === "list"
-                                        ? "bg-white text-blue-600 shadow-sm"
-                                        : "text-gray-500 hover:text-gray-700"
-                                    }`}
+                                    ? "bg-white text-blue-600 shadow-sm"
+                                    : "text-gray-500 hover:text-gray-700"
+                                }`}
                             >
                                 <List className="w-5 h-5" />
                             </button>
                         </div>
 
-                        {/* Filter Button (Mobile) */}
                         <button
                             onClick={() => setIsFilterOpen(true)}
                             className="lg:hidden flex items-center gap-2 px-4 py-3 bg-white border border-gray-200 rounded-xl"
@@ -221,7 +204,7 @@ export default function GenresPage() {
                         <div className="flex items-center gap-2">
                             <TrendingUp className="w-5 h-5 text-green-600" />
                             <span className="text-gray-600 font-poppins">
-                                <strong className="text-gray-900">{totalBooks}+</strong> Books
+                                <strong className="text-gray-900">{totalBooks.toLocaleString()}</strong> Books
                             </span>
                         </div>
                     </div>
@@ -268,7 +251,7 @@ export default function GenresPage() {
                                     <div className="flex items-center justify-center gap-1 mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                         <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                                         <span className="text-white/80 text-xs">
-                                            {genre.book_count || 0} books
+                                            {genre.books_count || 0} books
                                         </span>
                                     </div>
                                 </div>
@@ -300,7 +283,7 @@ export default function GenresPage() {
                                         {genre.name}
                                     </h3>
                                     <p className="text-sm text-gray-500">
-                                        {genre.book_count || 0} books available
+                                        {genre.books_count || 0} books available
                                     </p>
                                 </div>
                                 <div className="flex items-center gap-1 text-gray-400 group-hover:text-blue-600 transition-colors">
@@ -350,7 +333,6 @@ export default function GenresPage() {
                     </div>
                 )}
 
-                {/* Divider */}
                 <div className="h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent my-12" />
             </div>
 
