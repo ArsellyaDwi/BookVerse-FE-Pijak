@@ -62,7 +62,7 @@ export default function EmotionRecommendation() {
 
     try {
       const detectResponse = await axios.post(
-        `${API_BASE_URL}/recommend`,
+        `${API_BASE_URL}/emotion/detect`,
         { text: text },
         { headers: { "x-api-key": API_KEY } }
       );
