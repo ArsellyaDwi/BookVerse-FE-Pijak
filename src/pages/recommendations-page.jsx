@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams, Link } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { ArrowLeft, BookOpen, Heart, Sparkles, Smile, Frown, Wind, Zap, HeartCrack } from "lucide-react";
 import axios from "axios";
 import BookCard from "@/components/book-card";
@@ -41,16 +41,123 @@ const emotionColors = {
   default: "text-blue-600"
 };
 
-const ShimmerCard = () => (
-  <div className="animate-pulse">
-    <div className="bg-gray-200 rounded-lg h-[300px] w-full"></div>
-    <div className="mt-3 space-y-2">
-      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-      <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-      <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+const BookLoadingAnimation = () => {
+  const [page, setPage] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [quoteIndex, setQuoteIndex] = useState(0);
+
+  const loadingQuotes = [
+    "Turning pages just for you...",
+    "Finding your next adventure...",
+    "Curating magical stories...",
+    "Matching books with your soul...",
+    "Almost there..."
+  ];
+
+  useEffect(() => {
+    const pageInterval = setInterval(() => {
+      setPage((prev) => (prev + 1) % 4);
+    }, 500);
+    
+    const progressInterval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) return 100;
+        return Math.min(prev + 2, 100);
+      });
+    }, 100);
+
+    const quoteInterval = setInterval(() => {
+      setQuoteIndex((prev) => (prev + 1) % loadingQuotes.length);
+    }, 2000);
+    
+    return () => {
+      clearInterval(pageInterval);
+      clearInterval(progressInterval);
+      clearInterval(quoteInterval);
+    };
+  }, []);
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh]">
+      <div className="relative w-52 h-52 mb-8">
+        <div className="absolute -bottom-4 left-4 right-4 h-4 bg-blue-200/50 blur-xl rounded-full" />
+        
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-700 to-blue-800 rounded-r-lg shadow-2xl transform origin-left transition-all duration-500"
+             style={{ transform: `rotateY(${page * 8}deg)` }}>
+          <div className="absolute inset-2 bg-gradient-to-t from-blue-800/50 to-transparent rounded-r" />
+        </div>
+        
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-white rounded-l-lg shadow-xl transform origin-right"
+             style={{ transform: `rotateY(${-8 + page * 4}deg)` }}>
+          <div className="absolute inset-3 border border-blue-100 rounded-l" />
+          <div className="absolute right-2 top-4 bottom-4 w-px bg-blue-200" />
+        </div>
+        
+        <div className="absolute inset-0 bg-white rounded-r-lg shadow-xl transform origin-left overflow-hidden"
+             style={{ transform: `rotateY(${8 - page * 4}deg)` }}>
+          <div className="absolute inset-3 border border-blue-100 rounded-r" />
+          <div className="absolute inset-x-4 top-6 space-y-1.5 opacity-30">
+            <div className="h-1.5 bg-blue-300 rounded w-3/4" />
+            <div className="h-1.5 bg-blue-300 rounded w-full" />
+            <div className="h-1.5 bg-blue-300 rounded w-5/6" />
+            <div className="h-1.5 bg-blue-300 rounded w-2/3" />
+          </div>
+        </div>
+        
+        <div className="absolute left-0 top-0 bottom-0 w-2.5 bg-gradient-to-r from-blue-900 to-blue-800 rounded-l" />
+        
+        <div className="absolute -top-2 right-3 w-6 h-10 bg-gradient-to-b from-yellow-400 to-yellow-500 rounded-b-sm shadow-md transform -rotate-12" />
+        
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg">
+            <div className="w-7 h-7 border-3 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+          </div>
+        </div>
+      </div>
+      
+      <div className="text-center space-y-3">
+        <h3 className="text-xl font-semibold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent font-poppins">
+          {loadingQuotes[quoteIndex]}
+        </h3>
+        <p className="text-sm text-gray-400 font-poppins">
+          Based on your unique mood
+        </p>
+      </div>
+      
+      <div className="w-72 mt-6">
+        <div className="flex justify-between text-xs text-gray-400 mb-1 font-poppins">
+          <span>Analyzing mood</span>
+          <span>{Math.floor(progress)}%</span>
+        </div>
+        <div className="h-2 bg-blue-100 rounded-full overflow-hidden">
+          <div 
+            className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-300 ease-out relative"
+            style={{ width: `${progress}%` }}
+          >
+            <div className="absolute inset-0 bg-white/20 animate-pulse" />
+          </div>
+        </div>
+      </div>
+      
+      <div className="flex gap-2 mt-6">
+        {[
+          { active: progress >= 0 },
+          { active: progress >= 33 },
+          { active: progress >= 66 },
+          { active: progress >= 100 }
+        ].map((step, idx) => (
+          <div key={idx} className="flex items-center">
+            <div className={`
+              w-2 h-2 rounded-full transition-all duration-300
+              ${step.active ? 'bg-blue-600 scale-110' : 'bg-gray-300'}
+            `} />
+            {idx < 3 && <div className={`w-6 h-px mx-1 transition-colors ${step.active ? 'bg-blue-300' : 'bg-gray-200'}`} />}
+          </div>
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default function RecommendationsPage() {
   const navigate = useNavigate();
@@ -66,6 +173,8 @@ export default function RecommendationsPage() {
   useEffect(() => {
     const fetchRecommendations = async () => {
       setLoading(true);
+      const startTime = Date.now();
+      
       try {
         const response = await axios.post("/emotion/recommend", {
           emotion: emotion
@@ -80,7 +189,16 @@ export default function RecommendationsPage() {
         console.error("Error:", err);
         setError("Connection error. Please try again.");
       } finally {
-        setLoading(false);
+        const elapsedTime = Date.now() - startTime;
+        const minLoadingTime = 5000;
+        
+        if (elapsedTime < minLoadingTime) {
+          setTimeout(() => {
+            setLoading(false);
+          }, minLoadingTime - elapsedTime);
+        } else {
+          setLoading(false);
+        }
       }
     };
 
@@ -120,11 +238,7 @@ export default function RecommendationsPage() {
         <Navbar />
         <div className="min-h-screen bg-gray-50">
           <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-20 py-8">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-              {[...Array(10)].map((_, i) => (
-                <ShimmerCard key={i} />
-              ))}
-            </div>
+            <BookLoadingAnimation />
           </div>
         </div>
         <Footer />
@@ -160,7 +274,6 @@ export default function RecommendationsPage() {
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-20 py-8">
           
-          {/* Back Button */}
           <button
             onClick={() => navigate(-1)}
             className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors group mb-6"
@@ -169,7 +282,6 @@ export default function RecommendationsPage() {
             <span>Back</span>
           </button>
 
-          {/* Header */}
           <div className="text-center mb-10">
             <div className={`flex justify-center mb-4 ${getEmotionColor()}`}>
               {getEmotionIcon()}
@@ -195,7 +307,6 @@ export default function RecommendationsPage() {
             )}
           </div>
 
-          {/* Books Grid */}
           {books.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
               {books.map((book) => (
