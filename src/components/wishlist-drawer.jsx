@@ -209,18 +209,6 @@ export default function WishlistDrawer({ isOpen, onClose }) {
               </div>
             )}
           </div>
-
-          {/* STICKY FOOTER */}
-          {wishlistItems.length > 0 && !loading && (
-            <div className="border-t border-slate-100 p-6">
-              <button
-                onClick={onClose}
-                className="block w-full h-12 flex items-center justify-center border-2 border-blue-600 text-blue-600 font-poppins text-sm font-medium rounded-xl transition-all duration-300 hover:bg-blue-50"
-              >
-                Close
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </>
