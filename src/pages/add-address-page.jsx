@@ -1,4 +1,3 @@
-// pages/AddAddressPage.jsx
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { Navigation, X, ArrowLeft } from "lucide-react";
