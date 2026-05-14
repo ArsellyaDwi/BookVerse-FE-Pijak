@@ -1,4 +1,3 @@
-// components/user-menu-dropdown.jsx
 import { useState, useEffect } from "react";
 import { X, Package, MapPin, Settings, LogOut, User } from "lucide-react";
 import { Link } from "react-router";
