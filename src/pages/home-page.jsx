@@ -8,6 +8,7 @@ import Navbar from "@/components/navbar";
 import NewArrivalsSection from "@/components/new-arrival-section";
 import PromoBannerGrid from "@/components/promo-banner-grid";
 import ValuePropositionBar from "@/components/value-proposition-bar";
+import CommunityQuotesSection from "@/components/community-quotes-section";
 
 export default function Homepage() {
   return (
@@ -18,6 +19,7 @@ export default function Homepage() {
         <HeroSection />
         {/* <PromoBannerGrid /> */}
         <ValuePropositionBar />
+        <CommunityQuotesSection />
         <GenresSection />
         <BestSellersSection />
         {/* <NewArrivalsSection />

@@ -1,4 +1,3 @@
-// pages/TransactionDetailPage.jsx
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import {

@@ -61,7 +61,7 @@ export default function HeroSection() {
     setMoodInput(newValue);
     setActiveMood("");
     setError(null);
-    
+
     if (newValue.length > 0 && !isEnglishText(newValue)) {
       setLanguageWarning("Please use English only. Our AI works best with English text.");
     } else {
@@ -78,7 +78,7 @@ export default function HeroSection() {
 
   const handleGenerate = useCallback(async () => {
     const trimmedInput = moodInput.trim();
-    
+
     if (trimmedInput.length < 5) {
       setError("Please describe your mood first (min. 5 characters)");
       return;
@@ -88,13 +88,13 @@ export default function HeroSection() {
       setError("Please use English only. Write your mood in English for the best recommendations.");
       return;
     }
-    
+
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await axios.post("/emotion/detect", { text: moodInput });
-      
+
       if (response.data.success) {
         const predictions = response.data.data?.predictions || [];
         const topEmotion = predictions[0]?.emotion || "neutral";
@@ -138,7 +138,7 @@ export default function HeroSection() {
         setIsLoadingEmotions(false);
       }
     };
-    
+
     fetchEmotions();
   }, []);
 
@@ -151,7 +151,7 @@ export default function HeroSection() {
       </div>
 
       <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 xl:px-20 py-12 sm:py-16 md:py-20 lg:py-28 text-center">
-        
+
         <div className="mb-8 md:mb-10 lg:mb-12">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-slate-900 mb-4 md:mb-6 tracking-tight leading-tight">
             Find the story that matches your
@@ -178,8 +178,8 @@ export default function HeroSection() {
                 onClick={() => handleMoodClick(emotion)}
                 className={`
                   flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all duration-200 capitalize
-                  ${activeMood === emotion 
-                    ? "bg-blue-600 text-white shadow-md shadow-blue-200" 
+                  ${activeMood === emotion
+                    ? "bg-blue-600 text-white shadow-md shadow-blue-200"
                     : getEmotionColor(emotion)
                   }
                 `}
@@ -196,7 +196,7 @@ export default function HeroSection() {
             <div className="absolute left-4 sm:left-5 md:left-6 top-5 -translate-y-1/2 z-10">
               <Sparkles className={`w-5 h-5 sm:w-6 sm:h-6 transition-colors ${isFocused ? "text-blue-500" : "text-slate-400"}`} />
             </div>
-            
+
             <textarea
               rows={3}
               value={moodInput}
@@ -208,7 +208,7 @@ export default function HeroSection() {
               style={{ minHeight: "100px", lineHeight: "1.5", textAlign: "left" }}
             />
           </div>
-          
+
           <div className="flex items-start gap-2 mt-3 text-left">
             <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
             <p className="text-xs text-amber-600">
@@ -224,8 +224,8 @@ export default function HeroSection() {
           )}
 
           <p className="text-slate-400 text-xs mt-2 text-left ml-1">
-            Examples: 
-            <span className="text-slate-500"> "Feeling a bit down and need something uplifting"</span> or 
+            Examples:
+            <span className="text-slate-500"> "Feeling a bit down and need something uplifting"</span> or
             <span className="text-slate-500"> "Super excited and want an adventure story"</span>
           </p>
         </div>
@@ -234,14 +234,14 @@ export default function HeroSection() {
           <span className={`text-xs md:text-sm font-mono ${moodInput.length > 0 ? "text-blue-500" : "text-slate-300"}`}>
             {moodInput.length} / 300
           </span>
-          
+
           <button
             onClick={handleGenerate}
             disabled={isLoading || moodInput.trim().length < 5}
             className={`
               flex items-center gap-2 px-5 sm:px-6 md:px-8 py-2 sm:py-2.5 md:py-3 rounded-full text-sm md:text-base font-semibold transition-all duration-300
               ${moodInput.trim().length >= 5 && !isLoading
-                ? "bg-blue-600 text-white shadow-lg shadow-blue-200 hover:bg-blue-700 hover:-translate-y-0.5 active:scale-95" 
+                ? "bg-blue-600 text-white shadow-lg shadow-blue-200 hover:bg-blue-700 hover:-translate-y-0.5 active:scale-95"
                 : "bg-slate-100 text-slate-400 cursor-not-allowed"
               }
             `}
@@ -262,13 +262,6 @@ export default function HeroSection() {
             )}
           </button>
         </div>
-
-        {error && (
-          <div className="flex items-center justify-center gap-2 text-red-500 text-xs sm:text-sm mt-4">
-            <AlertCircle className="w-4 h-4" />
-            <p>{error}</p>
-          </div>
-        )}
 
         <p className="text-slate-400 text-xs mt-6 md:mt-8">
           Stories tailored just for you

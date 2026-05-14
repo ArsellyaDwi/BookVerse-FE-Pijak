@@ -49,6 +49,13 @@ export default function NewReleasesPage() {
     const totalPages = Math.ceil(booksArray.length / itemsPerPage);
     const paginatedBooks = booksArray.slice(startIndex, startIndex + itemsPerPage);
 
+    const getBookImage = (coverImg) => {
+        if (!coverImg) {
+            return 'https://placehold.co/300x400/e2e8f0/94a3b8?text=No+Cover';
+        }
+        return buildStorageUrl(coverImg);
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-50">
@@ -119,7 +126,7 @@ export default function NewReleasesPage() {
                                     author={book.author?.split(',')[0] || book.author}
                                     price={book.price}
                                     rating={book.rating || 0}
-                                    image={buildStorageUrl(book.cover_img)}
+                                    image={getBookImage(book.cover_img)}a
                                 />
                             ))}
                         </div>

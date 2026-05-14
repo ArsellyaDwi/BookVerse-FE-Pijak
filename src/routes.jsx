@@ -30,6 +30,7 @@ import ReturnPolicyPage from "./pages/return-policy";
 import EditorsChoicePage from "./pages/editors-choice-page";
 import NewReleasesPage from "./pages/new-releases-page";
 import RecommendationsPage from "./pages/recommendations-page";
+import CommunityQuotes from '@/pages/community-quotes';
 
 const router = createBrowserRouter([
   {
@@ -57,6 +58,10 @@ const router = createBrowserRouter([
       {
         path: "/recommendations",
         element: <RecommendationsPage />,
+      },
+      {
+        path: "/community",
+        element: <CommunityQuotes />,
       },
       {
         path: "books/:id",

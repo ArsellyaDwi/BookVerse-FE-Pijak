@@ -48,7 +48,7 @@ export default function Footer() {
     services: [
       { name: "Editor's Choice", path: "/editors-choice" },
       { name: "New Releases", path: "/new-releases" },
-      { name: "Merchandise", path: "/merchandise" },
+      { name: "Community", path: "/community" },
     ],
     help: [
       { name: "Contact Us", path: "/contact" },
