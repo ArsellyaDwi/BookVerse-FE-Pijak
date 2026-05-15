@@ -4,11 +4,10 @@ import { Brain, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
-import { useQuiz } from "@/context/quiz-context";
-import { predictPersonality, getGenreRecommendations } from "@/services/personality-service";
 import BookCard from "@/components/book-card";
 import { buildStorageUrl } from "@/lib/helper";
-import axios from "axios";
+import useQuery from "@/hooks/use-query";
+import useMutation from "@/hooks/use-mutation";
 
 const allQuestions = [
   { id: "EXT1", text: "I enjoy being the center of attention.", trait: "extroversion", reverse: false },
@@ -76,65 +75,80 @@ const getRandomQuestions = () => {
 
 export default function PersonalityQuizPage() {
   const navigate = useNavigate();
-  const { markQuizCompleted, personalityScores, isLoading: quizLoading, hasCompletedQuiz } = useQuiz();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
-  const [loading, setLoading] = useState(false);
   const [quizFinished, setQuizFinished] = useState(false);
   const [result, setResult] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [genreRecs, setGenreRecs] = useState([]);
-  const [recommendedBooks, setRecommendedBooks] = useState([]);
-  const [loadingBooks, setLoadingBooks] = useState(false);
+
+  const { data: personalityStatus, loading: statusLoading, refetch: refetchStatus } = useQuery({
+    url: "auth/personality-status",
+    guard: true,
+  });
+
+
+  console.log({ personalityStatus, statusLoading });
+
+  const { mutate: predictPersonality, loading: predicting } = useMutation({
+    url: "/auth/personality",
+    method: "POST",
+    onSuccess: (data) => {
+      setResult(data);
+      refetchStatus();
+      toast.success("Personality analysis complete!");
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || "Something went wrong");
+    },
+  });
+
+  const { data: booksData, loading: loadingBooks, refetch: fetchBooks } = useQuery({
+    url: "/books",
+    immediate: false,
+  });
 
   useEffect(() => {
-    if (!quizLoading && hasCompletedQuiz === true && personalityScores && !quizFinished) {
-      setResult(personalityScores);
+    if (personalityStatus?.has_completed && personalityStatus?.personality && !quizFinished) {
+      setResult(personalityStatus.personality);
       setQuizFinished(true);
-      fetchRecommendations(personalityScores);
     }
-  }, [quizLoading, hasCompletedQuiz, personalityScores, quizFinished]);
+  }, [personalityStatus, quizFinished]);
 
   useEffect(() => {
-    if (!quizLoading && hasCompletedQuiz === false && questions.length === 0 && !quizFinished) {
+    if (!statusLoading && personalityStatus && !personalityStatus.has_completed && questions.length === 0 && !quizFinished) {
       setQuestions(getRandomQuestions());
     }
-  }, [quizLoading, hasCompletedQuiz, questions.length, quizFinished]);
+  }, [statusLoading, personalityStatus, questions.length, quizFinished]);
 
-const fetchRecommendations = async (personality) => {
-  setLoadingBooks(true);
-  const genres = getGenreRecommendations(personality);
-  console.log("Recommended genres:", genres);
-  setGenreRecs(genres);
-  
-  try {
-    const topGenre = genres[0]?.genre;
-    
-    if (topGenre) {
-      const response = await axios.get(`/books`, {
-        params: {
-          genres: topGenre,
-          per_page: 8
+  useEffect(() => {
+    if (result && !loadingBooks && quizFinished) {
+      const fetchGenreRecommendations = async () => {
+        try {
+          const response = await fetch(`/auth/personality-genres`, {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          const data = await response.json();
+          if (data.success && data.genres) {
+            setGenreRecs(data.genres);
+            const topGenre = data.genres[0]?.genre;
+            if (topGenre) {
+              fetchBooks({ params: { genres: topGenre, per_page: 8 } });
+            } else {
+              fetchBooks({ url: "/books/bestsellers", params: { limit: 8 } });
+            }
+          }
+        } catch (error) {
+          console.error("Failed to fetch genre recommendations:", error);
+          fetchBooks({ url: "/books/bestsellers", params: { limit: 8 } });
         }
-      });
-      
-      if (response.data?.data?.data) {
-        setRecommendedBooks(response.data.data.data);
-      }
-    } else {
-      const response = await axios.get(`/books/bestsellers`, {
-        params: { limit: 8 }
-      });
-      if (response.data?.data) {
-        setRecommendedBooks(response.data.data);
-      }
+      };
+      fetchGenreRecommendations();
     }
-  } catch (error) {
-    console.error("Failed to fetch books:", error);
-  } finally {
-    setLoadingBooks(false);
-  }
-};
+  }, [result]);
 
   const handleAnswer = async (value) => {
     if (questions.length === 0) return;
@@ -142,37 +156,23 @@ const fetchRecommendations = async (personality) => {
     let finalValue = question.reverse ? 6 - value : value;
     const newAnswers = { ...answers, [question.id]: finalValue };
     setAnswers(newAnswers);
-    
+
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(prev => prev + 1);
     } else {
-      setLoading(true);
-      try {
-        const prediction = await predictPersonality(newAnswers);
-        if (prediction.success) {
-          const saved = await markQuizCompleted(prediction.data);
-          if (saved) {
-            setResult(prediction.data);
-            setQuizFinished(true);
-            await fetchRecommendations(prediction.data);
-            toast.success("Personality analysis complete!");
-          }
-        }
-      } catch (error) {
-        toast.error("Something went wrong");
-      } finally {
-        setLoading(false);
-      }
+      await predictPersonality({ data: { answers: newAnswers } });
     }
   };
 
   const handlePrevQuestion = () => {
-  if (currentQuestion > 0) {
-    setCurrentQuestion(prev => prev - 1);
-  }
-};
+    if (currentQuestion > 0) {
+      setCurrentQuestion(prev => prev - 1);
+    }
+  };
 
-  if (quizLoading) {
+  const recommendedBooks = booksData?.data?.data || booksData?.data || [];
+
+  if (statusLoading) {
     return (
       <>
         <Navbar />
@@ -190,7 +190,6 @@ const fetchRecommendations = async (personality) => {
         <Navbar />
         <div className="min-h-screen bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
-            
             <div className="max-w-2xl mx-auto text-center mb-8 sm:mb-12">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Brain className="w-8 h-8 text-gray-700" />
@@ -341,8 +340,7 @@ const fetchRecommendations = async (personality) => {
                 <button
                   key={option.value}
                   onClick={() => handleAnswer(option.value)}
-                  disabled={loading}
-                  className="w-full py-2.5 text-left text-sm text-gray-600 border-b border-gray-50 hover:text-gray-900 hover:border-gray-200 transition-all disabled:opacity-50"
+                  className="w-full py-2.5 text-left text-sm text-gray-600 border-b border-gray-50 hover:text-gray-900 hover:border-gray-200 transition-all"
                 >
                   {option.label}
                 </button>
@@ -352,7 +350,6 @@ const fetchRecommendations = async (personality) => {
             {currentQuestion > 0 && (
               <button
                 onClick={handlePrevQuestion}
-                disabled={loading}
                 className="mt-5 text-xs text-gray-400 hover:text-gray-600 transition-colors"
               >
                 ← Previous

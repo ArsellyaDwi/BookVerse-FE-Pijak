@@ -23,6 +23,7 @@ const useMutation = ({
   guard = false,
   onSuccess = null,
   onError = null,
+  withLoading = true,
 }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -49,7 +50,10 @@ const useMutation = ({
       try {
         setLoading(true);
         setError(null);
-        showLoading();
+        if (withLoading) {
+
+          showLoading();
+        }
 
         if (guard) {
           const token = localStorage.getItem("token");
@@ -97,7 +101,9 @@ const useMutation = ({
         return null;
       } finally {
         setLoading(false);
-        hideLoading();
+        if (withLoading) {
+          hideLoading();
+        }
       }
     },
     [
