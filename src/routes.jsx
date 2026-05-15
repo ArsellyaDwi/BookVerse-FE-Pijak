@@ -31,19 +31,23 @@ import EditorsChoicePage from "./pages/editors-choice-page";
 import NewReleasesPage from "./pages/new-releases-page";
 import RecommendationsPage from "./pages/recommendations-page";
 import CommunityQuotes from '@/pages/community-quotes';
+import PersonalityQuizPage from "./pages/personality-quiz-page";
+import { QuizProvider } from "./context/quiz-context";
 
 const router = createBrowserRouter([
   {
     path: "",
     element: (
       <AuthProvider>
-        <ContactProvider>
-          <WishlistProvider>
-            <CartProvider>
-              <Outlet />
-            </CartProvider>
-          </WishlistProvider>
-        </ContactProvider>
+        <QuizProvider>
+          <ContactProvider>
+            <WishlistProvider>
+              <CartProvider>
+                <Outlet />
+              </CartProvider>
+            </WishlistProvider>
+          </ContactProvider>
+        </QuizProvider>
       </AuthProvider>
     ),
     children: [
@@ -62,6 +66,10 @@ const router = createBrowserRouter([
       {
         path: "/community",
         element: <CommunityQuotes />,
+      },
+      {
+        path: "/personality-quiz",
+        element: <PersonalityQuizPage />,
       },
       {
         path: "books/:id",
