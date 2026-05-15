@@ -16,7 +16,6 @@ import {
     Sparkles,
     AlertCircle,
     Trash2,
-    Eye,
     EyeOff,
     MoreHorizontal
 } from "lucide-react";
@@ -43,13 +42,9 @@ export default function CommunityQuotes() {
     const [detectedConfidence, setDetectedConfidence] = useState(0);
     const [languageWarning, setLanguageWarning] = useState("");
     const [detectError, setDetectError] = useState(null);
-
-    // Delete modal states
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [quoteToDelete, setQuoteToDelete] = useState(null);
     const [isDeleting, setIsDeleting] = useState(false);
-
-    // Menu dropdown
     const [openMenuId, setOpenMenuId] = useState(null);
 
     const itemsPerPage = 12;
@@ -87,7 +82,6 @@ export default function CommunityQuotes() {
         return !/[^\x00-\x7F]/.test(text);
     }, []);
 
-    // AI Detection Effect
     useEffect(() => {
         if (!newQuote.quote.trim() || newQuote.quote.length < 5) {
             setDetectedEmotion(null);
@@ -161,12 +155,14 @@ export default function CommunityQuotes() {
 
             const response = await axios.get(url);
             if (response.data.success) {
+                console.log("=== CHECK is_owner ===");
+            response.data.data.forEach(q => {
+                console.log(`Quote ID: ${q.id}, is_owner: ${q.is_owner}, user_id: ${q.user_id}`);
+            });
                 setQuotes(response.data.data);
                 const liked = {};
-                const owner = {};
                 response.data.data.forEach(q => {
                     if (q.is_liked) liked[q.id] = true;
-                    if (q.is_owner) owner[q.id] = true;
                 });
                 setLikedQuotes(liked);
             }
@@ -176,21 +172,37 @@ export default function CommunityQuotes() {
             setLoading(false);
         }
     };
+    const token = localStorage.getItem("token");
+if (token) {
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        console.log("Current user ID from token:", payload.sub || payload.user_id);
+    } catch(e) {
+        console.log("Cannot decode token");
+    }
+}
 
     useEffect(() => {
         fetchQuotes();
     }, [searchTerm, selectedMood]);
 
     const handleLike = async (quoteId) => {
-        if (!isLoggedIn()) {
-            redirectToLogin();
-            return;
-        }
-
         try {
             const token = localStorage.getItem("token");
-            const response = await axios.post(`/quotes/like/${quoteId}`, {}, {
-                headers: { Authorization: `Bearer ${token}` }
+
+            if (!token) {
+                toast.error("Please login first");
+                navigate("/login");
+                return;
+            }
+
+            const response = await axios({
+                method: 'POST',
+                url: `/quotes/like/${quoteId}`,
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
             });
 
             if (response.data.success) {
@@ -202,7 +214,16 @@ export default function CommunityQuotes() {
                 ));
             }
         } catch (error) {
-            toast.error("Failed to like");
+            console.error("Full error:", error);
+            console.error("Response:", error.response);
+
+            if (error.response?.status === 401) {
+                toast.error("Please login again");
+                localStorage.removeItem("token");
+                navigate("/login");
+            } else {
+                toast.error(error.response?.data?.message || "Failed to like");
+            }
         }
     };
 
@@ -301,7 +322,6 @@ export default function CommunityQuotes() {
         return 0;
     });
 
-    // Close menu when clicking outside
     useEffect(() => {
         const handleClickOutside = () => setOpenMenuId(null);
         document.addEventListener('click', handleClickOutside);
@@ -312,7 +332,6 @@ export default function CommunityQuotes() {
         <div className="min-h-screen bg-gray-50">
             <Navbar />
 
-            {/* Hero Section */}
             <div className="relative bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
                 <div className="absolute inset-0 bg-black/10"></div>
                 <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16">
@@ -352,10 +371,8 @@ export default function CommunityQuotes() {
                 </div>
             </div>
 
-            {/* Main Content */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
 
-                {/* Search & Filter Bar */}
                 <div className="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4 mb-6 sm:mb-8">
                     <div className="relative w-full lg:w-80 xl:w-96">
                         <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
@@ -396,8 +413,8 @@ export default function CommunityQuotes() {
                             <button
                                 onClick={() => setViewMode("grid")}
                                 className={`p-1.5 sm:p-2 rounded-lg transition-all ${viewMode === "grid"
-                                        ? "bg-white text-blue-600 shadow-sm"
-                                        : "text-gray-500 hover:text-gray-700"
+                                    ? "bg-white text-blue-600 shadow-sm"
+                                    : "text-gray-500 hover:text-gray-700"
                                     }`}
                             >
                                 <Grid3x3 className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -405,8 +422,8 @@ export default function CommunityQuotes() {
                             <button
                                 onClick={() => setViewMode("list")}
                                 className={`p-1.5 sm:p-2 rounded-lg transition-all ${viewMode === "list"
-                                        ? "bg-white text-blue-600 shadow-sm"
-                                        : "text-gray-500 hover:text-gray-700"
+                                    ? "bg-white text-blue-600 shadow-sm"
+                                    : "text-gray-500 hover:text-gray-700"
                                     }`}
                             >
                                 <List className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -423,7 +440,6 @@ export default function CommunityQuotes() {
                     </div>
                 </div>
 
-                {/* Stats Bar */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 sm:mb-6">
                     <div className="flex flex-wrap items-center gap-3 sm:gap-4">
                         <div className="flex items-center gap-1.5 sm:gap-2">
@@ -444,7 +460,6 @@ export default function CommunityQuotes() {
                     </div>
                 </div>
 
-                {/* Loading State */}
                 {loading && (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                         {Array.from({ length: 6 }).map((_, i) => (
@@ -456,7 +471,6 @@ export default function CommunityQuotes() {
                     </div>
                 )}
 
-                {/* Grid View */}
                 {!loading && viewMode === "grid" && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
                         {sortedQuotes.map((quote) => (
@@ -468,8 +482,7 @@ export default function CommunityQuotes() {
                                     <span className={`inline-block px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-xs capitalize ${moodColors[quote.mood] || "bg-gray-100 text-gray-600"}`}>
                                         {quote.mood || "thought"}
                                     </span>
-
-                                    {/* Delete Button (only for owner) */}
+{console.log("Render quote:", quote.id, "is_owner:", quote.is_owner)}
                                     {quote.is_owner && (
                                         <div className="relative">
                                             <button
@@ -501,19 +514,15 @@ export default function CommunityQuotes() {
                                     "{quote.quote}"
                                 </p>
 
-                                <p className="text-xs sm:text-sm text-gray-400 mb-3 sm:mb-4 flex items-center gap-1">
-                                    — {quote.is_anonymous ? "Anonymous" : (quote.author_name?.replace(/0+$/, '') || "Anonymous")}
-                                    {quote.is_anonymous && (
-                                        <EyeOff className="w-3 h-3 text-gray-300" />
-                                    )}
+                                <p className="text-xs sm:text-sm text-gray-400 mb-4">
+                                    — {quote.author_name ? quote.author_name : 'Anonymous'}
                                 </p>
-
                                 <div className="flex items-center justify-between pt-2 sm:pt-3 border-t border-gray-50">
                                     <button
                                         onClick={() => handleLike(quote.id)}
                                         className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm transition-all ${likedQuotes[quote.id]
-                                                ? "text-blue-600 bg-blue-50"
-                                                : "text-gray-400 hover:text-blue-500 hover:bg-blue-50"
+                                            ? "text-blue-600 bg-blue-50"
+                                            : "text-gray-400 hover:text-blue-500 hover:bg-blue-50"
                                             }`}
                                     >
                                         <ThumbsUp className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
@@ -531,7 +540,6 @@ export default function CommunityQuotes() {
                     </div>
                 )}
 
-                {/* List View */}
                 {!loading && viewMode === "list" && (
                     <div className="space-y-3 sm:space-y-4">
                         {sortedQuotes.map((quote) => (
@@ -555,16 +563,16 @@ export default function CommunityQuotes() {
                                         <p className="text-sm sm:text-base text-gray-700 leading-relaxed break-words">
                                             "{quote.quote}"
                                         </p>
-                                        <p className="text-xs sm:text-sm text-gray-400 mt-1 sm:mt-2">
-                                            — {quote.is_anonymous ? "Anonymous" : (quote.author_name?.replace(/0+$/, '') || "Anonymous")}
+                                        <p className="text-xs sm:text-sm text-gray-400 mb-4">
+                                            — {quote.author_name ? quote.author_name : 'Anonymous'}
                                         </p>
                                     </div>
                                     <div className="flex items-center gap-2 sm:gap-3">
                                         <button
                                             onClick={() => handleLike(quote.id)}
                                             className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm transition-all ${likedQuotes[quote.id]
-                                                    ? "text-blue-600 bg-blue-50"
-                                                    : "text-gray-400 hover:text-blue-500 hover:bg-blue-50"
+                                                ? "text-blue-600 bg-blue-50"
+                                                : "text-gray-400 hover:text-blue-500 hover:bg-blue-50"
                                                 }`}
                                         >
                                             <ThumbsUp className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
@@ -577,7 +585,6 @@ export default function CommunityQuotes() {
                                             <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                         </button>
 
-                                        {/* Delete button for list view */}
                                         {quote.is_owner && (
                                             <button
                                                 onClick={() => handleDeleteClick(quote)}
@@ -593,7 +600,6 @@ export default function CommunityQuotes() {
                     </div>
                 )}
 
-                {/* Empty State */}
                 {!loading && filteredQuotes.length === 0 && (
                     <div className="text-center py-12 sm:py-16">
                         <Quote className="w-12 h-12 sm:w-16 sm:h-16 text-gray-300 mx-auto mb-3 sm:mb-4" />
@@ -611,7 +617,6 @@ export default function CommunityQuotes() {
                     </div>
                 )}
 
-                {/* Pagination */}
                 {totalPages > 1 && (
                     <div className="flex justify-center items-center gap-1 sm:gap-2 mt-8 sm:mt-12">
                         <button
@@ -635,7 +640,6 @@ export default function CommunityQuotes() {
                 )}
             </div>
 
-            {/* Mobile Filter Drawer */}
             {isFilterOpen && (
                 <>
                     <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setIsFilterOpen(false)} />
@@ -682,16 +686,15 @@ export default function CommunityQuotes() {
                 </>
             )}
 
-            {/* MODAL ADD QUOTE WITH AI DETECTION & ANONYMOUS OPTION */}
             {showAddModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/40 backdrop-blur-sm">
-                    <div className="bg-white rounded-xl sm:rounded-2xl w-full max-w-[90%] sm:max-w-md overflow-hidden shadow-xl max-h-[90vh] overflow-y-auto">
-                        <div className="flex items-center justify-between p-3 sm:p-5 border-b border-gray-100 sticky top-0 bg-white">
+                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md overflow-hidden shadow-xl max-h-[85vh] overflow-y-auto sm:my-8">
+                        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-gray-100 sticky top-0 bg-white z-10">
                             <div className="flex items-center gap-2">
-                                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-blue-50 rounded-full flex items-center justify-center">
-                                    <Quote className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500" />
+                                <div className="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center">
+                                    <Quote className="w-4 h-4 text-blue-500" />
                                 </div>
-                                <h3 className="text-sm sm:text-base font-medium text-gray-800">Share Your Feeling</h3>
+                                <h3 className="text-base font-medium text-gray-800">Share Your Feeling</h3>
                             </div>
                             <button
                                 onClick={() => {
@@ -700,15 +703,15 @@ export default function CommunityQuotes() {
                                     setDetectedEmotion(null);
                                     setLanguageWarning("");
                                 }}
-                                className="w-6 h-6 rounded-full hover:bg-gray-100 flex items-center justify-center"
+                                className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center"
                             >
-                                <X className="w-3.5 h-3.5 text-gray-400" />
+                                <X className="w-4 h-4 text-gray-400" />
                             </button>
                         </div>
 
-                        <div className="p-3 sm:p-5 space-y-3 sm:space-y-4">
+                        <div className="p-4 sm:p-5 space-y-4 pb-6 sm:pb-8">
                             <div>
-                                <label className="block text-xs font-medium text-gray-500 mb-1">
+                                <label className="block text-xs font-medium text-gray-500 mb-1.5">
                                     What's on your mind?
                                 </label>
                                 <textarea
@@ -716,34 +719,33 @@ export default function CommunityQuotes() {
                                     value={newQuote.quote}
                                     onChange={(e) => setNewQuote({ ...newQuote, quote: e.target.value })}
                                     placeholder="Write something meaningful... (AI will detect your mood automatically)"
-                                    className="w-full px-3 sm:px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-1 focus:ring-blue-500 resize-none text-sm"
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none text-sm"
                                 />
 
-                                {/* AI Detection Status */}
                                 {newQuote.quote.length >= 5 && (
                                     <div className="mt-2">
                                         {isDetecting ? (
-                                            <div className="flex items-center gap-2 text-xs text-blue-500">
+                                            <div className="flex items-center gap-2 text-xs text-blue-500 bg-blue-50 p-2.5 rounded-lg">
                                                 <div className="w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
                                                 <span>AI is detecting your mood...</span>
                                             </div>
                                         ) : detectedEmotion && detectedConfidence > 0 ? (
-                                            <div className="flex items-center gap-2 text-xs text-green-600 bg-green-50 p-2 rounded-lg">
-                                                <Sparkles className="w-3 h-3" />
+                                            <div className="flex items-center gap-2 text-xs text-green-600 bg-green-50 p-2.5 rounded-lg">
+                                                <Sparkles className="w-3.5 h-3.5" />
                                                 <span>
-                                                    AI detected: <strong className="capitalize">{detectedEmotion}</strong>
+                                                    AI detected: <strong className="capitalize">{detectedEmotion} </strong>
                                                     ({detectedConfidence}% confident)
                                                     {detectedConfidence > 70 && " ✓ Auto-selected"}
                                                 </span>
                                             </div>
                                         ) : languageWarning ? (
-                                            <div className="flex items-start gap-2 text-xs text-red-500 bg-red-50 p-2 rounded-lg">
-                                                <AlertCircle className="w-3 h-3 flex-shrink-0 mt-0.5" />
+                                            <div className="flex items-start gap-2 text-xs text-red-500 bg-red-50 p-2.5 rounded-lg">
+                                                <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
                                                 <span>{languageWarning}</span>
                                             </div>
                                         ) : detectError ? (
-                                            <div className="flex items-center gap-2 text-xs text-orange-500 bg-orange-50 p-2 rounded-lg">
-                                                <AlertCircle className="w-3 h-3" />
+                                            <div className="flex items-center gap-2 text-xs text-orange-500 bg-orange-50 p-2.5 rounded-lg">
+                                                <AlertCircle className="w-3.5 h-3.5" />
                                                 <span>{detectError}</span>
                                             </div>
                                         ) : null}
@@ -752,22 +754,22 @@ export default function CommunityQuotes() {
                             </div>
 
                             <div>
-                                <label className="block text-xs font-medium text-gray-500 mb-1">
+                                <label className="block text-xs font-medium text-gray-500 mb-1.5">
                                     How are you feeling? {detectedEmotion && detectedConfidence > 70 && (
                                         <span className="text-green-500 text-[10px] ml-1">(AI suggested)</span>
                                     )}
                                 </label>
-                                <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                                    {moodOptions.filter(m => m.value !== "all").slice(0, 8).map((mood) => (
+                                <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+                                    {moodOptions.filter(m => m.value !== "all").map((mood) => (
                                         <button
                                             key={mood.value}
                                             type="button"
                                             onClick={() => setNewQuote({ ...newQuote, mood: mood.value })}
-                                            className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs capitalize transition-all ${newQuote.mood === mood.value
-                                                    ? "bg-blue-500 text-white"
-                                                    : detectedEmotion === mood.value && detectedConfidence > 70
-                                                        ? "bg-green-100 text-green-700 border border-green-300"
-                                                        : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                                            className={`px-3 py-1.5 rounded-full text-xs capitalize transition-all touch-manipulation ${newQuote.mood === mood.value
+                                                ? "bg-blue-500 text-white"
+                                                : detectedEmotion === mood.value && detectedConfidence > 70
+                                                    ? "bg-green-100 text-green-700 border border-green-300"
+                                                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                                                 }`}
                                         >
                                             {mood.label}
@@ -779,9 +781,8 @@ export default function CommunityQuotes() {
                                 </div>
                             </div>
 
-                            {/* NEW: Anonymous Option */}
-                            <div>
-                                <label className="flex items-center gap-2 cursor-pointer">
+                            <div className="pt-2">
+                                <label className="flex items-center gap-2 cursor-pointer py-1">
                                     <input
                                         type="checkbox"
                                         checked={newQuote.isAnonymous}
@@ -789,7 +790,7 @@ export default function CommunityQuotes() {
                                         className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
                                     />
                                     <span className="text-xs text-gray-600 flex items-center gap-1">
-                                        <EyeOff className="w-3 h-3" />
+                                        <EyeOff className="w-3.5 h-3.5" />
                                         Post as Anonymous
                                     </span>
                                 </label>
@@ -798,35 +799,35 @@ export default function CommunityQuotes() {
                                 </p>
                             </div>
 
-                            <p className="text-[10px] text-gray-400">
+                            <p className="text-[10px] text-gray-400 pt-1">
                                 Tip: Write at least 5 words in English for best AI detection
                             </p>
                         </div>
 
-                        <div className="flex gap-2 sm:gap-3 p-3 sm:p-5 border-t border-gray-100 bg-gray-50/30 sticky bottom-0">
+                        <div className="flex gap-3 p-4 sm:p-5 border-t border-gray-100 bg-gray-50/30 sticky bottom-0">
                             <button
                                 onClick={() => {
                                     setShowAddModal(false);
                                     setNewQuote({ quote: "", mood: "", isAnonymous: false });
                                     setDetectedEmotion(null);
                                 }}
-                                className="flex-1 px-3 sm:px-4 py-2 text-gray-500 bg-white rounded-xl hover:bg-gray-50 text-xs sm:text-sm"
+                                className="flex-1 px-4 py-2.5 text-gray-600 bg-white rounded-xl hover:bg-gray-50 text-sm font-medium"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={handleAddQuote}
                                 disabled={isSubmitting || !newQuote.quote.trim() || !newQuote.mood}
-                                className="flex-1 px-3 sm:px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 text-xs sm:text-sm font-medium"
+                                className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm font-medium"
                             >
                                 {isSubmitting ? (
                                     <>
-                                        <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                                         <span>Sharing...</span>
                                     </>
                                 ) : (
                                     <>
-                                        <Check className="w-3.5 h-3.5" />
+                                        <Check className="w-4 h-4" />
                                         <span>Share</span>
                                     </>
                                 )}
@@ -836,16 +837,15 @@ export default function CommunityQuotes() {
                 </div>
             )}
 
-            {/* DELETE CONFIRMATION MODAL */}
             {showDeleteModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
                     <div className="bg-white rounded-xl sm:rounded-2xl w-full max-w-sm overflow-hidden shadow-xl">
-                        <div className="p-4 sm:p-6 text-center">
+                        <div className="p-5 sm:p-6 text-center">
                             <div className="w-12 h-12 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
                                 <Trash2 className="w-6 h-6 text-red-600" />
                             </div>
                             <h3 className="text-lg font-semibold text-gray-800 mb-2">Delete Quote?</h3>
-                            <p className="text-sm text-gray-500 mb-4">
+                            <p className="text-sm text-gray-500 mb-5">
                                 Are you sure you want to delete this quote? This action cannot be undone.
                             </p>
                             <div className="flex gap-3">
@@ -854,14 +854,14 @@ export default function CommunityQuotes() {
                                         setShowDeleteModal(false);
                                         setQuoteToDelete(null);
                                     }}
-                                    className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+                                    className="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     onClick={confirmDelete}
                                     disabled={isDeleting}
-                                    className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+                                    className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium disabled:opacity-50 flex items-center justify-center gap-2"
                                 >
                                     {isDeleting ? (
                                         <>
