@@ -186,7 +186,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                                 <Plus className="w-3 h-3 text-gray-600" />
                               </button>
                               <button
-                                onClick={() => handleRemove(item.book_id)}
+                                onClick={() => handleRemove(item.id)}
                                 disabled={removeByBookIdLoading}
                                 className="p-1.5 hover:bg-red-50 rounded-lg disabled:opacity-50 active:scale-95 transition-all"
                                 aria-label="Remove item"

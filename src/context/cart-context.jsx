@@ -57,7 +57,7 @@ export const CartProvider = ({ children }) => {
     guard: true,
     onSuccess: (data) => {
       refetch();
-      
+
       toast.success(`book(s) added to cart!`);
     },
     onError: (error) => {
@@ -87,6 +87,7 @@ export const CartProvider = ({ children }) => {
     method: "DELETE",
     guard: true,
     onSuccess: (data) => {
+      refetch();
       toast.success("Book removed from cart!");
     },
     onError: (error) => {
@@ -97,12 +98,11 @@ export const CartProvider = ({ children }) => {
 
   // Remove by book_id mutation
   const { mutate: removeByBookIdMutation, loading: removeByBookIdLoading } = useMutation({
-    url: "/cart/remove",
+    url: "/cart",
     method: "DELETE",
     guard: true,
     onSuccess: (data, variables) => {
-      const { book_id } = variables;
-      setCartItems((prev) => prev.filter((item) => item.book_id !== book_id));
+      refetch();
       toast.success("Book removed from cart!");
     },
     onError: (error) => {
@@ -128,7 +128,7 @@ export const CartProvider = ({ children }) => {
         toast.error("Please login to add to cart");
         return false;
       }
-      
+
       const result = await addToCartMutation({ book_id: bookId, qty });
       return result;
     },
@@ -142,7 +142,7 @@ export const CartProvider = ({ children }) => {
         toast.error("Please login to update cart");
         return false;
       }
-      
+
       const result = await minusCartMutation({ book_id: bookId, qty });
       return result;
     },
@@ -156,7 +156,7 @@ export const CartProvider = ({ children }) => {
         toast.error("Please login to remove from cart");
         return false;
       }
-      
+
       const result = await removeFromCartMutation(
         { item_id: itemId },
         `${itemId}`
@@ -173,11 +173,9 @@ export const CartProvider = ({ children }) => {
         toast.error("Please login to remove from cart");
         return false;
       }
-      
-      const result = await removeByBookIdMutation(
-        { book_id: bookId },
-        { url: `/cart/remove/${bookId}` }
-      );
+
+      const result = await removeByBookIdMutation({
+      }, `/${bookId}`);
       return result;
     },
     [isAuthenticated, removeByBookIdMutation]
@@ -204,7 +202,7 @@ export const CartProvider = ({ children }) => {
       toast.error("Please login to clear cart");
       return false;
     }
-    
+
     // Delete all items by book_id
     for (const item of cartItems) {
       await removeByBookId(item.book_id);
