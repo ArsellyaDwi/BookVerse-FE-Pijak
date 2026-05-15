@@ -14,18 +14,12 @@ import axios from 'axios';
 axios.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
-        console.log('Token dari localStorage:', token); // Debug
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
-            console.log('Header Authorization terpasang:', config.headers.Authorization);
-        } else {
-            console.log('Token tidak ditemukan');
         }
         return config;
     },
-    (error) => {
-        return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
 );
 
 createRoot(document.getElementById("root")).render(
