@@ -7,7 +7,8 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import useQuery from "@/hooks/use-query";
 import { buildStorageUrl } from "@/lib/helper";
-import { Truck, AlertCircle, ShoppingBag, Heart, CreditCard } from "lucide-react";
+import { Truck, AlertCircle, ShoppingBag, Heart, CreditCard, ChevronRight } from "lucide-react";
+import BookCard from "@/components/book-card";
 
 export default function BookDetail() {
   const { id } = useParams();
@@ -19,7 +20,13 @@ export default function BookDetail() {
     url: `books/${id}`,
   });
 
+  // Fetch content-based recommendations
+  const { data: recommendationsResponse, loading: recommendationsLoading } = useQuery({
+    url: `content-based?book_id=${id}`,
+  });
+
   const book = bookResponse;
+  const recommendations = recommendationsResponse || [];
 
   if (bookLoading) {
     return (
@@ -317,11 +324,11 @@ export default function BookDetail() {
                 <button
                   onClick={handleWishlistToggle}
                   className={`flex items-center gap-2 px-4 py-1.5 rounded-lg font-poppins font-medium text-sm transition-all border ${inWishlist
-                      ? "bg-red-50 border-red-400 text-red-600"
-                      : "bg-white border-gray-300 text-gray-600 hover:border-red-300 hover:text-red-500"
+                    ? "bg-red-50 border-red-400 text-red-600"
+                    : "bg-white border-gray-300 text-gray-600 hover:border-red-300 hover:text-red-500"
                     }`}
                 >
-                  <Heart className="w-4 h-4" /> {/* Lucide Icon */}
+                  <Heart className="w-4 h-4" />
                   Wishlist
                 </button>
               </div>
@@ -335,22 +342,22 @@ export default function BookDetail() {
                 onClick={handleAddToCart}
                 disabled={book.stock === 0}
                 className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-poppins font-semibold text-base transition-all ${book.stock === 0
-                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                    : "bg-blue-600 text-white hover:bg-blue-700"
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-blue-600 text-white hover:bg-blue-700"
                   }`}
               >
-                <ShoppingBag className="w-5 h-5" /> {/* Lucide Icon */}
+                <ShoppingBag className="w-5 h-5" />
                 + Keranjang
               </button>
 
               <Link
                 to={book.stock > 0 ? "/checkout" : "#"}
                 className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-poppins font-semibold text-base text-center transition-all ${book.stock === 0
-                    ? "bg-gray-300 text-gray-500 cursor-not-allowed pointer-events-none"
-                    : "bg-gray-800 text-white hover:bg-gray-900"
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed pointer-events-none"
+                  : "bg-gray-800 text-white hover:bg-gray-900"
                   }`}
               >
-                <CreditCard className="w-5 h-5" /> {/* Lucide Icon */}
+                <CreditCard className="w-5 h-5" />
                 Beli Sekarang
               </Link>
             </div>
@@ -419,6 +426,62 @@ export default function BookDetail() {
                   <p className="font-poppins text-sm text-gray-600 leading-relaxed">
                     {review.comment}
                   </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* You May Also Like Section - Content Based Recommendations */}
+        {!recommendationsLoading && recommendations.length > 0 && (
+          <div className="mt-12 pt-8 border-t border-gray-200">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="font-poppins text-2xl font-bold text-gray-800">
+                  You May Also Like
+                </h2>
+                <p className="font-poppins text-sm text-gray-500 mt-1">
+                  Based on your interest in {book.title}
+                </p>
+              </div>
+              <Link
+                to={`/recommendations/${book.id}`}
+                className="flex items-center gap-1 text-blue-600 hover:text-blue-700 font-poppins text-sm font-medium transition-colors"
+              >
+                View All
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {recommendations.map((book) => (
+                <BookCard
+                  key={book.id}
+                  id={book.id}
+                  title={book.title}
+                  author={book.author?.split(',')[0] || book.author}
+                  price={book.price}
+                  rating={book.rating || 0}
+                  image={buildStorageUrl(book.cover_img)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Loading skeleton for recommendations */}
+        {recommendationsLoading && (
+          <div className="mt-12 pt-8 border-t border-gray-200">
+            <div className="mb-6">
+              <div className="h-8 bg-gray-200 rounded w-64 mb-2" />
+              <div className="h-4 bg-gray-200 rounded w-96" />
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="bg-gray-200 rounded-lg aspect-[2/3] mb-2" />
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
+                  <div className="h-3 bg-gray-200 rounded w-1/2" />
                 </div>
               ))}
             </div>
