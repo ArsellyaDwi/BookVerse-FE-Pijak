@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Sparkles, Waves, Wind, Zap, Heart, ArrowRight, AlertCircle } from "lucide-react";
-import { useNavigate } from "react-router";
+import { Sparkles, Waves, Wind, Zap, Heart, ArrowRight, AlertCircle, Brain } from "lucide-react";
+import { useNavigate, Link } from "react-router";
 import axios from "axios";
+import { useQuiz } from "@/context/quiz-context";
 
 const emotionIcons = {
   happiness: <Sparkles size={16} />,
@@ -17,13 +18,6 @@ const emotionIcons = {
   gratitude: <Heart size={16} />,
   loneliness: <Heart size={16} />,
   surprise: <Sparkles size={16} />,
-  pride: <Sparkles size={16} />,
-  guilt: <Waves size={16} />,
-  disappointment: <Waves size={16} />,
-  frustration: <Zap size={16} />,
-  embarrassment: <Waves size={16} />,
-  disgust: <Wind size={16} />,
-  confusion: <Wind size={16} />,
   default: <Sparkles size={16} />
 };
 
@@ -43,6 +37,7 @@ const fallbackEmotions = ["happiness", "sadness", "anxiety", "fear", "love", "re
 
 export default function HeroSection() {
   const navigate = useNavigate();
+  const { personalityScores } = useQuiz();
   const [moodInput, setMoodInput] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [activeMood, setActiveMood] = useState("");
@@ -144,6 +139,7 @@ export default function HeroSection() {
 
   return (
     <section className="relative bg-white overflow-hidden font-poppins">
+      {/* Background decorative blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-64 h-64 sm:w-80 sm:h-80 bg-blue-100 rounded-full opacity-30 blur-3xl" />
         <div className="absolute -bottom-40 -left-40 w-64 h-64 sm:w-80 sm:h-80 bg-purple-100 rounded-full opacity-30 blur-3xl" />
@@ -152,6 +148,7 @@ export default function HeroSection() {
 
       <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 xl:px-20 py-12 sm:py-16 md:py-20 lg:py-28 text-center">
 
+        {/* Main Title */}
         <div className="mb-8 md:mb-10 lg:mb-12">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-slate-900 mb-4 md:mb-6 tracking-tight leading-tight">
             Find the story that matches your
@@ -162,6 +159,7 @@ export default function HeroSection() {
           </p>
         </div>
 
+        {/* Mood buttons */}
         {isLoadingEmotions ? (
           <div className="max-w-4xl mx-auto mb-8 md:mb-10">
             <div className="flex flex-wrap justify-center gap-2 md:gap-3">
@@ -191,6 +189,7 @@ export default function HeroSection() {
           </div>
         )}
 
+        {/* Textarea input */}
         <div className="max-w-3xl mx-auto mb-8 md:mb-10 px-4 sm:px-6">
           <div className={`relative transition-all duration-300 ${isFocused ? "scale-[1.01] md:scale-[1.02]" : ""}`}>
             <div className="absolute left-4 sm:left-5 md:left-6 top-5 -translate-y-1/2 z-10">
@@ -209,6 +208,7 @@ export default function HeroSection() {
             />
           </div>
 
+          {/* Warning messages */}
           <div className="flex items-start gap-2 mt-3 text-left">
             <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
             <p className="text-xs text-amber-600">
@@ -230,6 +230,7 @@ export default function HeroSection() {
           </p>
         </div>
 
+        {/* Submit button */}
         <div className="flex items-center justify-center gap-4 md:gap-6">
           <span className={`text-xs md:text-sm font-mono ${moodInput.length > 0 ? "text-blue-500" : "text-slate-300"}`}>
             {moodInput.length} / 300
