@@ -26,16 +26,15 @@ export default function WishlistDrawer({ isOpen, onClose }) {
       {/* Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-88 transition-opacity duration-300"
+          className="fixed inset-0 bg-black/50 z-100 transition-opacity duration-300"
           onClick={onClose}
         />
       )}
 
       {/* Right Drawer - WIDTH: 400px */}
       <div
-        className={`fixed top-0 right-0 h-full bg-white z-89 transform transition-transform duration-300 font-poppins shadow-[-4px_0_24px_rgba(0,0,0,0.12)] ${
-          isOpen ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`fixed top-0 right-0 h-full bg-white z-101 transform transition-transform duration-300 font-poppins shadow-[-4px_0_24px_rgba(0,0,0,0.12)] ${isOpen ? "translate-x-0" : "translate-x-full"
+          }`}
         style={{ width: "400px" }}
       >
         <div className="flex flex-col h-full">
@@ -48,9 +47,8 @@ export default function WishlistDrawer({ isOpen, onClose }) {
               <p className="text-slate-500 font-normal text-[13px] leading-relaxed">
                 {loading
                   ? "Loading..."
-                  : `${wishlistItems.length} ${
-                      wishlistItems.length === 1 ? "book" : "books"
-                    } saved`}
+                  : `${wishlistItems.length} ${wishlistItems.length === 1 ? "book" : "books"
+                  } saved`}
               </p>
             </div>
             <button
@@ -173,8 +171,8 @@ export default function WishlistDrawer({ isOpen, onClose }) {
                             Rp{" "}
                             {item.book?.price
                               ? parseFloat(item.book.price).toLocaleString(
-                                  "id-ID"
-                                )
+                                "id-ID"
+                              )
                               : "0"}
                           </p>
                           <button

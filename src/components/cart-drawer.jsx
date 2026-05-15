@@ -55,20 +55,19 @@ export default function CartDrawer({ isOpen, onClose }) {
       {/* Backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/40 md:bg-black/50 z-40 transition-all duration-300"
+          className="fixed inset-0 bg-black/40 md:bg-black/50 z-100 transition-all duration-300"
           onClick={onClose}
         />
       )}
 
       {/* Drawer Container */}
       <div
-        className={`fixed top-0 right-0 h-full bg-white z-50 transform transition-transform duration-300 ease-out shadow-2xl ${
-          isOpen ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`fixed top-0 right-0 h-full bg-white z-101 transform transition-transform duration-300 ease-out shadow-2xl ${isOpen ? "translate-x-0" : "translate-x-full"
+          }`}
         style={{ width: drawerWidth, maxWidth: "100vw" }}
       >
         <div className="flex flex-col h-full">
-          
+
           {/* HEADER */}
           <div className="flex items-center justify-between p-4 sm:p-5 md:p-6 border-b border-slate-100 sticky top-0 bg-white z-10">
             <div>
@@ -120,7 +119,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                       className="p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-slate-200 bg-gray-50 hover:shadow-md transition-all duration-200"
                     >
                       <div className="flex gap-3 sm:gap-4">
-                        
+
                         {/* Product Image */}
                         <button
                           onClick={() => {
@@ -164,7 +163,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                             <p className="font-poppins text-sm sm:text-base font-semibold text-blue-600">
                               Rp {!isNaN(itemPrice) ? itemPrice.toLocaleString("id-ID") : "0"}
                             </p>
-                            
+
                             {/* Quantity Controls */}
                             <div className="flex items-center gap-2">
                               <button
@@ -217,7 +216,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                   Rp {!isNaN(getTotalPrice()) ? getTotalPrice().toLocaleString("id-ID") : "0"}
                 </span>
               </div>
-              
+
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
