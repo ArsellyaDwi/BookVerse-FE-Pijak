@@ -60,18 +60,21 @@ const GenreCard = ({ genre, index, onClose }) => {
   const imageUrl = genre.image_url ? buildStorageUrl(genre.image_url) : null;
   const hasImage = imageUrl && !imageError;
   const slugOrId = genre.slug || createSlug(genre.name) || genre.id;
+  const navigate = useNavigate();
 
   return (
-    <Link 
-      to={`/genres/${slugOrId}`}
-      onClick={onClose}
+    <div
+      onClick={() => {
+        navigate(`/genres/${slugOrId}`);
+        onClose?.();
+      }}
       className="genre-card"
     >
       <div className="genre-card-media">
         {hasImage ? (
           <>
-            <img 
-              src={imageUrl} 
+            <img
+              src={imageUrl}
               alt={genre.name}
               className="genre-card-image"
               onError={() => setImageError(true)}
@@ -87,9 +90,9 @@ const GenreCard = ({ genre, index, onClose }) => {
       <div className="genre-card-content">
         <div className={`genre-icon-wrapper ${!hasImage ? gradientClass : ''}`}>
           {hasImage ? (
-            <img 
-              src={imageUrl} 
-              alt="" 
+            <img
+              src={imageUrl}
+              alt=""
               className="genre-icon-image"
               onError={() => setImageError(true)}
             />
@@ -102,7 +105,7 @@ const GenreCard = ({ genre, index, onClose }) => {
       </div>
 
       <div className="genre-card-border" />
-    </Link>
+    </div>
   );
 };
 
@@ -142,14 +145,14 @@ export default function Navbar() {
           } else if (response.data && response.data.data) {
             genresData = response.data.data;
           }
-          
+
           const processedGenres = genresData.map(genre => ({
             ...genre,
             slug: genre.slug || createSlug(genre.name),
             image_url: genre.image || genre.cover_img || null,
             books_count: genre.books_count || genre.book_count || 0
           }));
-          
+
           setGenres(processedGenres);
         } catch (error) {
           console.error("Failed to fetch genres:", error);
@@ -163,22 +166,19 @@ export default function Navbar() {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsGenresDropdownOpen(false);
-      }
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
         setIsUserMenuOpen(false);
       }
     };
-    
-    if (isGenresDropdownOpen || isUserMenuOpen) {
+
+    if (isUserMenuOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
-    
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isGenresDropdownOpen, isUserMenuOpen]);
+  }, [isUserMenuOpen]);
 
   useEffect(() => {
     if (isMobileMenuOpen || isGenresDropdownOpen) {
@@ -259,7 +259,7 @@ export default function Navbar() {
           <X size={20} />
         </button>
       </div>
-      
+
       <div className="mobile-menu-nav">
         {mobileNavItems.map((item) => (
           <button
@@ -271,9 +271,9 @@ export default function Navbar() {
             {item.name}
           </button>
         ))}
-        
+
         <div className="mobile-menu-divider" />
-        
+
         <button
           onClick={() => {
             setIsMobileMenuOpen(false);
@@ -285,7 +285,7 @@ export default function Navbar() {
           All Genres
         </button>
       </div>
-      
+
       <div className="mobile-menu-footer">
         <span>© 2025 BookVerse</span>
         <span>v1.0.0</span>
@@ -318,7 +318,7 @@ export default function Navbar() {
                     <h3>Browse All Genres</h3>
                     <p>Find books that match your mood</p>
                   </div>
-                  
+
                   {genresLoading ? (
                     <div className="genres-loading">
                       <div className="loading-spinner-small" />
@@ -337,8 +337,8 @@ export default function Navbar() {
                           >
                             <div className="genre-dropdown-icon">
                               {genre.image_url ? (
-                                <img 
-                                  src={buildStorageUrl(genre.image_url)} 
+                                <img
+                                  src={buildStorageUrl(genre.image_url)}
                                   alt=""
                                   className="genre-dropdown-img"
                                   onError={(e) => { e.target.style.display = 'none'; }}
@@ -358,8 +358,8 @@ export default function Navbar() {
                       })}
                     </div>
                   )}
-                  
-                  <Link 
+
+                  <Link
                     to="/genres"
                     onClick={closeAllModals}
                     className="genres-dropdown-footer"
@@ -373,11 +373,11 @@ export default function Navbar() {
 
           <form onSubmit={handleSearch} className="navbar-search">
             <div className="search-wrapper">
-              <input 
-                type="text" 
-                value={searchQuery} 
-                onChange={(e) => setSearchQuery(e.target.value)} 
-                placeholder="Search for books..." 
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search for books..."
                 className="search-input"
               />
               <button type="submit" className="search-btn">
@@ -414,12 +414,12 @@ export default function Navbar() {
                     </div>
                     <ChevronDown className={`user-menu-chevron ${isUserMenuOpen ? 'rotated' : ''}`} />
                   </button>
-                  <UserMenuDropdown 
-                    isOpen={isUserMenuOpen} 
-                    onClose={() => setIsUserMenuOpen(false)} 
-                    user={user} 
-                    onMenuClick={handleMenuClick} 
-                    onLogout={handleLogout} 
+                  <UserMenuDropdown
+                    isOpen={isUserMenuOpen}
+                    onClose={() => setIsUserMenuOpen(false)}
+                    user={user}
+                    onMenuClick={handleMenuClick}
+                    onLogout={handleLogout}
                   />
                 </>
               ) : (
@@ -430,8 +430,8 @@ export default function Navbar() {
               <LoginDropdown isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
             </div>
 
-            <button 
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="mobile-menu-trigger"
               aria-label="Toggle menu"
             >
@@ -443,11 +443,11 @@ export default function Navbar() {
         <form onSubmit={handleSearch} className="mobile-search">
           <div className="mobile-search-wrapper">
             <Search className="mobile-search-icon" />
-            <input 
-              type="text" 
-              value={searchQuery} 
-              onChange={(e) => setSearchQuery(e.target.value)} 
-              placeholder="Search for books..." 
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search for books..."
               className="mobile-search-input"
             />
             <button type="submit" className="mobile-search-submit">
@@ -489,9 +489,9 @@ export default function Navbar() {
               <>
                 <div className="genres-grid">
                   {genres.map((genre, idx) => (
-                    <GenreCard 
-                      key={genre.id} 
-                      genre={genre} 
+                    <GenreCard
+                      key={genre.id}
+                      genre={genre}
                       index={idx}
                       onClose={closeAllModals}
                     />
