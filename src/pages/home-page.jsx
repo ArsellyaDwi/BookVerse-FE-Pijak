@@ -1,31 +1,24 @@
 import BestSellersSection from "@/components/best-seller-section";
-import BlogJournalSection from "@/components/blog-journal-section";
 import Footer from "@/components/footer";
 import GenresSection from "@/components/genres-section";
 import HeroSection from "@/components/hero-section";
 import Navbar from "@/components/navbar";
-import NewArrivalsSection from "@/components/new-arrival-section";
-import PromoBannerGrid from "@/components/promo-banner-grid";
 import ValuePropositionBar from "@/components/value-proposition-bar";
 import CommunityQuotesSection from "@/components/community-quotes-section";
+import QuizRedirectHandler from "@/components/quiz-redirect-handler";
 
 export default function Homepage() {
   return (
-    <main>
-      <div className="min-h-screen font-[Poppins]">
+    <QuizRedirectHandler>
+      <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
         <Navbar />
-
         <HeroSection />
-        {/* <PromoBannerGrid /> */}
         <ValuePropositionBar />
         <CommunityQuotesSection />
         <GenresSection />
         <BestSellersSection />
-        {/* <NewArrivalsSection />
-        <BlogJournalSection /> */}
-
         <Footer />
-      </div>
-    </main>
+      </main>
+    </QuizRedirectHandler>
   );
 }
