@@ -132,15 +132,15 @@ export default function MyAccountPage() {
     e.preventDefault();
 
     const updateData = {
-        name: formData.name || user?.name || "User",
-        phone: formData.phone || "",
-        address: formData.address || "",
-        city: formData.city || "",
-        province: formData.province || "",
-        postal_code: formData.postal_code || "",
-        gender: formData.gender || "",
-        birth_date: formData.birth_date || null,
-        bio: formData.bio || "",
+      name: formData.name || user?.name || "User",
+      phone: formData.phone || "",
+      address: formData.address || "",
+      city: formData.city || "",
+      province: formData.province || "",
+      postal_code: formData.postal_code || "",
+      gender: formData.gender || "",
+      birth_date: formData.birth_date || null,
+      bio: formData.bio || "",
     };
     await updateProfile(formData);
   };
@@ -150,29 +150,29 @@ export default function MyAccountPage() {
     navigate("/login");
   };
 
-const menuItems = [
-  {
-    id: "profile",
-    icon: <User className="w-5 h-5" />,
-    label: "Profile Information",
-    description: "Manage your personal data",
-    onClick: () => setActiveTab("profile"),
-  },
-  {
-    id: "orders",
-    icon: <Package className="w-5 h-5" />,
-    label: "My Orders",
-    description: "Track your purchases",
-    onClick: () => navigate("/my-transactions"),
-  },
-  {
-    id: "address",
-    icon: <Home className="w-5 h-5" />,
-    label: "Addresses",
-    description: "Manage shipping addresses",
-    onClick: () => navigate("/my-address"),
-  },
-];
+  const menuItems = [
+    {
+      id: "profile",
+      icon: <User className="w-5 h-5" />,
+      label: "Profile Information",
+      description: "Manage your personal data",
+      onClick: () => setActiveTab("profile"),
+    },
+    {
+      id: "orders",
+      icon: <Package className="w-5 h-5" />,
+      label: "My Orders",
+      description: "Track your purchases",
+      onClick: () => navigate("/my-transactions"),
+    },
+    {
+      id: "address",
+      icon: <Home className="w-5 h-5" />,
+      label: "Addresses",
+      description: "Manage shipping addresses",
+      onClick: () => navigate("/my-address"),
+    },
+  ];
 
   if (!user) {
     return <AccountShimmer />;
@@ -215,11 +215,10 @@ const menuItems = [
                 <button
                   key={item.id}
                   onClick={item.onClick}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all whitespace-nowrap ${
-                    activeTab === item.id
-                      ? "bg-blue-600 text-white shadow-md"
-                      : "bg-white text-gray-600 border border-gray-200"
-                  }`}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all whitespace-nowrap ${activeTab === item.id
+                    ? "bg-blue-600 text-white shadow-md"
+                    : "bg-white text-gray-600 border border-gray-200"
+                    }`}
                 >
                   {item.icon}
                   <span className="text-sm font-medium">{item.label}</span>
@@ -257,11 +256,10 @@ const menuItems = [
                     <button
                       key={item.id}
                       onClick={item.onClick}
-                      className={`w-full flex items-center justify-between p-3 rounded-xl transition-all duration-200 mb-1 ${
-                        activeTab === item.id
-                          ? "bg-blue-50 text-blue-600"
-                          : "text-gray-600 hover:bg-gray-50"
-                      }`}
+                      className={`w-full flex items-center justify-between p-3 rounded-xl transition-all duration-200 mb-1 ${activeTab === item.id
+                        ? "bg-blue-50 text-blue-600"
+                        : "text-gray-600 hover:bg-gray-50"
+                        }`}
                     >
                       <div className="flex items-center gap-3">
                         <span className="w-5 h-5">{item.icon}</span>
@@ -387,9 +385,9 @@ const menuItems = [
                           className="w-full pl-9 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 appearance-none"
                         >
                           <option value="">Select gender</option>
-                          <option value="male">Male</option>
-                          <option value="female">Female</option>
-                          <option value="other">Other</option>
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                          <option value="Other">Other</option>
                         </select>
                       </div>
                     </div>
