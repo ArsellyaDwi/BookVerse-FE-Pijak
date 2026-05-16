@@ -205,7 +205,7 @@ export default function Navbar() {
     if (searchQuery.trim()) {
       setIsGenresDropdownOpen(false);
       setIsMobileMenuOpen(false);
-      navigate(`/books?keyword=${encodeURIComponent(searchQuery.trim())}`);
+      window.location.replace(`/books?keyword=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery("");
     }
   };
