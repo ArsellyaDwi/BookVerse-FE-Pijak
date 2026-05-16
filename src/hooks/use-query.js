@@ -11,6 +11,7 @@ const useQuery = ({
   immediate = true,
   onSuccess = null,
   onError = null,
+  doingOnce = false,
 }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -90,7 +91,7 @@ const useQuery = ({
   const doing = useRef(false);
   useEffect(() => {
     if (immediate) {
-      if (doing.current) {
+      if (doing.current && doingOnce) {
         return;
       }
 

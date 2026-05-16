@@ -91,6 +91,7 @@ export default function PersonalityQuizPage() {
   const { data: personalityStatus, loading: statusLoading, refetch: refetchStatus } = useQuery({
     url: "auth/personality-status",
     guard: true,
+    doingOnce: true,
     onSuccess: (data) => {
       setGenreRecs(data.genres);
       const topGenre = data.genres[0]?.genre;
