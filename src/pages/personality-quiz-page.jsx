@@ -82,13 +82,26 @@ export default function PersonalityQuizPage() {
   const [questions, setQuestions] = useState([]);
   const [genreRecs, setGenreRecs] = useState([]);
 
-  const { data: personalityStatus, loading: statusLoading, refetch: refetchStatus } = useQuery({
-    url: "auth/personality-status",
-    guard: true,
+  const { data: booksData, loading: loadingBooks, refetch: fetchBooks } = useQuery({
+    url: "/books",
+    immediate: false,
   });
 
 
-  console.log({ personalityStatus, statusLoading });
+  const { data: personalityStatus, loading: statusLoading, refetch: refetchStatus } = useQuery({
+    url: "auth/personality-status",
+    guard: true,
+    onSuccess: (data) => {
+      setGenreRecs(data.genres);
+      const topGenre = data.genres[0]?.genre;
+      if (topGenre) {
+        fetchBooks({ params: { genres: topGenre, per_page: 8 } });
+      } else {
+        fetchBooks({ url: "/books/bestsellers", params: { limit: 8 } });
+      }
+    }
+  });
+
 
   const { mutate: predictPersonality, loading: predicting } = useMutation({
     url: "/auth/personality",
@@ -103,10 +116,6 @@ export default function PersonalityQuizPage() {
     },
   });
 
-  const { data: booksData, loading: loadingBooks, refetch: fetchBooks } = useQuery({
-    url: "/books",
-    immediate: false,
-  });
 
   useEffect(() => {
     if (personalityStatus?.has_completed && personalityStatus?.personality && !quizFinished) {
@@ -120,35 +129,6 @@ export default function PersonalityQuizPage() {
       setQuestions(getRandomQuestions());
     }
   }, [statusLoading, personalityStatus, questions.length, quizFinished]);
-
-  useEffect(() => {
-    if (result && !loadingBooks && quizFinished) {
-      const fetchGenreRecommendations = async () => {
-        try {
-          const response = await fetch(`/auth/personality-genres`, {
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`,
-              'Content-Type': 'application/json'
-            }
-          });
-          const data = await response.json();
-          if (data.success && data.genres) {
-            setGenreRecs(data.genres);
-            const topGenre = data.genres[0]?.genre;
-            if (topGenre) {
-              fetchBooks({ params: { genres: topGenre, per_page: 8 } });
-            } else {
-              fetchBooks({ url: "/books/bestsellers", params: { limit: 8 } });
-            }
-          }
-        } catch (error) {
-          console.error("Failed to fetch genre recommendations:", error);
-          fetchBooks({ url: "/books/bestsellers", params: { limit: 8 } });
-        }
-      };
-      fetchGenreRecommendations();
-    }
-  }, [result]);
 
   const handleAnswer = async (value) => {
     if (questions.length === 0) return;
