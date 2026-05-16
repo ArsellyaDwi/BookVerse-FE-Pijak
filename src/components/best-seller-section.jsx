@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { ArrowRight } from "lucide-react";
 import BookCard from "./book-card";
 import useQueryPagination from "@/hooks/use-query-pagination";
@@ -128,7 +127,7 @@ export default function BestSellersSection() {
           {!hasNextPage && books && books.length > 0 && (
             <div className="py-4 md:py-6">
               <p className="text-gray-500 font-poppins text-sm md:text-base">
-                ✨ You've seen all {totalItems} books! ✨
+                You've seen all {totalItems} books!
               </p>
             </div>
           )}

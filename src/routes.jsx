@@ -32,6 +32,7 @@ import NewReleasesPage from "./pages/new-releases-page";
 import RecommendationsPage from "./pages/recommendations-page";
 import CommunityQuotes from '@/pages/community-quotes';
 import PersonalityQuizPage from "./pages/personality-quiz-page";
+import { QuizProvider } from "./context/quiz-context";
 
 const router = createBrowserRouter([
   {
@@ -41,7 +42,9 @@ const router = createBrowserRouter([
         <ContactProvider>
           <WishlistProvider>
             <CartProvider>
+              <QuizProvider>
               <Outlet />
+              </QuizProvider>
             </CartProvider>
           </WishlistProvider>
         </ContactProvider>

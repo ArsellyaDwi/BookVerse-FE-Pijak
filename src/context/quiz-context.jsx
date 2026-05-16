@@ -62,7 +62,8 @@ export function QuizProvider({ children }) {
       personalityScores,
       isLoading,
       checkQuizStatus,
-      markQuizCompleted
+      markQuizCompleted,
+      setHasCompletedQuiz
     }}>
       {children}
     </QuizContext.Provider>

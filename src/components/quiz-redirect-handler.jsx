@@ -1,16 +1,21 @@
-import { Navigate } from "react-router";
+import { Navigate, useLocation } from "react-router";
 import { useAuth } from "@/context/auth-context";
 import { useQuiz } from "@/context/quiz-context";
 
 export default function QuizRedirectHandler({ children }) {
+  const location = useLocation();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { hasCompletedQuiz, isLoading: quizLoading } = useQuiz();
+
+  const isQuizPage = location.pathname === "/personality-quiz";
 
   console.log("QuizRedirectHandler - Status:", { 
     isAuthenticated, 
     authLoading, 
     hasCompletedQuiz, 
-    quizLoading 
+    quizLoading,
+    isQuizPage,
+    pathname: location.pathname
   });
 
   if (authLoading || quizLoading) {
@@ -25,7 +30,12 @@ export default function QuizRedirectHandler({ children }) {
     return <Navigate to="/login" replace />;
   }
 
-  if (hasCompletedQuiz === false) {
+  if (hasCompletedQuiz === true && isQuizPage) {
+    console.log("Quiz already completed, redirecting to home...");
+    return <Navigate to="/" replace />;
+  }
+
+  if (hasCompletedQuiz === false && !isQuizPage) {
     console.log("Redirecting to personality quiz...");
     return <Navigate to="/personality-quiz" replace />;
   }

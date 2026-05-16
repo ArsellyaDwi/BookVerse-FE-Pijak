@@ -8,6 +8,7 @@ import BookCard from "@/components/book-card";
 import { buildStorageUrl } from "@/lib/helper";
 import useQuery from "@/hooks/use-query";
 import useMutation from "@/hooks/use-mutation";
+import { useQuiz } from "@/context/quiz-context";
 
 const allQuestions = [
   { id: "EXT1", text: "I enjoy being the center of attention.", trait: "extroversion", reverse: false },
@@ -75,6 +76,7 @@ const getRandomQuestions = () => {
 
 export default function PersonalityQuizPage() {
   const navigate = useNavigate();
+  const { setHasCompletedQuiz } = useQuiz();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
   const [quizFinished, setQuizFinished] = useState(false);
@@ -95,6 +97,7 @@ export default function PersonalityQuizPage() {
     method: "POST",
     onSuccess: (data) => {
       setResult(data);
+      setHasCompletedQuiz(true);
       refetchStatus();
       toast.success("Personality analysis complete!");
     },
@@ -112,6 +115,7 @@ export default function PersonalityQuizPage() {
     if (personalityStatus?.has_completed && personalityStatus?.personality && !quizFinished) {
       setResult(personalityStatus.personality);
       setQuizFinished(true);
+      setHasCompletedQuiz(true);
     }
   }, [personalityStatus, quizFinished]);
 
