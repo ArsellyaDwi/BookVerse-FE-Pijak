@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import axios from "axios";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
@@ -87,11 +87,17 @@ const useQuery = ({
     [url, method, params, guard, handleUnauthorized, onSuccess, onError]
   );
 
+  const doing = useRef(false);
   useEffect(() => {
     if (immediate) {
+      if (doing.current) {
+        return;
+      }
+
       execute();
+      doing.current = true;
     }
-  }, [url]);
+  }, [url, immediate]);
 
   return {
     data,
