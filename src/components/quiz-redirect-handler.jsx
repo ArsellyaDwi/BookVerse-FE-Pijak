@@ -1,21 +1,29 @@
 import { Navigate, useLocation } from "react-router";
 import { useAuth } from "@/context/auth-context";
-import { useQuiz } from "@/context/quiz-context";
+import useQuery from "@/hooks/use-query";
 
 export default function QuizRedirectHandler({ children }) {
   const location = useLocation();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const { hasCompletedQuiz, isLoading: quizLoading } = useQuiz();
 
   const isQuizPage = location.pathname === "/personality-quiz";
 
-  console.log("QuizRedirectHandler - Status:", { 
-    isAuthenticated, 
-    authLoading, 
-    hasCompletedQuiz, 
+  const { data: personalityStatus, loading: quizLoading } = useQuery({
+    url: "auth/personality-status",
+    guard: true,
+    immediate: isAuthenticated,
+  });
+
+  const hasCompletedQuiz = personalityStatus?.has_completed;
+
+  console.log("QuizRedirectHandler - Status:", {
+    isAuthenticated,
+    authLoading,
+    hasCompletedQuiz,
     quizLoading,
     isQuizPage,
-    pathname: location.pathname
+    pathname: location.pathname,
+    personalityStatus
   });
 
   if (authLoading || quizLoading) {
@@ -26,9 +34,10 @@ export default function QuizRedirectHandler({ children }) {
     );
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
+  // @note: jika tidak login tidak masalah
+  // if (!isAuthenticated) {
+  //   return <Navigate to="/login" replace />;
+  // }
 
   if (hasCompletedQuiz === true && isQuizPage) {
     console.log("Quiz already completed, redirecting to home...");

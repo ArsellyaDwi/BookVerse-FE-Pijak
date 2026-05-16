@@ -509,7 +509,7 @@ export default function Navbar() {
       <WishlistDrawer isOpen={isWishlistOpen} onClose={() => setIsWishlistOpen(false)} />
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
 
-      <style jsx>{`
+      <style>{`
         :root {
           --navbar-height-mobile: 64px;
           --navbar-height-tablet: 72px;

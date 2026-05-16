@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { Sparkles, Waves, Wind, Zap, Heart, ArrowRight, AlertCircle, Brain } from "lucide-react";
 import { useNavigate, Link } from "react-router";
 import axios from "axios";
-import { useQuiz } from "@/context/quiz-context";
 
 const emotionIcons = {
   happiness: <Sparkles size={16} />,
@@ -37,7 +36,6 @@ const fallbackEmotions = ["happiness", "sadness", "anxiety", "fear", "love", "re
 
 export default function HeroSection() {
   const navigate = useNavigate();
-  const { personalityScores } = useQuiz();
   const [moodInput, setMoodInput] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [activeMood, setActiveMood] = useState("");

@@ -279,9 +279,9 @@ export default function BookDetail() {
                   <div>
                     <p className="font-poppins text-sm font-semibold text-blue-800">
                       Pick up at Store, Free Shipping
-                      <p className="font-poppins text-xs text-blue-600 mt-1">
+                      <span className="font-poppins text-xs text-blue-600 mt-1">
                         Available at stores with special icon. Free shipping on minimum purchase Rp50,000
-                      </p>
+                      </span>
                     </p>
                   </div>
                 </div>
