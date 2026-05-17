@@ -82,26 +82,8 @@ export default function HeroSection() {
       return;
     }
 
-    setIsLoading(true);
-    setError(null);
+    navigate(`/recommendations?text=${encodeURIComponent(moodInput)}`);
 
-    try {
-      const response = await axios.post("/emotion/detect", { text: moodInput });
-
-      if (response.data.success) {
-        const predictions = response.data.data?.predictions || [];
-        const topEmotion = predictions[0]?.emotion || "neutral";
-        const confidence = predictions[0]?.confidence || 0;
-
-        navigate(`/recommendations?emotion=${topEmotion}&confidence=${Math.round(confidence * 100)}&mood=${encodeURIComponent(moodInput)}`);
-      } else {
-        setError(response.data.message || "Failed to detect emotion");
-      }
-    } catch (err) {
-      setError(err.response?.data?.message || "Connection error. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
   }, [moodInput, isEnglishText, navigate]);
 
   const getEmotionIcon = useCallback((emotion) => {
