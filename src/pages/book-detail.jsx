@@ -68,7 +68,6 @@ export default function BookDetail() {
   const inWishlist = isInWishlist(book.id);
 
   const handleWishlistToggle = () => {
-    console.log("Wishlist clicked, book.id:", book.id);
     if (inWishlist) {
       removeFromWishlist(book.id);
     } else {
