@@ -32,6 +32,8 @@ import NewReleasesPage from "./pages/new-releases-page";
 import RecommendationsPage from "./pages/recommendations-page";
 import CommunityQuotes from '@/pages/community-quotes';
 import PersonalityQuizPage from "./pages/personality-quiz-page";
+import BlogPage from "./pages/blog-page";
+import BlogDetailPage from "./pages/blog-detail-page";
 
 const router = createBrowserRouter([
   {
@@ -119,6 +121,14 @@ const router = createBrowserRouter([
       {
         path: "/editors-choice",
         element: <EditorsChoicePage />,
+      },
+      {
+        path: "/blog",
+        element: <BlogPage />,
+      },
+      {
+        path: "/blog/:slug",
+        element: <BlogDetailPage />,
       },
       {
         path: "/new-releases",

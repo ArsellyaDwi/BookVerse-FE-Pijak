@@ -377,7 +377,7 @@ export default function BookDetail() {
         {book.characters && book.characters.length > 0 && (
           <div className="mt-8 pt-4 border-t border-gray-200">
             <h2 className="font-poppins text-xl md:text-2xl font-bold text-gray-800 mb-4">
-              Tokoh Utama
+             Main Character
             </h2>
             <div className="flex flex-wrap gap-3">
               {book.characters.slice(0, 8).map((character) => (

@@ -1,6 +1,5 @@
-// pages/PaymentPage.jsx
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useParams, useNavigate, Link } from "react-router";
 import {
   CheckCircle,
   Clock,
@@ -244,13 +243,13 @@ export default function PaymentPage() {
       <div className="min-h-screen bg-gray-50">
         <div className="bg-white border-b border-gray-200 py-6">
           <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-20">
-            <button
-              onClick={() => navigate(-1)}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
+            <Link
+              to="/my-transactions"
+              className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
-              Back
-            </button>
+              Back to Transactions
+            </Link>
             <h1 className="text-[28px] font-bold text-gray-900 mb-1">
               Payment
             </h1>
