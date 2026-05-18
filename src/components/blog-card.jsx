@@ -1,5 +1,6 @@
 import { Link } from "react-router";
-import { Calendar, User, Clock, Eye, Heart } from "lucide-react";
+import { useState } from "react";
+import { Calendar, User, Clock, Eye, Heart, ChevronRight } from "lucide-react";
 import { ImageWithFallback } from "./image-with-fallback";
 
 const formatDate = (dateString) => {

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Search, ChevronRight, Calendar, TrendingUp } from "lucide-react";
 import { Link } from "react-router";
-import { fetchCategories, searchBlogPosts } from "@/services/blogService";
+import { fetchCategories, searchBlogPosts } from "@/services/blog-service";
 
 export default function BlogSidebar({ onSearch, recentPosts = [] }) {
   const [searchKeyword, setSearchKeyword] = useState("");

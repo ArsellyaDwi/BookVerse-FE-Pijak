@@ -3,9 +3,9 @@ import { useSearchParams, Link } from "react-router";
 import { Search, Grid3x3, List, ChevronLeft, ChevronRight, BookOpen } from "lucide-react";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
-import BlogCard from "@/components/BlogCard";
-import BlogSidebar from "@/components/BlogSidebar";
-import { fetchBlogPosts, searchBlogPosts } from "@/services/blogService";
+import BlogCard from "@/components/blog-card";
+import BlogSidebar from "@/components/blog-sidebar";
+import { fetchBlogPosts, searchBlogPosts } from "@/services/blog-service";
 
 const BlogSkeleton = () => (
   <div className="animate-pulse">

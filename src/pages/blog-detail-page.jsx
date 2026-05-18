@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router";
-import { Calendar, User, Clock, Eye, Heart, Share2, Bookmark, ChevronLeft, ArrowLeft, Facebook, Twitter, Linkedin } from "lucide-react";
+import { Calendar, User, Clock, Eye, Heart, Share2, Bookmark, ChevronLeft, ArrowLeft, ChevronRight, BookOpen } from "lucide-react";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
-import { fetchBlogPostBySlug, fetchBlogPosts } from "@/services/blogService";
+import { fetchBlogPostBySlug, fetchBlogPosts } from "@/services/blog-service";
 import { ImageWithFallback } from "@/components/image-with-fallback";
-import BlogCard from "@/components/BlogCard";
+import BlogCard from "@/components/blog-card";
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
