@@ -1093,6 +1093,7 @@ export default function Navbar() {
           outline: none;
           font-size: 0.875rem;
           font-family: 'Poppins', sans-serif;
+          min-width: 0;
         }
 
         .mobile-search-submit {
@@ -1105,6 +1106,8 @@ export default function Navbar() {
           font-weight: 500;
           cursor: pointer;
           transition: background 0.2s ease;
+          white-space: nowrap;
+          flex-shrink: 0;
         }
 
         .mobile-search-submit:hover {
