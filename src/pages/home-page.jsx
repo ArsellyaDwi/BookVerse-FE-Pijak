@@ -6,6 +6,7 @@ import Navbar from "@/components/navbar";
 import ValuePropositionBar from "@/components/value-proposition-bar";
 import CommunityQuotesSection from "@/components/community-quotes-section";
 import QuizRedirectHandler from "@/components/quiz-redirect-handler";
+import BlogJournalSection from "@/components/blog-journal-section";
 
 export default function Homepage() {
   return (
@@ -17,6 +18,7 @@ export default function Homepage() {
         <CommunityQuotesSection />
         <GenresSection />
         <BestSellersSection />
+        <BlogJournalSection />
         <Footer />
       </main>
     </QuizRedirectHandler>

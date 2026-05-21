@@ -1,28 +1,57 @@
-import { useState, useEffect } from "react";
-import { Search, ChevronRight, Calendar, TrendingUp } from "lucide-react";
+// src/components/BlogSidebar.jsx
+
+import { useState } from "react";
+import { Search, ChevronRight, Calendar } from "lucide-react";
 import { Link } from "react-router";
-import { fetchCategories, searchBlogPosts } from "@/services/blog-service";
+import useQuery from "@/hooks/use-query";
+import useQueryPagination from "@/hooks/use-query-pagination";
+import { ImageWithFallback } from "./image-with-fallback";
 
-export default function BlogSidebar({ onSearch, recentPosts = [] }) {
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+};
+
+export default function BlogSidebar({ onSearch, recentPosts: externalRecentPosts, loading: externalLoading }) {
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [categories, setCategories] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const loadCategories = async () => {
-      const result = await fetchCategories();
-      if (result.success) {
-        setCategories(result.data);
-      }
-      setIsLoading(false);
-    };
-    loadCategories();
-  }, []);
+  // Fetch categories using useQuery
+  const { 
+    data: categoriesData, 
+    loading: categoriesLoading 
+  } = useQuery({
+    url: "blog/categories",
+    method: "GET",
+    immediate: true,
+  });
+
+  // Fetch recent posts using useQueryPagination (internal jika tidak ada props)
+  const { 
+    data: internalRecentPosts, 
+    loading: internalRecentLoading 
+  } = useQueryPagination({
+    url: "blog/posts",
+    method: "GET",
+    params: {
+      per_page: 5,
+      sort_by: "published_at",
+      sort_direction: "desc",
+    },
+    paginated: false,
+    immediate: !externalRecentPosts, // Only fetch if no external props
+  });
+
+  // Use external recentPosts if provided, otherwise use internal
+  const recentPosts = externalRecentPosts || internalRecentPosts || [];
+  const isLoadingRecent = externalLoading !== undefined ? externalLoading : internalRecentLoading;
+
+  // Extract categories from response
+  const categories = categoriesData?.data || categoriesData?.categories || [];
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchKeyword.trim()) {
-      onSearch(searchKeyword);
+      onSearch?.(searchKeyword);
     }
   };
 
@@ -51,31 +80,35 @@ export default function BlogSidebar({ onSearch, recentPosts = [] }) {
       {/* Categories Widget */}
       <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
         <h3 className="font-bold text-gray-800 mb-4">Categories</h3>
-        {isLoading ? (
+        {categoriesLoading ? (
           <div className="space-y-2">
             {[...Array(5)].map((_, i) => (
               <div key={i} className="h-5 bg-gray-200 rounded animate-pulse" />
             ))}
           </div>
-        ) : (
+        ) : categories.length > 0 ? (
           <ul className="space-y-2">
             {categories.map((category) => (
               <li key={category.id}>
                 <Link
                   to={`/blog/category/${category.slug}`}
-                  className="flex items-center justify-between text-gray-600 hover:text-blue-600 transition-colors text-sm py-1"
+                  className="flex items-center justify-between text-gray-600 hover:text-blue-600 transition-colors text-sm py-1 group"
                 >
-                  <span>{category.name}</span>
+                  <span className="group-hover:translate-x-1 transition-transform duration-200">
+                    {category.name}
+                  </span>
                   <span className="text-xs text-gray-400">({category.posts_count || 0})</span>
                 </Link>
               </li>
             ))}
           </ul>
+        ) : (
+          <p className="text-sm text-gray-500">No categories found</p>
         )}
       </div>
 
       {/* Recent Posts Widget */}
-      {recentPosts.length > 0 && (
+      {!isLoadingRecent && recentPosts.length > 0 && (
         <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
           <h3 className="font-bold text-gray-800 mb-4">Recent Posts</h3>
           <ul className="space-y-3">
@@ -83,20 +116,23 @@ export default function BlogSidebar({ onSearch, recentPosts = [] }) {
               <li key={post.id}>
                 <Link
                   to={`/blog/${post.slug}`}
-                  className="group flex gap-3 hover:bg-gray-50 p-2 rounded-lg transition-colors"
+                  className="group flex gap-3 hover:bg-gray-50 p-2 rounded-lg transition-all duration-200 hover:translate-x-1"
                 >
                   <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
-                    <img
+                    <ImageWithFallback
                       src={post.featured_image}
                       alt={post.title}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                     />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="text-sm font-medium text-gray-800 group-hover:text-blue-600 transition-colors line-clamp-2">
                       {post.title}
                     </h4>
-                    <p className="text-xs text-gray-400 mt-1">{formatDate(post.published_at)}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Calendar className="w-3 h-3 text-gray-400" />
+                      <p className="text-xs text-gray-400">{formatDate(post.published_at)}</p>
+                    </div>
                   </div>
                 </Link>
               </li>
@@ -104,11 +140,24 @@ export default function BlogSidebar({ onSearch, recentPosts = [] }) {
           </ul>
         </div>
       )}
+
+      {/* Loading state for recent posts */}
+      {isLoadingRecent && (
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+          <h3 className="font-bold text-gray-800 mb-4">Recent Posts</h3>
+          <div className="space-y-3">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="flex gap-3 animate-pulse">
+                <div className="w-16 h-16 bg-gray-200 rounded-lg"></div>
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
-const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-};

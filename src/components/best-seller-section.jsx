@@ -91,7 +91,7 @@ export default function BestSellersSection() {
                 author={book.author}
                 price={book.price}
                 rating={book.rating}
-                image={`${buildStorageUrl(book.cover_img)}`}
+                image={book.cover_img ? `/storage/${book.cover_img}` : null}
               />
             ))
           ) : (
