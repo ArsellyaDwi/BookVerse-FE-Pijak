@@ -4,9 +4,10 @@ import { ImageWithFallback } from "@/components/image-with-fallback";
 import useQuery from "@/hooks/use-query";
 import useMutation from "@/hooks/use-mutation";
 import { buildStorageUrl } from "@/lib/helper";
-import { Loader2, MapPin, Calendar, Truck, Store } from "lucide-react";
+import { Loader2, MapPin, Calendar, Truck, Store, Users } from "lucide-react";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
+import BookCard from "@/components/book-card";
 
 const CheckoutShimmer = () => (
   <div className="bg-white min-h-screen font-poppins">
@@ -58,6 +59,13 @@ export default function CheckoutPage() {
     guard: true,
   });
 
+  // Fetch collaborative recommendations
+  const { data: collaborativeData, loading: collaborativeLoading } = useQuery({
+    url: "collaborative",
+    immediate: true,
+    guard: false,
+  });
+
   // Create transaction mutation
   const { mutate: createTransaction, loading: creatingTransaction } =
     useMutation({
@@ -78,6 +86,7 @@ export default function CheckoutPage() {
   const addresses = checkoutData?.addresses || [];
   const deliveryMethods = checkoutData?.delivery_methods || [];
   const paymentMethods = checkoutData?.payment_methods || [];
+  const collaborativeRecommendations = collaborativeData || [];
 
   // Calculate total books in cart
   const totalBooks = cartItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -149,9 +158,8 @@ export default function CheckoutPage() {
     if (method.books_per_multiplier === 1) {
       return `${formatRupiah(method.base_price)} per book`;
     }
-    return `${formatRupiah(method.base_price)} per ${
-      method.books_per_multiplier
-    } books`;
+    return `${formatRupiah(method.base_price)} per ${method.books_per_multiplier
+      } books`;
   };
 
   const getSelectedAddress = () => {
@@ -253,16 +261,16 @@ export default function CheckoutPage() {
       <Navbar />
       <div className="bg-white min-h-screen font-poppins">
         <div className="bg-white border-b border-gray-100 py-3">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-20">
-          <div className="flex items-center gap-2 text-sm font-poppins text-gray-500">
-            <Link to="/" className="hover:text-blue-600 transition-colors duration-300 hover:underline underline-offset-4">
-              Home
-            </Link>
-            <span>›</span>
-            <span className="text-gray-800 font-medium">Checkout</span>
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-20">
+            <div className="flex items-center gap-2 text-sm font-poppins text-gray-500">
+              <Link to="/" className="hover:text-blue-600 transition-colors duration-300 hover:underline underline-offset-4">
+                Home
+              </Link>
+              <span>›</span>
+              <span className="text-gray-800 font-medium">Checkout</span>
+            </div>
           </div>
         </div>
-      </div>
         <div className="bg-white border-b border-gray-200 py-6">
           <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-20">
             <h1 className="font-poppins text-[28px] font-bold text-slate-800 m-0 leading-relaxed">
@@ -290,11 +298,10 @@ export default function CheckoutPage() {
                           key={method.id}
                           type="button"
                           onClick={() => setDeliveryMethodId(method.id)}
-                          className={`p-4 border-2 rounded-xl text-left transition-all duration-300 ${
-                            deliveryMethodId === method.id
-                              ? "border-blue-600 bg-blue-50"
-                              : "border-gray-200 hover:border-gray-300"
-                          }`}
+                          className={`p-4 border-2 rounded-xl text-left transition-all duration-300 ${deliveryMethodId === method.id
+                            ? "border-blue-600 bg-blue-50"
+                            : "border-gray-200 hover:border-gray-300"
+                            }`}
                         >
                           <div className="flex items-start gap-3">
                             {isPickupMethodItem ? (
@@ -403,12 +410,11 @@ export default function CheckoutPage() {
                         {addresses.map((address) => (
                           <div
                             key={address.id}
-                            className={`p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 ${
-                              selectedAddressId === address.id ||
+                            className={`p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 ${selectedAddressId === address.id ||
                               (address.is_default && !selectedAddressId)
-                                ? "border-blue-600 bg-blue-50"
-                                : "border-gray-200 hover:border-gray-300"
-                            }`}
+                              ? "border-blue-600 bg-blue-50"
+                              : "border-gray-200 hover:border-gray-300"
+                              }`}
                             onClick={() => setSelectedAddressId(address.id)}
                           >
                             <div className="flex justify-between items-start">
@@ -432,20 +438,20 @@ export default function CheckoutPage() {
                               </div>
                               {(selectedAddressId === address.id ||
                                 (address.is_default && !selectedAddressId)) && (
-                                <svg
-                                  className="w-5 h-5 text-blue-600 flex-shrink-0"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M5 13l4 4L19 7"
-                                  />
-                                </svg>
-                              )}
+                                  <svg
+                                    className="w-5 h-5 text-blue-600 flex-shrink-0"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M5 13l4 4L19 7"
+                                    />
+                                  </svg>
+                                )}
                             </div>
                           </div>
                         ))}
@@ -477,11 +483,10 @@ export default function CheckoutPage() {
                         key={method.id}
                         type="button"
                         onClick={() => setSelectedPaymentMethodId(method.id)}
-                        className={`w-full p-4 border-2 rounded-xl text-left transition-all duration-300 ${
-                          selectedPaymentMethodId === method.id
-                            ? "border-blue-600 bg-blue-50"
-                            : "border-gray-200 hover:border-gray-300"
-                        }`}
+                        className={`w-full p-4 border-2 rounded-xl text-left transition-all duration-300 ${selectedPaymentMethodId === method.id
+                          ? "border-blue-600 bg-blue-50"
+                          : "border-gray-200 hover:border-gray-300"
+                          }`}
                       >
                         <div className="flex items-center gap-3">
                           <div className="flex-1">
@@ -529,9 +534,8 @@ export default function CheckoutPage() {
                   {cartItems.map((item, index) => (
                     <div
                       key={item.id}
-                      className={`flex gap-3 ${
-                        index < cartItems.length - 1 ? "mb-4" : ""
-                      }`}
+                      className={`flex gap-3 ${index < cartItems.length - 1 ? "mb-4" : ""
+                        }`}
                     >
                       <div className="w-16 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-slate-100">
                         <ImageWithFallback
@@ -658,6 +662,96 @@ export default function CheckoutPage() {
               </div>
             </div>
           </div>
+
+          {/* Collaborative Recommendations Section */}
+          {!collaborativeLoading && collaborativeRecommendations.length > 0 && (
+            <div className="mt-16 pt-8 border-t border-gray-200">
+              <div className="flex items-center gap-2 mb-6">
+                <Users className="w-6 h-6 text-blue-600" />
+                <h2 className="font-poppins text-2xl font-bold text-gray-800">
+                  Customers Also Bought
+                </h2>
+              </div>
+              <p className="font-poppins text-sm text-gray-500 mb-6">
+                Other customers who purchased items in your cart also bought these books
+              </p>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+                {collaborativeRecommendations.slice(0, 10).map((book) => (
+                  <div key={book.id} className="group">
+                    <div
+                      className="cursor-pointer"
+                      onClick={() => navigate(`/books/${book.id}`)}
+                    >
+                      <div className="relative overflow-hidden rounded-lg bg-gray-100 aspect-[2/3]">
+                        <ImageWithFallback
+                          src={book.cover_img ? buildStorageUrl(book.cover_img) : null}
+                          alt={book.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                      <div className="mt-3">
+                        <h3 className="font-poppins font-semibold text-sm text-gray-800 line-clamp-2 mb-1 group-hover:text-blue-600 transition-colors">
+                          {book.title}
+                        </h3>
+                        <p className="font-poppins text-xs text-gray-500 line-clamp-1 mb-2">
+                          {book.author}
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <p className="font-poppins text-sm font-bold text-blue-600">
+                            Rp {parseFloat(book.price).toLocaleString("id-ID")}
+                          </p>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // Add to cart functionality can be added here
+                              alert(`Added ${book.title} to cart`);
+                            }}
+                            className="px-3 py-1.5 bg-blue-600 text-white text-xs font-poppins font-medium rounded-lg hover:bg-blue-700 transition-all opacity-0 group-hover:opacity-100 transform translate-y-1 group-hover:translate-y-0 transition-all duration-200"
+                          >
+                            Add
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {collaborativeRecommendations.length > 10 && (
+                <div className="text-center mt-8">
+                  <button
+                    onClick={() => navigate("/recommendations")}
+                    className="px-6 py-2.5 text-blue-600 font-poppins text-sm font-semibold hover:text-blue-700 transition-colors border-2 border-blue-600 rounded-lg hover:bg-blue-50"
+                  >
+                    View More Recommendations
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Loading skeleton for recommendations */}
+          {collaborativeLoading && (
+            <div className="mt-16 pt-8 border-t border-gray-200">
+              <div className="flex items-center gap-2 mb-6">
+                <div className="w-6 h-6 bg-gray-200 rounded-full animate-pulse" />
+                <div className="h-8 bg-gray-200 rounded w-64 animate-pulse" />
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="animate-pulse">
+                    <div className="bg-gray-200 rounded-lg aspect-[2/3]" />
+                    <div className="mt-3 space-y-2">
+                      <div className="h-4 bg-gray-200 rounded w-3/4" />
+                      <div className="h-3 bg-gray-200 rounded w-1/2" />
+                      <div className="h-4 bg-gray-200 rounded w-1/3" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <Footer />

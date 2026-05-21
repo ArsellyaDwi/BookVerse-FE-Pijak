@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useCart } from "@/context/cart-context";
 import { ImageWithFallback } from "@/components/image-with-fallback";
 import { buildStorageUrl } from "@/lib/helper";
-import { Minus, Plus, Trash2, X, ShoppingBag } from "lucide-react";
+import { Minus, Plus, Trash2, X, ShoppingBag, Users } from "lucide-react";
 import { useNavigate } from "react-router";
+import useQuery from "@/hooks/use-query";
+import BookCard from "@/components/book-card";
 
 export default function CartDrawer({ isOpen, onClose }) {
   const {
@@ -21,6 +23,13 @@ export default function CartDrawer({ isOpen, onClose }) {
   } = useCart();
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(false);
+
+  // Fetch collaborative recommendations
+  const { data: collaborativeData, loading: collaborativeLoading } = useQuery({
+    url: "collaborative",
+  });
+
+  const collaborativeRecommendations = collaborativeData || [];
 
   useEffect(() => {
     const checkMobile = () => {
@@ -108,99 +117,200 @@ export default function CartDrawer({ isOpen, onClose }) {
                 </button>
               </div>
             ) : (
-              <div className="flex flex-col gap-3 sm:gap-4">
-                {cartItems.map((item) => {
-                  const book = item.book;
-                  const itemPrice = parseFloat(book?.price) || 0;
+              <>
+                <div className="flex flex-col gap-3 sm:gap-4">
+                  {cartItems.map((item) => {
+                    const book = item.book;
+                    const itemPrice = parseFloat(book?.price) || 0;
 
-                  return (
-                    <div
-                      key={item.id}
-                      className="p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-slate-200 bg-gray-50 hover:shadow-md transition-all duration-200"
-                    >
-                      <div className="flex gap-3 sm:gap-4">
+                    return (
+                      <div
+                        key={item.id}
+                        className="p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-slate-200 bg-gray-50 hover:shadow-md transition-all duration-200"
+                      >
+                        <div className="flex gap-3 sm:gap-4">
 
-                        {/* Product Image */}
-                        <button
-                          onClick={() => {
-                            onClose();
-                            navigate(`/books/${item.book_id}`);
-                          }}
-                          className="flex-shrink-0"
-                        >
-                          <div className="w-16 h-20 sm:w-[72px] sm:h-24 md:w-20 md:h-28 overflow-hidden bg-gray-100 rounded-lg hover:opacity-80 transition-opacity">
-                            <ImageWithFallback
-                              src={book?.cover_img ? buildStorageUrl(book.cover_img) : null}
-                              alt={book?.title || "Book cover"}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        </button>
+                          {/* Product Image */}
+                          <button
+                            onClick={() => {
+                              onClose();
+                              navigate(`/books/${item.book_id}`);
+                            }}
+                            className="flex-shrink-0"
+                          >
+                            <div className="w-16 h-20 sm:w-[72px] sm:h-24 md:w-20 md:h-28 overflow-hidden bg-gray-100 rounded-lg hover:opacity-80 transition-opacity">
+                              <ImageWithFallback
+                                src={book?.cover_img ? buildStorageUrl(book.cover_img) : null}
+                                alt={book?.title || "Book cover"}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          </button>
 
-                        {/* Product Info */}
-                        <div className="flex-1 flex flex-col justify-between">
-                          <div>
-                            {/* Title */}
-                            <button
-                              onClick={() => {
-                                onClose();
-                                navigate(`/books/${item.book_id}`);
-                              }}
-                              className="text-left block w-full"
-                            >
-                              <h3 className="font-poppins font-semibold text-sm sm:text-base text-gray-800 line-clamp-2 mb-1 hover:text-blue-600 transition-colors">
-                                {book?.title || "Unknown Title"}
-                              </h3>
-                            </button>
-                            <p className="font-poppins text-xs text-slate-500 mb-2 line-clamp-1">
-                              {book?.author || "Unknown Author"}
-                            </p>
-                          </div>
-
-                          {/* Price & Quantity Controls */}
-                          <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-2 mt-2">
-                            {/* Price */}
-                            <p className="font-poppins text-sm sm:text-base font-semibold text-blue-600">
-                              Rp {!isNaN(itemPrice) ? itemPrice.toLocaleString("id-ID") : "0"}
-                            </p>
-
-                            {/* Quantity Controls */}
-                            <div className="flex items-center gap-2">
+                          {/* Product Info */}
+                          <div className="flex-1 flex flex-col justify-between">
+                            <div>
+                              {/* Title */}
                               <button
-                                onClick={() => handleDecrement(item.book_id)}
-                                disabled={minusCartLoading}
-                                className="w-8 h-8 sm:w-7 sm:h-7 md:w-8 md:h-8 border border-gray-300 rounded-lg bg-white flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 active:scale-95 transition-all"
-                                aria-label="Decrease quantity"
+                                onClick={() => {
+                                  onClose();
+                                  navigate(`/books/${item.book_id}`);
+                                }}
+                                className="text-left block w-full"
                               >
-                                <Minus className="w-3 h-3 text-gray-600" />
+                                <h3 className="font-poppins font-semibold text-sm sm:text-base text-gray-800 line-clamp-2 mb-1 hover:text-blue-600 transition-colors">
+                                  {book?.title || "Unknown Title"}
+                                </h3>
                               </button>
-                              <span className="font-poppins text-sm font-medium text-gray-800 min-w-[24px] text-center">
-                                {item.quantity}
-                              </span>
-                              <button
-                                onClick={() => handleIncrement(item.book_id)}
-                                disabled={addToCartLoading}
-                                className="w-8 h-8 sm:w-7 sm:h-7 md:w-8 md:h-8 border border-gray-300 rounded-lg bg-white flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 active:scale-95 transition-all"
-                                aria-label="Increase quantity"
-                              >
-                                <Plus className="w-3 h-3 text-gray-600" />
-                              </button>
-                              <button
-                                onClick={() => handleRemove(item.id)}
-                                disabled={removeByBookIdLoading}
-                                className="p-1.5 hover:bg-red-50 rounded-lg disabled:opacity-50 active:scale-95 transition-all"
-                                aria-label="Remove item"
-                              >
-                                <Trash2 className="w-4 h-4 text-red-500" />
-                              </button>
+                              <p className="font-poppins text-xs text-slate-500 mb-2 line-clamp-1">
+                                {book?.author || "Unknown Author"}
+                              </p>
+                            </div>
+
+                            {/* Price & Quantity Controls */}
+                            <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-2 mt-2">
+                              {/* Price */}
+                              <p className="font-poppins text-sm sm:text-base font-semibold text-blue-600">
+                                Rp {!isNaN(itemPrice) ? itemPrice.toLocaleString("id-ID") : "0"}
+                              </p>
+
+                              {/* Quantity Controls */}
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => handleDecrement(item.book_id)}
+                                  disabled={minusCartLoading}
+                                  className="w-8 h-8 sm:w-7 sm:h-7 md:w-8 md:h-8 border border-gray-300 rounded-lg bg-white flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 active:scale-95 transition-all"
+                                  aria-label="Decrease quantity"
+                                >
+                                  <Minus className="w-3 h-3 text-gray-600" />
+                                </button>
+                                <span className="font-poppins text-sm font-medium text-gray-800 min-w-[24px] text-center">
+                                  {item.quantity}
+                                </span>
+                                <button
+                                  onClick={() => handleIncrement(item.book_id)}
+                                  disabled={addToCartLoading}
+                                  className="w-8 h-8 sm:w-7 sm:h-7 md:w-8 md:h-8 border border-gray-300 rounded-lg bg-white flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 active:scale-95 transition-all"
+                                  aria-label="Increase quantity"
+                                >
+                                  <Plus className="w-3 h-3 text-gray-600" />
+                                </button>
+                                <button
+                                  onClick={() => handleRemove(item.id)}
+                                  disabled={removeByBookIdLoading}
+                                  className="p-1.5 hover:bg-red-50 rounded-lg disabled:opacity-50 active:scale-95 transition-all"
+                                  aria-label="Remove item"
+                                >
+                                  <Trash2 className="w-4 h-4 text-red-500" />
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
+                    );
+                  })}
+                </div>
+
+                {/* Collaborative Recommendations Section */}
+                {!collaborativeLoading && collaborativeRecommendations.length > 0 && (
+                  <div className="mt-8 pt-6 border-t border-gray-200">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Users className="w-5 h-5 text-blue-600" />
+                      <h3 className="font-poppins font-semibold text-base text-gray-800">
+                        Customers Also Bought
+                      </h3>
                     </div>
-                  );
-                })}
-              </div>
+                    <p className="font-poppins text-xs text-gray-500 mb-4">
+                      Other customers who bought items in your cart also purchased these books
+                    </p>
+
+                    <div className="flex flex-col gap-3">
+                      {collaborativeRecommendations.slice(0, 4).map((book) => (
+                        <div
+                          key={book.id}
+                          className="p-3 rounded-xl border border-gray-200 bg-white hover:shadow-md transition-all duration-200 cursor-pointer"
+                          onClick={() => {
+                            onClose();
+                            navigate(`/books/${book.id}`);
+                          }}
+                        >
+                          <div className="flex gap-3">
+                            {/* Book Cover */}
+                            <div className="flex-shrink-0">
+                              <div className="w-12 h-16 overflow-hidden bg-gray-100 rounded-md">
+                                <ImageWithFallback
+                                  src={book.cover_img ? buildStorageUrl(book.cover_img) : null}
+                                  alt={book.title}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            </div>
+
+                            {/* Book Info */}
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-poppins font-semibold text-sm text-gray-800 line-clamp-1 mb-0.5">
+                                {book.title}
+                              </h4>
+                              <p className="font-poppins text-xs text-gray-500 line-clamp-1 mb-1">
+                                {book.author}
+                              </p>
+                              <div className="flex items-center justify-between">
+                                <p className="font-poppins text-sm font-semibold text-blue-600">
+                                  Rp {parseFloat(book.price).toLocaleString("id-ID")}
+                                </p>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    addToCart(book.id);
+                                  }}
+                                  className="px-3 py-1 bg-blue-600 text-white text-xs font-poppins font-medium rounded-lg hover:bg-blue-700 transition-all"
+                                >
+                                  Add to Cart
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {collaborativeRecommendations.length > 4 && (
+                      <button
+                        onClick={() => {
+                          onClose();
+                          navigate("/recommendations");
+                        }}
+                        className="mt-3 w-full py-2 text-center text-blue-600 font-poppins text-sm font-medium hover:text-blue-700 transition-colors"
+                      >
+                        View more recommendations →
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* Loading skeleton for recommendations */}
+                {collaborativeLoading && (
+                  <div className="mt-8 pt-6 border-t border-gray-200">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="w-5 h-5 bg-gray-200 rounded-full animate-pulse" />
+                      <div className="h-5 bg-gray-200 rounded w-40 animate-pulse" />
+                    </div>
+                    <div className="space-y-3">
+                      {[...Array(3)].map((_, i) => (
+                        <div key={i} className="flex gap-3 p-3 rounded-xl border border-gray-200">
+                          <div className="w-12 h-16 bg-gray-200 rounded-md animate-pulse" />
+                          <div className="flex-1 space-y-2">
+                            <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse" />
+                            <div className="h-3 bg-gray-200 rounded w-1/2 animate-pulse" />
+                            <div className="h-4 bg-gray-200 rounded w-1/4 animate-pulse" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
 

@@ -82,7 +82,7 @@ export default function HeroSection() {
       return;
     }
 
-    navigate(`/recommendations?text=${encodeURIComponent(moodInput)}`);
+    navigate(`/recommendations?text=${encodeURIComponent(trimmedInput)}`);
 
   }, [moodInput, isEnglishText, navigate]);
 
