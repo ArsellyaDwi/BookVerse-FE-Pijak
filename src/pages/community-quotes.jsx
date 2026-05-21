@@ -91,13 +91,13 @@ export default function CommunityQuotes() {
             return;
         }
 
-        if (!isEnglishText(newQuote.quote)) {
-            setLanguageWarning("Please use English only. Our AI works best with English text.");
-            setDetectedEmotion(null);
-            return;
-        } else {
-            setLanguageWarning("");
-        }
+        // if (!isEnglishText(newQuote.quote)) {
+        //     setLanguageWarning("Please use English only. Our AI works best with English text.");
+        //     setDetectedEmotion(null);
+        //     return;
+        // } else {
+        //     setLanguageWarning("");
+        // }
 
         const timer = setTimeout(async () => {
             setIsDetecting(true);
@@ -156,9 +156,9 @@ export default function CommunityQuotes() {
             const response = await axios.get(url);
             if (response.data.success) {
                 console.log("=== CHECK is_owner ===");
-            response.data.data.forEach(q => {
-                console.log(`Quote ID: ${q.id}, is_owner: ${q.is_owner}, user_id: ${q.user_id}`);
-            });
+                response.data.data.forEach(q => {
+                    console.log(`Quote ID: ${q.id}, is_owner: ${q.is_owner}, user_id: ${q.user_id}`);
+                });
                 setQuotes(response.data.data);
                 const liked = {};
                 response.data.data.forEach(q => {
@@ -173,14 +173,14 @@ export default function CommunityQuotes() {
         }
     };
     const token = localStorage.getItem("token");
-if (token) {
-    try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        console.log("Current user ID from token:", payload.sub || payload.user_id);
-    } catch(e) {
-        console.log("Cannot decode token");
+    if (token) {
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            console.log("Current user ID from token:", payload.sub || payload.user_id);
+        } catch (e) {
+            console.log("Cannot decode token");
+        }
     }
-}
 
     useEffect(() => {
         fetchQuotes();
@@ -482,7 +482,7 @@ if (token) {
                                     <span className={`inline-block px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-xs capitalize ${moodColors[quote.mood] || "bg-gray-100 text-gray-600"}`}>
                                         {quote.mood || "thought"}
                                     </span>
-{console.log("Render quote:", quote.id, "is_owner:", quote.is_owner)}
+                                    {console.log("Render quote:", quote.id, "is_owner:", quote.is_owner)}
                                     {quote.is_owner && (
                                         <div className="relative">
                                             <button
