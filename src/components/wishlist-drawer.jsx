@@ -33,9 +33,8 @@ export default function WishlistDrawer({ isOpen, onClose }) {
 
       {/* Right Drawer - WIDTH: 400px */}
       <div
-        className={`fixed top-0 right-0 h-full bg-white z-101 transform transition-transform duration-300 font-poppins shadow-[-4px_0_24px_rgba(0,0,0,0.12)] ${isOpen ? "translate-x-0" : "translate-x-full"
+        className={`fixed top-0 right-0 h-full bg-white z-101 transform transition-transform duration-300 font-poppins shadow-[-4px_0_24px_rgba(0,0,0,0.12)] w-full md:max-w-100 ${isOpen ? "translate-x-0" : "translate-x-full"
           }`}
-        style={{ width: "400px" }}
       >
         <div className="flex flex-col h-full">
           {/* HEADER */}
@@ -73,7 +72,7 @@ export default function WishlistDrawer({ isOpen, onClose }) {
           </div>
 
           {/* SCROLLABLE CONTENT */}
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 overflow-y-auto p-2 md:p-6">
             {loading ? (
               // Loading State
               <div className="space-y-4">
