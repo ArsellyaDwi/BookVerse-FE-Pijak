@@ -116,8 +116,7 @@ export default function CheckoutPage() {
 
       if (selectedMethod) {
         const isPickup =
-          selectedMethod.name?.toLowerCase().includes("pickup") ||
-          selectedMethod.id === 2;
+          selectedMethod.name?.toLowerCase().includes("pickup");
 
         if (isPickup) {
           setShippingCost(0);
@@ -174,8 +173,7 @@ export default function CheckoutPage() {
       (m) => m.id === deliveryMethodId
     );
     return (
-      selectedMethod?.name?.toLowerCase().includes("pickup") ||
-      selectedMethod?.id === 2
+      selectedMethod?.name?.toLowerCase().includes("pickup")
     );
   };
 
@@ -191,8 +189,7 @@ export default function CheckoutPage() {
       (m) => m.id === deliveryMethodId
     );
     const isPickup =
-      selectedMethod?.name?.toLowerCase().includes("pickup") ||
-      selectedMethod?.id === 2;
+      selectedMethod?.name?.toLowerCase().includes("pickup");
 
     // Calculate shipping cost
     let calculatedShipping = 0;
@@ -291,8 +288,7 @@ export default function CheckoutPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {deliveryMethods.map((method) => {
                       const isPickupMethodItem =
-                        method.name?.toLowerCase().includes("pickup") ||
-                        method.id === 2;
+                        method.name?.toLowerCase().includes("pickup");
                       return (
                         <button
                           key={method.id}
