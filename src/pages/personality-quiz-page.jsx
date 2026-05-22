@@ -242,7 +242,7 @@ export default function PersonalityQuizPage() {
                   <button
                     key={index}
                     onClick={() =>
-                      navigate(`/books?genres=${genre.genre}`)
+                      navigate(`/books?genres=${genre.id}`)
                     }
                     className="px-4 py-2 bg-gray-100 rounded-full text-sm hover:bg-gray-200 transition"
                   >
