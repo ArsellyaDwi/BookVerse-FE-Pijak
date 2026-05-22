@@ -94,8 +94,8 @@ export default function BookDetail() {
   };
 
   const originalPrice = parseFloat(book.price);
-  const discountedPrice = originalPrice * 0.9;
-  const hasDiscount = true;
+  const discountedPrice = originalPrice * 1;
+  const hasDiscount = false;
 
   return (
     <div className="bg-white min-h-screen">
@@ -310,7 +310,7 @@ export default function BookDetail() {
             {/* Baris 1: Status + Wishlist di kiri, pajak di kanan */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                {book.stock === 0 ? (
+                {Number(book.stock) === 0 ? (
                   <span className="px-3 py-1.5 bg-red-500 text-white text-sm font-poppins font-semibold rounded-lg">
                     Stok Habis
                   </span>
@@ -339,7 +339,7 @@ export default function BookDetail() {
             <div className="flex gap-3">
               <button
                 onClick={handleAddToCart}
-                disabled={book.stock === 0}
+                disabled={Number(book.stock === 0)}
                 className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-poppins font-semibold text-base transition-all ${book.stock === 0
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                   : "bg-blue-600 text-white hover:bg-blue-700"
@@ -350,7 +350,7 @@ export default function BookDetail() {
               </button>
 
               <Link
-                to={book.stock > 0 ? "/checkout" : "#"}
+                to={Number(book.stock) > 0 ? "/checkout" : "#"}
                 className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-poppins font-semibold text-base text-center transition-all ${book.stock === 0
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed pointer-events-none"
                   : "bg-gray-800 text-white hover:bg-gray-900"
