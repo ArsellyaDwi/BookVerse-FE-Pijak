@@ -211,7 +211,7 @@ export const CartProvider = ({ children }) => {
   }, [isAuthenticated, cartItems, removeByBookId]);
 
   const getTotalItems = useCallback(() => {
-    return cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0);
+    return cartItems.reduce((sum, item) => sum + Number((item.quantity) || 0), 0);
   }, [cartItems]);
 
   const getTotalPrice = useCallback(() => {
