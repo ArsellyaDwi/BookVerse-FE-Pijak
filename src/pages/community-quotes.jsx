@@ -308,7 +308,7 @@ export default function CommunityQuotes() {
     const totalPages = Math.ceil(filteredQuotes.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const paginatedQuotes = filteredQuotes.slice(startIndex, startIndex + itemsPerPage);
-    const totalLikes = filteredQuotes.reduce((acc, q) => acc + (q.likes_count || 0), 0);
+    const totalLikes = filteredQuotes.reduce((acc, q) => acc + Number(q.likes_count || 0), 0);
 
     const sortOptions = [
         { value: "newest", label: "Newest First" },

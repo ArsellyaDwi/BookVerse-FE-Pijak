@@ -164,7 +164,7 @@ export default function CommunityQuotesSection() {
     return (
         <div className="bg-gradient-to-b from-gray-50 to-white py-12 sm:py-16 md:py-20 overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                
+
                 <div className="text-center mb-8 sm:mb-10 md:mb-12">
                     <div className="flex justify-center mb-3 sm:mb-4">
                         <div className="w-12 h-12 sm:w-14 sm:h-14 bg-blue-100 rounded-full flex items-center justify-center">
@@ -235,14 +235,13 @@ export default function CommunityQuotesSection() {
                                         <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                                             <button
                                                 onClick={() => handleLike(quote.id)}
-                                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs sm:text-sm transition-all min-h-[34px] ${
-                                                    likedQuotes[quote.id]
+                                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs sm:text-sm transition-all min-h-[34px] ${likedQuotes[quote.id]
                                                         ? 'text-blue-600 bg-blue-50'
                                                         : 'text-gray-400 hover:text-blue-500 hover:bg-blue-50'
-                                                }`}
+                                                    }`}
                                             >
                                                 <ThumbsUp className="w-3.5 h-3.5" />
-                                                <span className="font-medium">{quote.likes_count || 0}</span>
+                                                <span className="font-medium">{Number(quote.likes_count || 0)}</span>
                                             </button>
 
                                             <button
@@ -265,11 +264,10 @@ export default function CommunityQuotesSection() {
                             <button
                                 key={idx}
                                 onClick={() => setCurrentIndex(idx)}
-                                className={`h-1.5 rounded-full transition-all duration-300 ${
-                                    idx === currentIndex
+                                className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentIndex
                                         ? 'w-6 bg-blue-500'
                                         : 'w-1.5 bg-gray-300'
-                                }`}
+                                    }`}
                                 aria-label={`Go to quote ${idx + 1}`}
                             />
                         ))}
@@ -281,11 +279,10 @@ export default function CommunityQuotesSection() {
                             <button
                                 key={idx}
                                 onClick={() => setCurrentIndex(idx * (typeof window !== 'undefined' && window.innerWidth >= 1024 ? 3 : 2))}
-                                className={`h-2 rounded-full transition-all duration-300 ${
-                                    Math.floor(currentIndex / (typeof window !== 'undefined' && window.innerWidth >= 1024 ? 3 : 2)) === idx
+                                className={`h-2 rounded-full transition-all duration-300 ${Math.floor(currentIndex / (typeof window !== 'undefined' && window.innerWidth >= 1024 ? 3 : 2)) === idx
                                         ? 'w-8 bg-blue-500'
                                         : 'w-2 bg-gray-300 hover:bg-gray-400'
-                                }`}
+                                    }`}
                                 aria-label={`Go to slide ${idx + 1}`}
                             />
                         ))}
