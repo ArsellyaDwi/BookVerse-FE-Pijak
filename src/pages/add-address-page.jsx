@@ -5,6 +5,7 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import useMutation from "@/hooks/use-mutation";
 import { toast } from "sonner";
+import markerIcon from "../../node_modules/leaflet/dist/images/marker-icon.png";
 
 const loadLeaflet = () => {
   return Promise.all([import("leaflet/dist/leaflet.css"), import("leaflet")]);
@@ -16,7 +17,9 @@ const MapComponent = ({ lat, lng, onLocationSelect, height = "300px" }) => {
   const mapContainerRef = useRef(null);
   const [L, setL] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const isInitializedRef = useRef(false);
 
+  // Load Leaflet
   useEffect(() => {
     loadLeaflet().then(([, leaflet]) => {
       setL(leaflet);
@@ -24,55 +27,81 @@ const MapComponent = ({ lat, lng, onLocationSelect, height = "300px" }) => {
     });
   }, []);
 
+  // Initialize map once
   useEffect(() => {
-    if (!L || !mapContainerRef.current || isLoading) return;
+    if (!L || !mapContainerRef.current || isLoading || isInitializedRef.current) return;
 
-    if (!mapRef.current) {
-      mapRef.current = L.map(mapContainerRef.current).setView(
-        [lat || -6.2088, lng || 106.8456],
-        13
-      );
+    isInitializedRef.current = true;
 
-      L.tileLayer(
-        "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-        {
-          attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-          subdomains: "abcd",
-          maxZoom: 19,
-        }
-      ).addTo(mapRef.current);
+    mapRef.current = L.map(mapContainerRef.current).setView(
+      [lat || -6.2088, lng || 106.8456],
+      13
+    );
 
-      markerRef.current = L.marker([lat || -6.2088, lng || 106.8456], {
-        draggable: true,
-      }).addTo(mapRef.current);
+    L.tileLayer(
+      "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+      {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: "abcd",
+        maxZoom: 19,
+      }
+    ).addTo(mapRef.current);
 
-      markerRef.current.on("dragend", (e) => {
-        const position = e.target.getLatLng();
-        if (onLocationSelect) {
-          onLocationSelect(position.lat, position.lng);
-        }
-      });
+    const defaultIcon = new L.icon({
+      iconUrl: markerIcon,
+      iconSize: [25, 41],
+      shadowSize: [30, 65],
+      iconAnchor: [12, 41],
+      shadowAnchor: [7, 65]
+    });
 
-      mapRef.current.on("click", (e) => {
-        const { lat, lng } = e.latlng;
-        markerRef.current.setLatLng([lat, lng]);
-        if (onLocationSelect) {
-          onLocationSelect(lat, lng);
-        }
-      });
-    } else {
-      mapRef.current.setView([lat || -6.2088, lng || 106.8456], 13);
-      markerRef.current.setLatLng([lat || -6.2088, lng || 106.8456]);
+    markerRef.current = L.marker([lat || -6.2088, lng || 106.8456], {
+      icon: defaultIcon,
+      draggable: true,
+    }).addTo(mapRef.current);
+
+    markerRef.current.on("dragend", (e) => {
+      const position = e.target.getLatLng();
+      if (onLocationSelect) {
+        onLocationSelect(position.lat, position.lng);
+      }
+    });
+
+    mapRef.current.on("click", (e) => {
+      const { lat: clickLat, lng: clickLng } = e.latlng;
+      markerRef.current.setLatLng([clickLat, clickLng]);
+      if (onLocationSelect) {
+        onLocationSelect(clickLat, clickLng);
+      }
+    });
+  }, [L, isLoading, lat, lng, onLocationSelect]);
+
+  // Update view and marker when lat/lng change (without recreating map)
+  useEffect(() => {
+    if (!mapRef.current || !markerRef.current) return;
+
+    const currentLatLng = markerRef.current.getLatLng();
+    const newLat = lat || -6.2088;
+    const newLng = lng || 106.8456;
+
+    // Only update if position actually changed
+    if (currentLatLng.lat !== newLat || currentLatLng.lng !== newLng) {
+      mapRef.current.setView([newLat, newLng], mapRef.current.getZoom());
+      markerRef.current.setLatLng([newLat, newLng]);
     }
+  }, [lat, lng]);
 
+  // Cleanup only on unmount
+  useEffect(() => {
     return () => {
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
       }
+      isInitializedRef.current = false;
     };
-  }, [L, isLoading, lat, lng, onLocationSelect]);
+  }, []);
 
   if (isLoading) {
     return (
