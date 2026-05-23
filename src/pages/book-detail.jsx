@@ -219,28 +219,23 @@ export default function BookDetail() {
                 Detail Buku
               </h3>
               <div className="space-y-2 text-sm md:text-base">
-                <div className="flex gap-4">
-                  <span className="text-gray-500 w-28">Penulis</span>
+                <div className="grid grid-cols-[112px_1fr] gap-4">
+                  <span className="text-gray-500">Penulis</span>
                   <span className="text-gray-800">{book.author}</span>
-                </div>
-                <div className="flex gap-4">
-                  <span className="text-gray-500 w-28">Penerbit</span>
+
+                  <span className="text-gray-500">Penerbit</span>
                   <span className="text-gray-800">{book.publisher || "-"}</span>
-                </div>
-                <div className="flex gap-4">
-                  <span className="text-gray-500 w-28">Tahun Terbit</span>
+
+                  <span className="text-gray-500">Tahun Terbit</span>
                   <span className="text-gray-800">{book.publish_date ? new Date(book.publish_date).getFullYear() : "-"}</span>
-                </div>
-                <div className="flex gap-4">
-                  <span className="text-gray-500 w-28">ISBN</span>
+
+                  <span className="text-gray-500">ISBN</span>
                   <span className="text-gray-800">{book.isbn || "-"}</span>
-                </div>
-                <div className="flex gap-4">
-                  <span className="text-gray-500 w-28">Halaman</span>
+
+                  <span className="text-gray-500">Halaman</span>
                   <span className="text-gray-800">{book.pages || "-"}</span>
-                </div>
-                <div className="flex gap-4">
-                  <span className="text-gray-500 w-28">Bahasa</span>
+
+                  <span className="text-gray-500">Bahasa</span>
                   <span className="text-gray-800">{book.language || "-"}</span>
                 </div>
               </div>

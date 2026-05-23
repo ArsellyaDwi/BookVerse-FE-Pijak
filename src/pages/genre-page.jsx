@@ -92,8 +92,6 @@ export default function GenresPage() {
         navigate(-1);
     };
 
-    const totalBooks = (genresWithImages.length > 0 ? genresWithImages : getGenres.data || []).reduce((acc, genre) => acc + Number((genre.books_count || 0)), 0) || 0;
-
     const sortOptions = [
         { value: "name", label: "Name A-Z" },
         { value: "books", label: "Most Books" },
@@ -199,12 +197,6 @@ export default function GenresPage() {
                             <BookOpen className="w-5 h-5 text-blue-600" />
                             <span className="text-gray-600 font-poppins">
                                 <strong className="text-gray-900">{filteredGenres.length}</strong> Genres
-                            </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <TrendingUp className="w-5 h-5 text-green-600" />
-                            <span className="text-gray-600 font-poppins">
-                                <strong className="text-gray-900">{totalBooks.toLocaleString()}</strong> Books
                             </span>
                         </div>
                     </div>
