@@ -704,7 +704,7 @@ export default function CommunityQuotes() {
             )}
 
             {showAddModal && (
-                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-sm">
+                <div className="fixed inset-0 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-sm z-9999">
                     <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md overflow-hidden shadow-xl max-h-[85vh] overflow-y-auto sm:my-8">
                         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-gray-100 sticky top-0 bg-white z-10">
                             <div className="flex items-center gap-2">
