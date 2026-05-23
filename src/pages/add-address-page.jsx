@@ -119,6 +119,7 @@ const MapComponent = ({ lat, lng, onLocationSelect, height = "300px" }) => {
 
   return (
     <div
+      className="z-10"
       ref={mapContainerRef}
       style={{ height, width: "100%", borderRadius: "12px" }}
     />
