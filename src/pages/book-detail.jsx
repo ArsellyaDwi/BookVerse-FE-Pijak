@@ -443,13 +443,6 @@ export default function BookDetail() {
                   Based on your interest in {book.title}
                 </p>
               </div>
-              <Link
-                to={`/recommendations/${book.id}`}
-                className="flex items-center gap-1 text-blue-600 hover:text-blue-700 font-poppins text-sm font-medium transition-colors"
-              >
-                View All
-                <ChevronRight className="w-4 h-4" />
-              </Link>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">

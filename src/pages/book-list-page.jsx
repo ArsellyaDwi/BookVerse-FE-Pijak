@@ -117,7 +117,7 @@ export default function BookListPage() {
     if (filters.min_price) params.min_price = filters.min_price;
     if (filters.max_price) params.max_price = filters.max_price;
     if (filters.min_rating) params.min_rating = filters.min_rating;
-    
+
     // LOGIKA EDITOR'S CHOICE & NEW RELEASES
     if (activeTab === "editors") {
       params.sort_by = "rating";
@@ -129,7 +129,7 @@ export default function BookListPage() {
       if (filters.sort_by) params.sort_by = filters.sort_by;
       if (filters.sort_direction) params.sort_direction = filters.sort_direction;
     }
-    
+
     params.per_page = 12;
     return params;
   };
@@ -164,7 +164,7 @@ export default function BookListPage() {
     setSearchKeyword("");
     setLocalKeyword("");
     setCurrentPage(1);
-    
+
     // Reset filters when changing tabs
     setFilters({
       genres: [],
@@ -196,7 +196,7 @@ export default function BookListPage() {
     if (filters.min_rating) params.set("min_rating", filters.min_rating);
     if (filters.sort_by && activeTab === "all") params.set("sort_by", filters.sort_by);
     if (filters.sort_direction && activeTab === "all") params.set("sort_direction", filters.sort_direction);
-    
+
     setSearchParams(params, { replace: true });
     refetchBooks(buildQueryParams());
   }, [
@@ -332,18 +332,17 @@ export default function BookListPage() {
       </div>
 
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-20 py-8">
-        
+
         {/* Tab Navigation */}
         <div className="flex flex-wrap justify-center gap-2 mb-6">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => handleTabChange(tab.id)}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
-                activeTab === tab.id
-                  ? "bg-blue-600 text-white shadow-md shadow-blue-200"
-                  : "bg-white text-gray-600 border border-gray-200 hover:border-blue-300 hover:text-blue-600"
-              }`}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${activeTab === tab.id
+                ? "bg-blue-600 text-white shadow-md shadow-blue-200"
+                : "bg-white text-gray-600 border border-gray-200 hover:border-blue-300 hover:text-blue-600"
+                }`}
             >
               {tab.icon}
               {tab.label}
@@ -374,9 +373,8 @@ export default function BookListPage() {
           {/* Sidebar Filters */}
           {activeTab === "all" && (
             <div
-              className={`fixed inset-y-0 left-0 z-50 w-full max-w-md bg-white transform transition-transform duration-300 ease-in-out overflow-y-auto ${
-                isFilterOpen ? "translate-x-0" : "-translate-x-full"
-              } lg:relative lg:translate-x-0 lg:block lg:w-72 lg:overflow-y-visible`}
+              className={`fixed inset-y-0 left-0 z-9999 w-full max-w-md bg-white transform transition-transform duration-300 ease-in-out overflow-y-auto ${isFilterOpen ? "translate-x-0" : "-translate-x-full"
+                } lg:relative lg:translate-x-0 lg:block lg:w-72 lg:overflow-y-visible`}
             >
               <div className="h-full lg:h-auto lg:sticky lg:top-24 p-6 border-r border-gray-200">
                 <div className="flex items-center justify-between lg:hidden mb-6">
@@ -465,11 +463,10 @@ export default function BookListPage() {
                       <button
                         key={rating}
                         onClick={() => handleFilterChange("min_rating", rating.toString())}
-                        className={`px-3 py-1 rounded-lg border transition-all ${
-                          filters.min_rating === rating.toString()
-                            ? "bg-blue-600 text-white border-blue-600"
-                            : "border-gray-300 text-gray-700 hover:border-blue-300"
-                        }`}
+                        className={`px-3 py-1 rounded-lg border transition-all ${filters.min_rating === rating.toString()
+                          ? "bg-blue-600 text-white border-blue-600"
+                          : "border-gray-300 text-gray-700 hover:border-blue-300"
+                          }`}
                       >
                         <Star className={`w-3 h-3 inline ${filters.min_rating === rating.toString() ? "fill-current" : ""}`} />
                         <span className="text-sm ml-1">{rating}+</span>

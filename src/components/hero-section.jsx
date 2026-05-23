@@ -55,6 +55,14 @@ export default function HeroSection() {
     setActiveMood("");
     setError(null);
 
+    const trimmedInput = newValue;
+
+    if (trimmedInput.length < 15 && trimmedInput != "") {
+      setError("Please describe your mood first (min. 15 characters)");
+    } else {
+      setError(null);
+    }
+
     if (newValue.length > 0 && !isEnglishText(newValue)) {
       setLanguageWarning("Please use English only. Our AI works best with English text.");
     } else {
@@ -72,8 +80,8 @@ export default function HeroSection() {
   const handleGenerate = useCallback(async () => {
     const trimmedInput = moodInput.trim();
 
-    if (trimmedInput.length < 5) {
-      setError("Please describe your mood first (min. 5 characters)");
+    if (trimmedInput.length < 15) {
+      setError("Please describe your mood first (min. 15 characters)");
       return;
     }
 
@@ -188,6 +196,7 @@ export default function HeroSection() {
             />
           </div>
 
+
           {/* Warning messages */}
           <div className="flex items-start gap-2 mt-3 text-left">
             <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
@@ -195,6 +204,16 @@ export default function HeroSection() {
               <span className="font-medium">English only:</span> Write in English for better story matches.
             </p>
           </div>
+
+          {error && (
+            <div className="flex items-start gap-2 mt-3 text-left  mb-3">
+              <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-red-600">
+                <span className="font-medium">{error}</span>
+              </p>
+            </div>
+          )}
+
 
           {languageWarning && (
             <div className="flex items-start gap-2 mt-2 text-left bg-red-50 p-2 rounded-lg">
@@ -218,10 +237,10 @@ export default function HeroSection() {
 
           <button
             onClick={handleGenerate}
-            disabled={isLoading || moodInput.trim().length < 5}
+            disabled={isLoading || moodInput.trim().length < 15}
             className={`
               flex items-center gap-2 px-5 sm:px-6 md:px-8 py-2 sm:py-2.5 md:py-3 rounded-full text-sm md:text-base font-semibold transition-all duration-300
-              ${moodInput.trim().length >= 5 && !isLoading
+              ${moodInput.trim().length >= 15 && !isLoading
                 ? "bg-blue-600 text-white shadow-lg shadow-blue-200 hover:bg-blue-700 hover:-translate-y-0.5 active:scale-95"
                 : "bg-slate-100 text-slate-400 cursor-not-allowed"
               }

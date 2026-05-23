@@ -44,11 +44,6 @@ export default function PersonalityQuizPage() {
 
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
-  const [quizFinished, setQuizFinished] = useState(false);
-
-  const [personalityResult, setPersonalityResult] = useState(null);
-  const [recommendedGenres, setRecommendedGenres] = useState([]);
-  const [recommendedBooks, setRecommendedBooks] = useState([]);
 
   const {
     data: personalityStatus,
@@ -76,48 +71,6 @@ export default function PersonalityQuizPage() {
       toast.error(error?.response?.data?.message || "Something went wrong");
     },
   });
-
-  const { refetch: fetchBooks, loading: booksLoading } = useQuery({
-    url: "/books",
-    immediate: false,
-
-    onSuccess: (data) => {
-      const books = data?.data?.data || data?.data || [];
-      setRecommendedBooks(books);
-    },
-  });
-
-  useEffect(() => {
-    if (
-      personalityStatus?.has_completed &&
-      personalityStatus?.personality
-    ) {
-      setQuizFinished(true);
-
-      setPersonalityResult(personalityStatus.personality);
-
-      const genres = personalityStatus?.genres || [];
-      setRecommendedGenres(genres);
-
-      const topGenre = genres?.[0]?.genre;
-
-      if (topGenre) {
-        fetchBooks({
-          params: {
-            genres: topGenre,
-            per_page: 8,
-          },
-        });
-      } else {
-        fetchBooks({
-          url: "/books/bestsellers",
-          params: {
-            limit: 8,
-          },
-        });
-      }
-    }
-  }, [personalityStatus]);
 
   const handleAnswer = async (value) => {
     const question = allQuestions[currentQuestion];
@@ -147,6 +100,11 @@ export default function PersonalityQuizPage() {
       setCurrentQuestion((prev) => prev - 1);
     }
   };
+
+  const personalityResult = personalityStatus?.personality;
+  const quizFinished = personalityStatus?.has_completed || false;
+  const recommendedGenres = personalityStatus?.genres || [];
+  const recommendedBooks = personalityStatus?.books || [];
 
   if (statusLoading) {
     return (
@@ -258,7 +216,7 @@ export default function PersonalityQuizPage() {
                 Books You Might Like
               </h2>
 
-              {booksLoading ? (
+              {statusLoading ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
                   {[...Array(4)].map((_, i) => (
                     <div key={i} className="animate-pulse">

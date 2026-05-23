@@ -1,4 +1,4 @@
-const BASE_STORAGE_URL = "https://panel-bookverse.kendah.my.id/storage";
+const BASE_STORAGE_URL = "http://localhost:8000/storage";
 
 export function buildStorageUrl(url) {
   if (!url) return null;
@@ -6,7 +6,7 @@ export function buildStorageUrl(url) {
   if (url.startsWith('http')) return url;
 
   if (url.includes('/storage')) {
-    return `https://panel-bookverse.kendah.my.id/${url}`;
+    return `http://localhost:8000${url}`;
   }
 
   const cleanUrl = url.replace(/^\/storage/, '');
