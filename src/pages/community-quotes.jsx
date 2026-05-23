@@ -48,34 +48,51 @@ export default function CommunityQuotes() {
     const [openMenuId, setOpenMenuId] = useState(null);
 
     const itemsPerPage = 12;
-
     const moodOptions = [
-        { value: "all", label: "All Moods" },
+        { value: "all", label: "All Emotions" },
         { value: "happiness", label: "Happiness" },
-        { value: "sadness", label: "Sadness" },
-        { value: "love", label: "Love" },
+        { value: "disgust", label: "Disgust" },
+        { value: "jealousy", label: "Jealousy" },
+        { value: "surprise", label: "Surprise" },
+        { value: "gratitude", label: "Gratitude" },
+        { value: "relief", label: "Relief" },
+        { value: "guilt", label: "Guilt" },
         { value: "anger", label: "Anger" },
+        { value: "disappointment", label: "Disappointment" },
+        { value: "embarrassment", label: "Embarrassment" },
         { value: "anxiety", label: "Anxiety" },
-        { value: "fear", label: "Fear" },
+        { value: "pride", label: "Pride" },
         { value: "hope", label: "Hope" },
-        { value: "courage", label: "Courage" },
+        { value: "loneliness", label: "Loneliness" },
         { value: "excitement", label: "Excitement" },
-        { value: "inspiration", label: "Inspiration" },
-        { value: "calm", label: "Calm" }
+        { value: "fear", label: "Fear" },
+        { value: "sadness", label: "Sadness" },
+        { value: "confusion", label: "Confusion" },
+        { value: "love", label: "Love" },
+        { value: "frustration", label: "Frustration" }
     ];
 
     const moodColors = {
         happiness: "bg-green-100 text-green-700",
-        sadness: "bg-blue-100 text-blue-700",
-        love: "bg-pink-100 text-pink-700",
+        disgust: "bg-lime-100 text-lime-700",
+        jealousy: "bg-emerald-100 text-emerald-700",
+        surprise: "bg-amber-100 text-amber-700",
+        gratitude: "bg-teal-100 text-teal-700",
+        relief: "bg-cyan-100 text-cyan-700",
+        guilt: "bg-violet-100 text-violet-700",
         anger: "bg-red-100 text-red-700",
-        anxiety: "bg-orange-100 text-orange-700",
-        fear: "bg-purple-100 text-purple-700",
-        hope: "bg-teal-100 text-teal-700",
-        courage: "bg-indigo-100 text-indigo-700",
-        excitement: "bg-yellow-100 text-yellow-700",
-        inspiration: "bg-emerald-100 text-emerald-700",
-        calm: "bg-gray-100 text-gray-700"
+        disappointment: "bg-orange-100 text-orange-700",
+        embarrassment: "bg-pink-100 text-pink-700",
+        anxiety: "bg-yellow-100 text-yellow-700",
+        pride: "bg-indigo-100 text-indigo-700",
+        hope: "bg-sky-100 text-sky-700",
+        loneliness: "bg-slate-100 text-slate-700",
+        excitement: "bg-purple-100 text-purple-700",
+        fear: "bg-gray-100 text-gray-700",
+        sadness: "bg-blue-100 text-blue-700",
+        confusion: "bg-stone-100 text-stone-700",
+        love: "bg-rose-100 text-rose-700",
+        frustration: "bg-orange-100 text-orange-700"
     };
 
     const isEnglishText = useCallback((text) => {
