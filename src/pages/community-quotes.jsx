@@ -545,12 +545,12 @@ export default function CommunityQuotes() {
                                         <ThumbsUp className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                                         <span>{quote.likes_count || 0}</span>
                                     </button>
-                                    <button
+                                    {/* <button
                                         onClick={() => handleShare(quote)}
                                         className="p-1.5 sm:p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all"
                                     >
                                         <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                                    </button>
+                                    </button> */}
                                 </div>
                             </div>
                         ))}
