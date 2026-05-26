@@ -28,25 +28,24 @@ const emotionIcons = {
 };
 
 const emotionColors = {
-  happiness: "text-yellow-500",
-  joy: "text-yellow-500",
+  happiness: "text-amber-500",
+  joy: "text-amber-500",
   sadness: "text-blue-500",
   anxiety: "text-orange-500",
   fear: "text-purple-500",
   anger: "text-red-500",
-  love: "text-pink-500",
-  relief: "text-green-500",
+  love: "text-rose-500",
+  relief: "text-emerald-500",
   hope: "text-teal-500",
   loneliness: "text-indigo-500",
   gratitude: "text-emerald-500",
-  excitement: "text-amber-500",
+  excitement: "text-orange-500",
   surprise: "text-cyan-500",
   melancholy: "text-indigo-400",
   grief: "text-gray-500",
   pride: "text-purple-600",
   default: "text-blue-600"
 };
-
 
 const getEmotionIcon = (emotion) => {
   return emotionIcons[emotion?.toLowerCase()] || emotionIcons.default;
@@ -121,7 +120,7 @@ const BookLoadingAnimation = () => {
 
         <div className="absolute left-0 top-0 bottom-0 w-2.5 bg-gradient-to-r from-blue-900 to-blue-800 rounded-l" />
 
-        <div className="absolute -top-2 right-3 w-6 h-10 bg-gradient-to-b from-yellow-400 to-yellow-500 rounded-b-sm shadow-md transform -rotate-12" />
+        <div className="absolute -top-2 right-3 w-6 h-10 bg-gradient-to-b from-amber-400 to-amber-500 rounded-b-sm shadow-md transform -rotate-12" />
 
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg">
@@ -174,28 +173,25 @@ const BookLoadingAnimation = () => {
   );
 };
 
-// Component to show the emotion distribution pie/bar chart
 const EmotionDistributionChart = ({ distribution, ratio, suggestedEmotions, matchedEmotions }) => {
   const [hoveredEmotion, setHoveredEmotion] = useState(null);
 
-  // Calculate suggested total percentage
   const suggestedTotal = suggestedEmotions?.reduce((sum, emotion) => sum + (distribution[emotion] || 0), 0) * 100;
   const matchedTotal = matchedEmotions?.reduce((sum, emotion) => sum + (distribution[emotion] || 0), 0) * 100;
 
   return (
     <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex items-center gap-2 mb-4 border-b border-gray-100 pb-3">
         <BarChart3 className="w-5 h-5 text-blue-600" />
         <h4 className="font-semibold text-gray-800">How we picked your books</h4>
       </div>
 
-      {/* Ratio Badge */}
-      <div className="flex items-center justify-center gap-6 mb-5 flex-wrap">
+      <div className="flex items-center justify-center gap-8 mb-6 flex-wrap">
         <div className="text-center">
-          <div className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-50 rounded-full">
-            <Sparkles className="w-4 h-4 text-emerald-600" />
-            <span className="text-sm font-medium text-emerald-700">Suggested Emotions</span>
-            <span className="text-lg font-bold text-emerald-700 ml-1">{Math.round(suggestedTotal)}%</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 rounded-full">
+            <Sparkles className="w-4 h-4 text-blue-600" />
+            <span className="text-sm font-medium text-blue-700">Suggested Emotions</span>
+            <span className="text-lg font-bold text-blue-700 ml-1">{Math.round(suggestedTotal)}%</span>
           </div>
           <p className="text-xs text-gray-500 mt-1 max-w-[200px]">
             Books we think you'll love based on your emotional journey
@@ -203,10 +199,10 @@ const EmotionDistributionChart = ({ distribution, ratio, suggestedEmotions, matc
         </div>
         <div className="text-gray-300 text-xl font-light">→</div>
         <div className="text-center">
-          <div className="inline-flex items-center gap-1 px-3 py-1.5 bg-orange-50 rounded-full">
-            <Target className="w-4 h-4 text-orange-600" />
-            <span className="text-sm font-medium text-orange-700">Matched Emotions</span>
-            <span className="text-lg font-bold text-orange-700 ml-1">{Math.round(matchedTotal)}%</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-full">
+            <Target className="w-4 h-4 text-gray-600" />
+            <span className="text-sm font-medium text-gray-700">Matched Emotions</span>
+            <span className="text-lg font-bold text-gray-700 ml-1">{Math.round(matchedTotal)}%</span>
           </div>
           <p className="text-xs text-gray-500 mt-1 max-w-[200px]">
             Books that match your current emotional state
@@ -214,36 +210,34 @@ const EmotionDistributionChart = ({ distribution, ratio, suggestedEmotions, matc
         </div>
       </div>
 
-      {/* Progress Bar for Ratio */}
       {ratio && (
-        <div className="mb-5">
+        <div className="mb-6">
           <div className="flex justify-between text-xs text-gray-500 mb-1">
             <span className="flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-emerald-600" />
+              <Sparkles className="w-3 h-3 text-blue-600" />
               Suggested ({ratio}%)
             </span>
             <span className="flex items-center gap-1">
               Matched ({100 - ratio}%)
-              <Target className="w-3 h-3 text-orange-600" />
+              <Target className="w-3 h-3 text-gray-600" />
             </span>
           </div>
-          <div className="h-3 bg-gray-100 rounded-full overflow-hidden flex">
+          <div className="h-2 bg-gray-100 rounded-full overflow-hidden flex">
             <div
-              className="bg-gradient-to-r from-emerald-400 to-emerald-600 transition-all duration-500"
+              className="bg-blue-600 transition-all duration-500"
               style={{ width: `${ratio}%` }}
             />
             <div
-              className="bg-gradient-to-r from-orange-400 to-orange-600 transition-all duration-500"
+              className="bg-gray-400 transition-all duration-500"
               style={{ width: `${100 - ratio}%` }}
             />
           </div>
           <p className="text-xs text-gray-400 mt-2 text-center">
-            We carefully balanced your recommendations using a {ratio}% / {100 - ratio}% split
+            Balanced recommendations using a {ratio}% / {100 - ratio}% split
           </p>
         </div>
       )}
 
-      {/* Distribution Bars */}
       <div className="space-y-2">
         <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Emotion Breakdown</p>
         {Object.entries(distribution).map(([emotion, weight]) => {
@@ -261,24 +255,24 @@ const EmotionDistributionChart = ({ distribution, ratio, suggestedEmotions, matc
                   <span className={`w-2 h-2 rounded-full ${getEmotionColor(emotion)}`} />
                   {emotion}
                   {isSuggested ? (
-                    <Sparkles className="w-3 h-3 text-emerald-500" />
+                    <Sparkles className="w-3 h-3 text-blue-500" />
                   ) : (
-                    <Target className="w-3 h-3 text-orange-500" />
+                    <Target className="w-3 h-3 text-gray-500" />
                   )}
                 </span>
                 <span className="text-gray-600 font-medium">{percentage}%</span>
               </div>
-              <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                 <div
-                  className={`h-full rounded-full transition-all duration-500 ${isSuggested ? 'bg-emerald-500' : 'bg-orange-500'}`}
+                  className={`h-full rounded-full transition-all duration-500 ${isSuggested ? 'bg-blue-600' : 'bg-gray-500'}`}
                   style={{ width: `${percentage}%` }}
                 />
               </div>
               {hoveredEmotion === emotion && (
-                <p className="text-xs text-gray-400 mt-1 animate-fadeIn">
+                <p className="text-xs text-gray-400 mt-1">
                   {isSuggested
-                    ? `✨ We recommended this emotion to help shift your mood`
-                    : `🎯 This matches the emotion we detected in your text`}
+                    ? `Recommended to help shift your mood`
+                    : `Matches the emotion detected in your text`}
                 </p>
               )}
             </div>
@@ -341,32 +335,31 @@ export default function RecommendationsPage() {
     }
   }, [text]);
 
-
   const getEmotionMessage = (topEmotion, predictions, appliedRule) => {
     const ratio = appliedRule?.ratio || 50;
     const suggestedEmotions = appliedRule?.suggested_outputs || [];
 
     if (appliedRule && ratio) {
       if (suggestedEmotions.length > 0) {
-        return `✨ We detected ${topEmotion} in your writing. Using our smart emotion rules, we're showing you ${ratio}% books that can help shift your mood toward ${suggestedEmotions.slice(0, 2).join(" and ")}${suggestedEmotions.length > 2 ? ", and more" : ""}, and ${100 - ratio}% books that match how you're feeling right now.`;
+        return `We detected ${topEmotion} in your writing. Using our smart emotion rules, we're showing you ${ratio}% books that can help shift your mood toward ${suggestedEmotions.slice(0, 2).join(" and ")}${suggestedEmotions.length > 2 ? ", and more" : ""}, and ${100 - ratio}% books that match how you're feeling right now.`;
       }
-      return `✨ We detected ${topEmotion} in your writing. We've balanced your recommendations with ${ratio}% uplifting books and ${100 - ratio}% books that match your current mood.`;
+      return `We detected ${topEmotion} in your writing. We've balanced your recommendations with ${ratio}% uplifting books and ${100 - ratio}% books that match your current mood.`;
     }
 
     const messages = {
-      happiness: "🎉 Your joyful energy shines through! We've picked uplifting stories that celebrate happiness.",
-      sadness: "💙 We hear you. Here are comforting books to accompany you through this moment, along with gentle stories to lift your spirits.",
-      anxiety: "🌿 Take a deep breath. We've found calming reads to help you find peace, plus engaging stories to gently shift your focus.",
-      fear: "🦁 You're braver than you feel. Let these empowering stories give you strength and courage.",
-      love: "💝 Your heart is full of love! Warm your soul with these beautiful stories about connection.",
-      anger: "⚡ Channel that energy! These powerful narratives will match your intensity and help you find release.",
-      relief: "😌 Ahh, that's better! Celebrate this freeing feeling with these light and joyful reads.",
-      hope: "🌟 Stay inspired! These hopeful stories will nurture your optimism.",
-      loneliness: "🤗 You're not alone. These heartwarming tales will remind you that connection is everywhere.",
-      gratitude: "🙏 What a beautiful perspective! Celebrate gratitude with these meaningful reads.",
-      excitement: "🚀 Fuel that excitement! These thrilling adventures are perfect for your energetic mood.",
-      surprise: "🎁 Expect the unexpected! These surprising stories will keep you on your toes.",
-      default: "📚 We've curated these special recommendations just for you based on what you shared."
+      happiness: "Your joyful energy shines through. We've picked uplifting stories that celebrate happiness.",
+      sadness: "We hear you. Here are comforting books to accompany you through this moment, along with gentle stories to lift your spirits.",
+      anxiety: "Take a deep breath. We've found calming reads to help you find peace, plus engaging stories to gently shift your focus.",
+      fear: "You're braver than you feel. Let these empowering stories give you strength and courage.",
+      love: "Your heart is full of love. Warm your soul with these beautiful stories about connection.",
+      anger: "Channel that energy. These powerful narratives will match your intensity and help you find release.",
+      relief: "Ahh, that's better. Celebrate this freeing feeling with these light and joyful reads.",
+      hope: "Stay inspired. These hopeful stories will nurture your optimism.",
+      loneliness: "You're not alone. These heartwarming tales will remind you that connection is everywhere.",
+      gratitude: "What a beautiful perspective. Celebrate gratitude with these meaningful reads.",
+      excitement: "Fuel that excitement. These thrilling adventures are perfect for your energetic mood.",
+      surprise: "Expect the unexpected. These surprising stories will keep you on your toes.",
+      default: "We've curated these special recommendations just for you based on what you shared."
     };
 
     return messages[topEmotion?.toLowerCase()] || messages.default;
@@ -379,9 +372,9 @@ export default function RecommendationsPage() {
   };
 
   const getStrategyText = (strategy) => {
-    if (strategy === 'rule_based') return 'Smart Rule Matching ✨';
-    if (strategy === 'prediction_based') return 'AI Emotion Detection 🧠';
-    return 'Fallback Matching 📚';
+    if (strategy === 'rule_based') return 'Smart Rule Matching';
+    if (strategy === 'prediction_based') return 'AI Emotion Detection';
+    return 'Fallback Matching';
   };
 
   if (loading) {
@@ -405,11 +398,11 @@ export default function RecommendationsPage() {
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <Heart className="w-16 h-16 text-red-300 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-800 mb-2">Oops! Something went wrong</h2>
+            <h2 className="text-xl font-semibold text-gray-800 mb-2">Oops. Something went wrong</h2>
             <p className="text-gray-500 mb-4">{error}</p>
             <button
               onClick={() => navigate("/")}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               Back to Home
             </button>
@@ -429,7 +422,6 @@ export default function RecommendationsPage() {
   const totalBooksFound = recommendationData?.total_books_found || 0;
   const ratio = appliedRule?.ratio || 50;
 
-  // Get suggested and matched emotions from the rule
   const suggestedEmotions = appliedRule?.suggested_outputs || [];
   const matchedEmotions = appliedRule?.matched_outputs || [];
 
@@ -446,7 +438,6 @@ export default function RecommendationsPage() {
             <span>Back</span>
           </button>
 
-          {/* Main Emotion Header */}
           <div className="text-center mb-8">
             <div className={`flex justify-center mb-4 ${getEmotionColor(topEmotion)}`}>
               {getEmotionIcon(topEmotion)}
@@ -458,7 +449,6 @@ export default function RecommendationsPage() {
               {getEmotionMessage(topEmotion, predictions, appliedRule)}
             </p>
 
-            {/* Top Emotion Confidence */}
             {predictions.length > 0 && (
               <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full">
                 <Sparkles className="w-4 h-4 text-blue-500" />
@@ -468,7 +458,6 @@ export default function RecommendationsPage() {
               </div>
             )}
 
-            {/* Search Strategy Badge */}
             {searchSource && (
               <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-full shadow-sm">
                 {getStrategyIcon(searchSource)}
@@ -479,7 +468,6 @@ export default function RecommendationsPage() {
             )}
           </div>
 
-          {/* Emotion Distribution Chart - Shows 80/20 split clearly */}
           {appliedRule && emotionDistribution && Object.keys(emotionDistribution).length > 0 && (
             <div className="mb-8">
               <EmotionDistributionChart
@@ -491,70 +479,66 @@ export default function RecommendationsPage() {
             </div>
           )}
 
-          {/* AI Insights Section */}
           {(predictions.length > 0 || appliedRule) && (
-            <div className="mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+            <div className="mb-8 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
               <button
                 onClick={() => setShowDetails(!showDetails)}
-                className="flex items-center justify-between w-full text-left"
+                className="flex items-center justify-between w-full p-5 text-left hover:bg-gray-50 transition-colors"
               >
                 <div className="flex items-center gap-2">
-                  <Brain className="w-5 h-5 text-blue-600" />
-                  <h3 className="font-semibold text-gray-800">Behind the scenes 🤖</h3>
+                  <Brain className="w-5 h-5 text-gray-600" />
+                  <h3 className="font-semibold text-gray-800">Behind the scenes</h3>
                 </div>
                 <span className="text-blue-600 text-sm">{showDetails ? 'Hide details' : 'See how we picked these'}</span>
               </button>
 
               {showDetails && (
-                <div className="mt-4 space-y-3 text-sm">
-                  {/* Rule Explanation */}
+                <div className="px-5 pb-5 pt-0 space-y-4 text-sm border-t border-gray-100">
                   {appliedRule && (
-                    <div className="bg-white rounded-lg p-4 border border-green-100">
+                    <div className="bg-gray-50 rounded-lg p-4">
                       <div className="flex items-center gap-2 mb-2">
-                        <Target className="w-4 h-4 text-green-600" />
+                        <Target className="w-4 h-4 text-gray-600" />
                         <p className="font-medium text-gray-700">How we balanced your recommendations:</p>
                       </div>
                       <div className="space-y-2 text-gray-600">
                         <p className="flex items-start gap-2">
-                          <span className="text-emerald-500">✨</span>
-                          <span><strong className="text-emerald-700">{ratio}% of books</strong> are from <strong>suggested emotions</strong>: {suggestedEmotions?.join(", ") || "none"}</span>
+                          <span className="text-blue-500">•</span>
+                          <span><strong className="text-blue-700">{ratio}% of books</strong> are from <strong>suggested emotions</strong>: {suggestedEmotions?.join(", ") || "none"}</span>
                         </p>
                         <p className="flex items-start gap-2">
-                          <span className="text-orange-500">🎯</span>
-                          <span><strong className="text-orange-700">{100 - ratio}% of books</strong> are from <strong>matched emotions</strong>: {matchedEmotions?.join(", ") || "none"}</span>
+                          <span className="text-gray-500">•</span>
+                          <span><strong className="text-gray-700">{100 - ratio}% of books</strong> are from <strong>matched emotions</strong>: {matchedEmotions?.join(", ") || "none"}</span>
                         </p>
-                        <p className="text-xs text-gray-400 mt-2 pt-2 border-t border-gray-100">
-                          💡 This balanced approach helps you find books that acknowledge your current feelings while gently introducing new emotional perspectives.
+                        <p className="text-xs text-gray-400 mt-2 pt-2 border-t border-gray-200">
+                          This balanced approach helps you find books that acknowledge your current feelings while gently introducing new emotional perspectives.
                         </p>
                       </div>
                     </div>
                   )}
 
-                  {/* Predictions */}
                   {predictions.length > 0 && (
                     <div>
                       <p className="font-medium text-gray-700 mb-2">What we detected in your writing:</p>
                       <div className="flex flex-wrap gap-2">
                         {predictions.map((pred, idx) => (
-                          <span key={idx} className="inline-flex items-center gap-1 px-3 py-1 bg-white rounded-full shadow-sm">
+                          <span key={idx} className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 rounded-full">
                             <span className={`w-2 h-2 rounded-full ${getEmotionColor(pred.emotion)}`} />
                             <span className="text-gray-700 capitalize">{pred.emotion}</span>
-                            <span className="text-xs text-gray-500">({Math.round(pred.confidence * 100)}% match)</span>
+                            <span className="text-xs text-gray-500">({Math.round(pred.confidence * 100)}%)</span>
                           </span>
                         ))}
                       </div>
                     </div>
                   )}
 
-                  {/* Search Emotions Used */}
                   <div>
                     <p className="font-medium text-gray-700 mb-2">Emotions we searched for:</p>
                     <div className="flex flex-wrap gap-2">
                       {searchEmotions?.map((emotion, idx) => {
                         const isSuggested = suggestedEmotions?.includes(emotion);
                         return (
-                          <span key={idx} className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full shadow-sm ${isSuggested ? 'bg-emerald-50 border border-emerald-200' : 'bg-orange-50 border border-orange-200'}`}>
-                            {isSuggested ? <Sparkles className="w-3 h-3 text-emerald-500" /> : <Target className="w-3 h-3 text-orange-500" />}
+                          <span key={idx} className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${isSuggested ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50 border border-gray-200'}`}>
+                            {isSuggested ? <Sparkles className="w-3 h-3 text-blue-500" /> : <Target className="w-3 h-3 text-gray-500" />}
                             <span className="text-gray-700 capitalize">{emotion}</span>
                           </span>
                         );
@@ -562,18 +546,17 @@ export default function RecommendationsPage() {
                     </div>
                     <p className="text-xs text-gray-400 mt-2">
                       {suggestedEmotions?.length > 0 && matchedEmotions?.length > 0
-                        ? `✨ ${suggestedEmotions.join(", ")} are uplifting suggestions • 🎯 ${matchedEmotions.join(", ")} match your current mood`
+                        ? `${suggestedEmotions.join(", ")} are uplifting suggestions • ${matchedEmotions.join(", ")} match your current mood`
                         : "We used these emotions to find the perfect books for you"}
                     </p>
                   </div>
 
-                  {/* Stats */}
                   <div className="grid grid-cols-2 gap-3 pt-2">
-                    <div className="bg-white rounded-lg p-2 text-center">
+                    <div className="bg-gray-50 rounded-lg p-2 text-center">
                       <p className="text-xs text-gray-500">Books found for you</p>
                       <p className="text-lg font-bold text-blue-600">{totalBooksFound}</p>
                     </div>
-                    <div className="bg-white rounded-lg p-2 text-center">
+                    <div className="bg-gray-50 rounded-lg p-2 text-center">
                       <p className="text-xs text-gray-500">Recommendation strategy</p>
                       <p className="text-sm font-medium text-gray-700">{getStrategyText(searchSource)}</p>
                     </div>
@@ -583,26 +566,24 @@ export default function RecommendationsPage() {
             </div>
           )}
 
-          {/* User Input Preview */}
           {text && (
             <div className="mb-6 text-center">
               <div className="inline-block bg-gray-100 rounded-full px-4 py-2">
                 <p className="text-sm text-gray-500">
-                  💭 "{decodeURIComponent(text.length > 80 ? text.substring(0, 80) + '...' : text)}"
+                  "{decodeURIComponent(text.length > 80 ? text.substring(0, 80) + '...' : text)}"
                 </p>
               </div>
             </div>
           )}
 
-          {/* Books Grid */}
           {books.length > 0 ? (
             <>
               <div className="mb-4 flex justify-between items-center flex-wrap gap-2">
                 <h2 className="text-lg font-semibold text-gray-800">
-                  📚 Your personalized reading list ({books.length} books)
+                  Your personalized reading list ({books.length} books)
                 </h2>
                 {appliedRule && (
-                  <div className="text-xs text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full flex items-center gap-1">
+                  <div className="text-xs text-blue-600 bg-blue-50 px-3 py-1 rounded-full flex items-center gap-1">
                     <Sparkles className="w-3 h-3" />
                     {ratio}% uplifting • {100 - ratio}% mood-matched
                   </div>
@@ -622,9 +603,8 @@ export default function RecommendationsPage() {
                 ))}
               </div>
 
-              {/* Friendly footer note */}
               <div className="mt-10 text-center text-sm text-gray-400 border-t border-gray-200 pt-6">
-                <p>✨ Every book is chosen with care — {ratio}% to lift your spirits, {100 - ratio}% to meet you where you are.</p>
+                <p>Every book is chosen with care — {ratio}% to lift your spirits, {100 - ratio}% to meet you where you are.</p>
                 <p className="text-xs mt-1">Find what feels right. Come back anytime your mood changes.</p>
               </div>
             </>
@@ -635,7 +615,7 @@ export default function RecommendationsPage() {
               <p className="text-gray-500">We couldn't find books matching your emotional journey. Try a different description.</p>
               <button
                 onClick={() => navigate("/")}
-                className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 Back to Home
               </button>
