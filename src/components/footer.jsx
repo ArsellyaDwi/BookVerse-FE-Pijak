@@ -74,11 +74,11 @@ export default function Footer() {
   return (
     <footer className="bg-blue-600 font-poppins mt-16 md:mt-24 lg:mt-32">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-20 py-12 sm:py-16 lg:py-20">
-        
+
         {/* DESKTOP VERSION */}
         <div className="hidden sm:block">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 lg:gap-12 xl:gap-16 mb-10 lg:mb-14">
-            
+
             {/* COLUMN 1: BRAND & SOCIAL */}
             <div className="text-center sm:text-left">
               <div className="mb-4 md:mb-6 lg:mb-8">
@@ -150,7 +150,7 @@ export default function Footer() {
             </div>
 
             {/* COLUMN 4: NEWSLETTER */}
-            <div>
+            {/* <div>
               <h4 className="text-sm font-bold text-white mb-4 md:mb-5 lg:mb-6 tracking-wide uppercase text-center sm:text-left">
                 SUBSCRIBE
               </h4>
@@ -184,13 +184,12 @@ export default function Footer() {
                 </div>
               </form>
               {status && (
-                <p className={`text-xs mt-3 font-poppins text-center sm:text-left ${
-                  status.type === 'success' ? 'text-green-300' : 'text-red-300'
-                }`}>
+                <p className={`text-xs mt-3 font-poppins text-center sm:text-left ${status.type === 'success' ? 'text-green-300' : 'text-red-300'
+                  }`}>
                   {status.message}
                 </p>
               )}
-            </div>
+            </div> */}
           </div>
 
           {/* Divider */}
@@ -253,9 +252,8 @@ export default function Footer() {
                 <ChevronDown className="w-4 h-4 text-white" />
               )}
             </button>
-            <div className={`overflow-hidden transition-all duration-300 ease-in-out ${
-              openSections.services ? 'max-h-96 opacity-100 mb-4' : 'max-h-0 opacity-0'
-            }`}>
+            <div className={`overflow-hidden transition-all duration-300 ease-in-out ${openSections.services ? 'max-h-96 opacity-100 mb-4' : 'max-h-0 opacity-0'
+              }`}>
               <ul className="flex flex-col gap-2 pb-2">
                 {footerSections.services.map((item) => (
                   <li key={item.name}>
@@ -286,9 +284,8 @@ export default function Footer() {
                 <ChevronDown className="w-4 h-4 text-white" />
               )}
             </button>
-            <div className={`overflow-hidden transition-all duration-300 ease-in-out ${
-              openSections.help ? 'max-h-96 opacity-100 mb-4' : 'max-h-0 opacity-0'
-            }`}>
+            <div className={`overflow-hidden transition-all duration-300 ease-in-out ${openSections.help ? 'max-h-96 opacity-100 mb-4' : 'max-h-0 opacity-0'
+              }`}>
               <ul className="flex flex-col gap-2 pb-2">
                 {footerSections.help.map((item) => (
                   <li key={item.name}>
@@ -305,7 +302,7 @@ export default function Footer() {
           </div>
 
           {/* Accordion: SUBSCRIBE */}
-          <div className="border-t border-white/20">
+          {/* <div className="border-t border-white/20">
             <button
               onClick={() => toggleSection('subscribe')}
               className="w-full flex justify-between items-center py-4 text-left"
@@ -360,7 +357,7 @@ export default function Footer() {
                 )}
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Divider */}
           <div className="h-px bg-white/20 my-6" />
