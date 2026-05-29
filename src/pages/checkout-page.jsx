@@ -89,7 +89,7 @@ export default function CheckoutPage() {
   const collaborativeRecommendations = collaborativeData || [];
 
   // Calculate total books in cart
-  const totalBooks = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const totalBooks = cartItems.reduce((sum, item) => sum + Number(item.quantity), 0);
 
   // Set defaults when data loads
   useEffect(() => {
@@ -124,9 +124,9 @@ export default function CheckoutPage() {
         } else {
           // Calculate shipping cost using the same logic as backend
           const multiplier = Math.ceil(
-            totalBooks / selectedMethod.books_per_multiplier
+            totalBooks / Number(selectedMethod.books_per_multiplier)
           );
-          const calculatedShipping = selectedMethod.base_price * multiplier;
+          const calculatedShipping = Number(selectedMethod.base_price) * multiplier;
           setShippingCost(calculatedShipping);
           setTotal(subtotal + calculatedShipping);
         }
@@ -195,9 +195,9 @@ export default function CheckoutPage() {
     let calculatedShipping = 0;
     if (!isPickup && selectedMethod) {
       const multiplier = Math.ceil(
-        totalBooks / selectedMethod.books_per_multiplier
+        totalBooks / Number(selectedMethod.books_per_multiplier)
       );
-      calculatedShipping = selectedMethod.base_price * multiplier;
+      calculatedShipping = Number(selectedMethod.base_price) * Number(multiplier);
     }
 
     const payload = {
