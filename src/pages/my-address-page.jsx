@@ -1,4 +1,3 @@
-// pages/MyAddressPage.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { MapPin, Plus, Edit2, Trash2, Home, Building } from "lucide-react";
