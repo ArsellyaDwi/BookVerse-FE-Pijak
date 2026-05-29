@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router";
 import { useState } from "react";
 import { toast } from "sonner";
+import axios from "axios";
 
 export default function ForgotPasswordPage() {
   const navigate = useNavigate();
@@ -12,38 +13,33 @@ export default function ForgotPasswordPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    
+
     if (!email) {
       setError("Please enter your email address");
       toast.error("Please enter your email address");
       return;
     }
-    
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setError("Please enter a valid email address");
       toast.error("Please enter a valid email address");
       return;
     }
-    
+
     setLoading(true);
-    
+
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/auth/forgot-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
+      const response = await axios.post('/auth/forgot-password', {
+        email: email,
       });
-      
-      const data = await response.json();
-      console.log("Response:", data);
-      
-      if (response.ok && data.success) {
+
+      const data = response.data;
+
+      if (response.status == 200) {
         setIsSubmitted(true);
         toast.success(data.message || "Reset link sent to your email!");
-        
+
         // Untuk development, tampilkan token di console
         if (data.reset_token) {
           console.log("Reset Token:", data.reset_token);

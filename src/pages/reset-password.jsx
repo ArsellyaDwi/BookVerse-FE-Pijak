@@ -1,13 +1,14 @@
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import axios from "axios";
 
 export default function ResetPasswordPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
   const emailFromUrl = searchParams.get("email");
-  
+
   const [email, setEmail] = useState(emailFromUrl || "");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -18,7 +19,7 @@ export default function ResetPasswordPage() {
   useEffect(() => {
     console.log("Token from URL:", token);
     console.log("Email from URL:", emailFromUrl);
-    
+
     if (!token || !emailFromUrl) {
       toast.error("Invalid reset link. Missing required parameters.");
       setTimeout(() => navigate("/forgot-password"), 2000);
@@ -28,21 +29,21 @@ export default function ResetPasswordPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({});
-    
+
     // Validasi client-side
     let hasError = false;
     const newErrors = {};
-    
+
     if (!email) {
       newErrors.email = "Email is required";
       hasError = true;
     }
-    
+
     if (!token) {
       newErrors.token = "Token is missing";
       hasError = true;
     }
-    
+
     if (!password) {
       newErrors.password = "Password is required";
       hasError = true;
@@ -50,7 +51,7 @@ export default function ResetPasswordPage() {
       newErrors.password = "Password must be at least 6 characters";
       hasError = true;
     }
-    
+
     if (!confirmPassword) {
       newErrors.confirmPassword = "Please confirm your password";
       hasError = true;
@@ -58,33 +59,26 @@ export default function ResetPasswordPage() {
       newErrors.confirmPassword = "Passwords do not match!";
       hasError = true;
     }
-    
+
     if (hasError) {
       setErrors(newErrors);
       toast.error(Object.values(newErrors)[0]);
       return;
     }
-    
+
     setLoading(true);
-    
+
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/auth/reset-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email,
-          token: token,
-          password: password,
-          password_confirmation: confirmPassword,
-        }),
+      const response = await axios.post('/auth/reset-password', {
+        email: email,
+        token: token,
+        password: password,
+        password_confirmation: confirmPassword,
       });
-      
-      const data = await response.json();
-      console.log("Response:", data);
-      
-      if (response.ok && data.success === true) {
+
+      const data = response.data;
+
+      if (response.status == 200) {
         toast.success("Password reset successful! Please login with your new password.");
         setTimeout(() => navigate("/login"), 2000);
       } else {
@@ -113,8 +107,8 @@ export default function ResetPasswordPage() {
           <p className="text-gray-600 mb-6">
             The reset link is invalid or missing required parameters.
           </p>
-          <Link 
-            to="/forgot-password" 
+          <Link
+            to="/forgot-password"
             className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
           >
             Request New Reset Link
@@ -128,8 +122,8 @@ export default function ResetPasswordPage() {
     <div className="flex flex-col lg:flex-row min-h-screen font-poppins bg-white">
       {/* LEFT SIDE - Branding */}
       <div className="hidden lg:flex lg:flex-1 relative flex-col justify-center items-center p-16 border-r border-slate-100 bg-white">
-        <button 
-          onClick={() => navigate("/")} 
+        <button
+          onClick={() => navigate("/")}
           className="group absolute top-10 left-10 flex items-center gap-2 text-slate-400 hover:text-blue-600 transition-colors"
         >
           <svg className="w-5 h-5 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
@@ -190,9 +184,8 @@ export default function ResetPasswordPage() {
                 placeholder="your@email.com"
                 required
                 readOnly={!!emailFromUrl}
-                className={`w-full h-14 px-5 mt-1 bg-slate-50 border rounded-2xl outline-none transition-all focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-50 ${
-                  errors.email ? 'border-red-500' : 'border-slate-100'
-                }`}
+                className={`w-full h-14 px-5 mt-1 bg-slate-50 border rounded-2xl outline-none transition-all focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-50 ${errors.email ? 'border-red-500' : 'border-slate-100'
+                  }`}
               />
               {errors.email && (
                 <p className="text-red-500 text-xs mt-1 ml-1">{errors.email}</p>
@@ -211,9 +204,8 @@ export default function ResetPasswordPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Min. 6 characters"
                   required
-                  className={`w-full h-14 px-5 mt-1 bg-slate-50 border rounded-2xl outline-none transition-all focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-50 pr-12 ${
-                    errors.password ? 'border-red-500' : 'border-slate-100'
-                  }`}
+                  className={`w-full h-14 px-5 mt-1 bg-slate-50 border rounded-2xl outline-none transition-all focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-50 pr-12 ${errors.password ? 'border-red-500' : 'border-slate-100'
+                    }`}
                 />
                 <button
                   type="button"
@@ -251,9 +243,8 @@ export default function ResetPasswordPage() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Confirm your new password"
                 required
-                className={`w-full h-14 px-5 mt-1 bg-slate-50 border rounded-2xl outline-none transition-all focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-50 ${
-                  errors.confirmPassword ? 'border-red-500' : 'border-slate-100'
-                }`}
+                className={`w-full h-14 px-5 mt-1 bg-slate-50 border rounded-2xl outline-none transition-all focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-50 ${errors.confirmPassword ? 'border-red-500' : 'border-slate-100'
+                  }`}
               />
               {errors.confirmPassword && (
                 <p className="text-red-500 text-xs mt-1 ml-1">{errors.confirmPassword}</p>
@@ -278,8 +269,8 @@ export default function ResetPasswordPage() {
             {errors.token && (
               <div className="bg-red-50 border border-red-200 rounded-xl p-3">
                 <p className="text-red-600 text-sm">{errors.token}</p>
-                <Link 
-                  to="/forgot-password" 
+                <Link
+                  to="/forgot-password"
                   className="text-blue-600 text-sm mt-1 inline-block hover:underline"
                 >
                   Request new reset link →

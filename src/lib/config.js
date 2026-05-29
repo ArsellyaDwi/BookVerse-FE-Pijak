@@ -1,5 +1,5 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:8000/api";
+const BASE_URL = "https://panel-bookverse.kendah.my.id/api";
 
 axios.defaults.baseURL = BASE_URL;

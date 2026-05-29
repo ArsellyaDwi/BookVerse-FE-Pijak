@@ -11,7 +11,7 @@ import BlogJournalSection from "@/components/blog-journal-section";
 export default function Homepage() {
   return (
     <QuizRedirectHandler>
-      <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      <main className="min-h-screen bg-linear-to-b from-gray-50 to-white">
         <Navbar />
         <HeroSection />
         <ValuePropositionBar />
