@@ -4,6 +4,30 @@ import { useWishlist } from "@/context/wishlist-context";
 import { useCart } from "@/context/cart-context";
 import { useNavigate } from "react-router";
 
+const emotionColors = {
+  happiness: "bg-amber-100 text-amber-700",
+  joy: "bg-amber-100 text-amber-700",
+  sadness: "bg-blue-100 text-blue-700",
+  anxiety: "bg-orange-100 text-orange-700",
+  fear: "bg-purple-100 text-purple-700",
+  anger: "bg-red-100 text-red-700",
+  love: "bg-rose-100 text-rose-700",
+  relief: "bg-emerald-100 text-emerald-700",
+  hope: "bg-teal-100 text-teal-700",
+  loneliness: "bg-indigo-100 text-indigo-700",
+  gratitude: "bg-emerald-100 text-emerald-700",
+  excitement: "bg-orange-100 text-orange-700",
+  surprise: "bg-cyan-100 text-cyan-700",
+  melancholy: "bg-indigo-100 text-indigo-600",
+  grief: "bg-gray-100 text-gray-600",
+  pride: "bg-purple-100 text-purple-700",
+  default: "bg-gray-100 text-gray-600"
+};
+
+const getEmotionColor = (emotion) => {
+  return emotionColors[emotion?.toLowerCase()] || emotionColors.default;
+};
+
 export default function BookCard({
   id,
   title,
@@ -13,11 +37,19 @@ export default function BookCard({
   image,
   category = "",
   description = "",
+  mood_tags = [], // Array of { emotion, confidence }
 }) {
   const navigate = useNavigate();
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const { addToCart } = useCart();
   const inWishlist = isInWishlist(id);
+
+  // Sort by confidence and take top 3
+  const topEmotions = mood_tags?.length > 0
+    ? [...mood_tags]
+      .sort((a, b) => b.confidence - a.confidence)
+      .slice(0, 3)
+    : [];
 
   const handleWishlistToggle = (e) => {
     e.stopPropagation();
@@ -91,6 +123,27 @@ export default function BookCard({
             </button>
           </div>
         </div>
+
+        {/* Emotion Labels - Below Image */}
+        {topEmotions.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-2 sm:mb-3">
+            {topEmotions.map((mood, index) => (
+              <span
+                key={index}
+                className={`
+                  inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] sm:text-xs font-medium
+                  ${getEmotionColor(mood.emotion)}
+                `}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60"></span>
+                {mood.emotion}
+                <span className="text-[8px] sm:text-[9px] opacity-70">
+                  {Math.round(mood.confidence * 100)}%
+                </span>
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* Product Info */}
         <div className="flex flex-col flex-grow">

@@ -172,10 +172,6 @@ export default function CommunityQuotes() {
 
             const response = await axios.get(url);
             if (response.data.success) {
-                console.log("=== CHECK is_owner ===");
-                response.data.data.forEach(q => {
-                    console.log(`Quote ID: ${q.id}, is_owner: ${q.is_owner}, user_id: ${q.user_id}`);
-                });
                 setQuotes(response.data.data);
                 const liked = {};
                 response.data.data.forEach(q => {

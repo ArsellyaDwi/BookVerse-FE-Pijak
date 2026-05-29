@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import axios from "axios";
 import { toast } from "sonner";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 
 const useQuery = ({
   url,
@@ -12,6 +12,7 @@ const useQuery = ({
   onSuccess = null,
   onError = null,
   doingOnce = false,
+  mustLogin = false,
 }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -33,21 +34,17 @@ const useQuery = ({
   const execute = useCallback(
     async (customParams = {}) => {
       try {
+        if (mustLogin) {
+          if (!axios.defaults.headers.common["Authorization"]) {
+            return;
+          }
+        }
+
         setLoading(true);
         setError(null);
 
+
         const queryParams = { ...params, ...customParams };
-
-        if (guard) {
-          const token = localStorage.getItem("token");
-          if (!token) {
-            handleUnauthorized();
-            return null;
-          }
-
-          axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-        }
-
         let response;
 
         switch (method.toUpperCase()) {
@@ -85,7 +82,7 @@ const useQuery = ({
         setLoading(false);
       }
     },
-    [url, method, params, guard, handleUnauthorized, onSuccess, onError]
+    [url, method, params, guard, handleUnauthorized, onSuccess, onError, mustLogin]
   );
 
   const doing = useRef(false);

@@ -53,6 +53,13 @@ export default function PersonalityQuizPage() {
     url: "/auth/personality-status",
     guard: true,
     doingOnce: true,
+    immediate: true,
+    onError: (err) => {
+      if (err?.response?.status === 401) {
+        toast.error('You must login to access this page.')
+        navigate("/");
+      }
+    }
   });
 
   const {

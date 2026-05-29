@@ -22,10 +22,11 @@ export default function LoginDropdown({ isOpen, onClose }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const result  = await login(email, password);
+    const result = await login(email, password);
     if (result) {
+      window.location.reload();
       onClose?.();
-    }    
+    }
   };
 
   if (!shouldRender) return null;
@@ -34,20 +35,18 @@ export default function LoginDropdown({ isOpen, onClose }) {
     <>
       {/* Overlay with fade animation */}
       <div
-        className={`fixed inset-0 z-40 transition-opacity duration-300 ${
-          isAnimating ? "opacity-100" : "opacity-0"
-        }`}
+        className={`fixed inset-0 z-40 transition-opacity duration-300 ${isAnimating ? "opacity-100" : "opacity-0"
+          }`}
         style={{ backgroundColor: "rgba(0, 0, 0, 0.3)" }}
         onClick={onClose}
       />
 
       {/* Dropdown Card with scale and fade animation */}
       <div
-        className={`absolute top-full right-0 z-50 transition-all duration-300 origin-top-right ${
-          isAnimating
+        className={`absolute top-full right-0 z-50 transition-all duration-300 origin-top-right ${isAnimating
             ? "opacity-100 scale-100 translate-y-0"
             : "opacity-0 scale-95 -translate-y-2"
-        }`}
+          }`}
         style={{
           width: "320px",
           marginTop: "16px",

@@ -27,6 +27,7 @@ export default function CartDrawer({ isOpen, onClose }) {
   // Fetch collaborative recommendations
   const { data: collaborativeData, loading: collaborativeLoading } = useQuery({
     url: "collaborative",
+    mustLogin: true,
   });
 
   const collaborativeRecommendations = collaborativeData || [];

@@ -186,30 +186,6 @@ const EmotionDistributionChart = ({ distribution, ratio, suggestedEmotions, matc
         <h4 className="font-semibold text-gray-800">How we picked your books</h4>
       </div>
 
-      <div className="flex items-center justify-center gap-8 mb-6 flex-wrap">
-        <div className="text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 rounded-full">
-            <Sparkles className="w-4 h-4 text-blue-600" />
-            <span className="text-sm font-medium text-blue-700">Suggested Emotions</span>
-            <span className="text-lg font-bold text-blue-700 ml-1">{Math.round(suggestedTotal)}%</span>
-          </div>
-          <p className="text-xs text-gray-500 mt-1 max-w-[200px]">
-            Books we think you'll love based on your emotional journey
-          </p>
-        </div>
-        <div className="text-gray-300 text-xl font-light">→</div>
-        <div className="text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-full">
-            <Target className="w-4 h-4 text-gray-600" />
-            <span className="text-sm font-medium text-gray-700">Matched Emotions</span>
-            <span className="text-lg font-bold text-gray-700 ml-1">{Math.round(matchedTotal)}%</span>
-          </div>
-          <p className="text-xs text-gray-500 mt-1 max-w-[200px]">
-            Books that match your current emotional state
-          </p>
-        </div>
-      </div>
-
       {ratio && (
         <div className="mb-6">
           <div className="flex justify-between text-xs text-gray-500 mb-1">
@@ -290,7 +266,8 @@ export default function RecommendationsPage() {
   const [books, setBooks] = useState([]);
   const [error, setError] = useState(null);
   const [recommendationData, setRecommendationData] = useState(null);
-  const [showDetails, setShowDetails] = useState(false);
+  const [selectedEmotions, setSelectedEmotions] = useState([]);
+  const [filteredBooks, setFilteredBooks] = useState([]);
 
   const text = searchParams.get("text");
 
@@ -307,6 +284,11 @@ export default function RecommendationsPage() {
         if (response.data.success) {
           setBooks(response.data.data.books || []);
           setRecommendationData(response.data.data);
+          setFilteredBooks(response.data.data.books || []);
+
+          if (response.data.data.search_emotions) {
+            setSelectedEmotions(response.data.data.search_emotions);
+          }
         } else {
           setError("Failed to get recommendations");
         }
@@ -335,40 +317,28 @@ export default function RecommendationsPage() {
     }
   }, [text]);
 
-  const getEmotionMessage = (topEmotion, predictions, appliedRule) => {
-    const ratio = appliedRule?.ratio || 50;
-    const suggestedEmotions = appliedRule?.suggested_outputs || [];
-
-    if (appliedRule && ratio) {
-      if (suggestedEmotions.length > 0) {
-        return `We detected ${topEmotion} in your writing. Using our smart emotion rules, we're showing you ${ratio}% books that can help shift your mood toward ${suggestedEmotions.slice(0, 2).join(" and ")}${suggestedEmotions.length > 2 ? ", and more" : ""}, and ${100 - ratio}% books that match how you're feeling right now.`;
-      }
-      return `We detected ${topEmotion} in your writing. We've balanced your recommendations with ${ratio}% uplifting books and ${100 - ratio}% books that match your current mood.`;
+  useEffect(() => {
+    if (selectedEmotions.length === 0) {
+      setFilteredBooks([]);
+    } else {
+      const filtered = books.filter(book => {
+        if (!book.mood_tags || book.mood_tags.length === 0) return false;
+        return selectedEmotions.some(selectedEmo =>
+          book.mood_tags.some(bookEmo =>
+            bookEmo.emotion.toLowerCase() === selectedEmo.toLowerCase()
+          )
+        );
+      });
+      setFilteredBooks(filtered);
     }
+  }, [selectedEmotions, books]);
 
-    const messages = {
-      happiness: "Your joyful energy shines through. We've picked uplifting stories that celebrate happiness.",
-      sadness: "We hear you. Here are comforting books to accompany you through this moment, along with gentle stories to lift your spirits.",
-      anxiety: "Take a deep breath. We've found calming reads to help you find peace, plus engaging stories to gently shift your focus.",
-      fear: "You're braver than you feel. Let these empowering stories give you strength and courage.",
-      love: "Your heart is full of love. Warm your soul with these beautiful stories about connection.",
-      anger: "Channel that energy. These powerful narratives will match your intensity and help you find release.",
-      relief: "Ahh, that's better. Celebrate this freeing feeling with these light and joyful reads.",
-      hope: "Stay inspired. These hopeful stories will nurture your optimism.",
-      loneliness: "You're not alone. These heartwarming tales will remind you that connection is everywhere.",
-      gratitude: "What a beautiful perspective. Celebrate gratitude with these meaningful reads.",
-      excitement: "Fuel that excitement. These thrilling adventures are perfect for your energetic mood.",
-      surprise: "Expect the unexpected. These surprising stories will keep you on your toes.",
-      default: "We've curated these special recommendations just for you based on what you shared."
-    };
-
-    return messages[topEmotion?.toLowerCase()] || messages.default;
-  };
-
-  const getStrategyIcon = (strategy) => {
-    if (strategy === 'rule_based') return <Target className="w-4 h-4" />;
-    if (strategy === 'prediction_based') return <Brain className="w-4 h-4" />;
-    return <TrendingUp className="w-4 h-4" />;
+  const toggleEmotion = (emotion) => {
+    setSelectedEmotions(prev =>
+      prev.includes(emotion)
+        ? prev.filter(e => e !== emotion)
+        : [...prev, emotion]
+    );
   };
 
   const getStrategyText = (strategy) => {
@@ -445,27 +415,6 @@ export default function RecommendationsPage() {
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3 font-poppins capitalize">
               {topEmotion} Recommendations
             </h1>
-            <p className="text-gray-600 max-w-2xl mx-auto font-poppins text-lg leading-relaxed">
-              {getEmotionMessage(topEmotion, predictions, appliedRule)}
-            </p>
-
-            {predictions.length > 0 && (
-              <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full">
-                <Sparkles className="w-4 h-4 text-blue-500" />
-                <span className="text-sm text-gray-600">
-                  We're {Math.round(predictions[0]?.confidence * 100)}% confident you're feeling {predictions[0]?.emotion}
-                </span>
-              </div>
-            )}
-
-            {searchSource && (
-              <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-full shadow-sm">
-                {getStrategyIcon(searchSource)}
-                <span className="text-xs text-gray-600">
-                  {getStrategyText(searchSource)}
-                </span>
-              </div>
-            )}
           </div>
 
           {appliedRule && emotionDistribution && Object.keys(emotionDistribution).length > 0 && (
@@ -481,88 +430,82 @@ export default function RecommendationsPage() {
 
           {(predictions.length > 0 || appliedRule) && (
             <div className="mb-8 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-              <button
-                onClick={() => setShowDetails(!showDetails)}
-                className="flex items-center justify-between w-full p-5 text-left hover:bg-gray-50 transition-colors"
-              >
+              <div className="p-5 bg-gray-50 border-b border-gray-200">
                 <div className="flex items-center gap-2">
                   <Brain className="w-5 h-5 text-gray-600" />
                   <h3 className="font-semibold text-gray-800">Behind the scenes</h3>
                 </div>
-                <span className="text-blue-600 text-sm">{showDetails ? 'Hide details' : 'See how we picked these'}</span>
-              </button>
+              </div>
 
-              {showDetails && (
-                <div className="px-5 pb-5 pt-0 space-y-4 text-sm border-t border-gray-100">
-                  {appliedRule && (
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Target className="w-4 h-4 text-gray-600" />
-                        <p className="font-medium text-gray-700">How we balanced your recommendations:</p>
-                      </div>
-                      <div className="space-y-2 text-gray-600">
-                        <p className="flex items-start gap-2">
-                          <span className="text-blue-500">•</span>
-                          <span><strong className="text-blue-700">{ratio}% of books</strong> are from <strong>suggested emotions</strong>: {suggestedEmotions?.join(", ") || "none"}</span>
-                        </p>
-                        <p className="flex items-start gap-2">
-                          <span className="text-gray-500">•</span>
-                          <span><strong className="text-gray-700">{100 - ratio}% of books</strong> are from <strong>matched emotions</strong>: {matchedEmotions?.join(", ") || "none"}</span>
-                        </p>
-                        <p className="text-xs text-gray-400 mt-2 pt-2 border-t border-gray-200">
-                          This balanced approach helps you find books that acknowledge your current feelings while gently introducing new emotional perspectives.
-                        </p>
-                      </div>
+              <div className="px-5 py-4 space-y-4 text-sm">
+                {appliedRule && (
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Target className="w-4 h-4 text-gray-600" />
+                      <p className="font-medium text-gray-700">How we balanced your recommendations:</p>
                     </div>
-                  )}
-
-                  {predictions.length > 0 && (
-                    <div>
-                      <p className="font-medium text-gray-700 mb-2">What we detected in your writing:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {predictions.map((pred, idx) => (
-                          <span key={idx} className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 rounded-full">
-                            <span className={`w-2 h-2 rounded-full ${getEmotionColor(pred.emotion)}`} />
-                            <span className="text-gray-700 capitalize">{pred.emotion}</span>
-                            <span className="text-xs text-gray-500">({Math.round(pred.confidence * 100)}%)</span>
-                          </span>
-                        ))}
-                      </div>
+                    <div className="space-y-2 text-gray-600">
+                      <p className="flex items-start gap-2">
+                        <span className="text-blue-500">•</span>
+                        <span><strong className="text-blue-700">{ratio}% of books</strong> are from <strong>suggested emotions</strong>: {suggestedEmotions?.join(", ") || "none"}</span>
+                      </p>
+                      <p className="flex items-start gap-2">
+                        <span className="text-gray-500">•</span>
+                        <span><strong className="text-gray-700">{100 - ratio}% of books</strong> are from <strong>matched emotions</strong>: {matchedEmotions?.join(", ") || "none"}</span>
+                      </p>
+                      <p className="text-xs text-gray-400 mt-2 pt-2 border-t border-gray-200">
+                        This balanced approach helps you find books that acknowledge your current feelings while gently introducing new emotional perspectives.
+                      </p>
                     </div>
-                  )}
-
-                  <div>
-                    <p className="font-medium text-gray-700 mb-2">Emotions we searched for:</p>
-                    <div className="flex flex-wrap gap-2">
-                      {searchEmotions?.map((emotion, idx) => {
-                        const isSuggested = suggestedEmotions?.includes(emotion);
-                        return (
-                          <span key={idx} className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${isSuggested ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50 border border-gray-200'}`}>
-                            {isSuggested ? <Sparkles className="w-3 h-3 text-blue-500" /> : <Target className="w-3 h-3 text-gray-500" />}
-                            <span className="text-gray-700 capitalize">{emotion}</span>
-                          </span>
-                        );
-                      })}
-                    </div>
-                    <p className="text-xs text-gray-400 mt-2">
-                      {suggestedEmotions?.length > 0 && matchedEmotions?.length > 0
-                        ? `${suggestedEmotions.join(", ")} are uplifting suggestions • ${matchedEmotions.join(", ")} match your current mood`
-                        : "We used these emotions to find the perfect books for you"}
-                    </p>
                   </div>
+                )}
 
-                  <div className="grid grid-cols-2 gap-3 pt-2">
-                    <div className="bg-gray-50 rounded-lg p-2 text-center">
-                      <p className="text-xs text-gray-500">Books found for you</p>
-                      <p className="text-lg font-bold text-blue-600">{totalBooksFound}</p>
+                {predictions.length > 0 && (
+                  <div>
+                    <p className="font-medium text-gray-700 mb-2">What we detected in your writing:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {predictions.map((pred, idx) => (
+                        <span key={idx} className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 rounded-full">
+                          <span className={`w-2 h-2 rounded-full ${getEmotionColor(pred.emotion)}`} />
+                          <span className="text-gray-700 capitalize">{pred.emotion}</span>
+                          <span className="text-xs text-gray-500">({Math.round(pred.confidence * 100)}%)</span>
+                        </span>
+                      ))}
                     </div>
-                    <div className="bg-gray-50 rounded-lg p-2 text-center">
-                      <p className="text-xs text-gray-500">Recommendation strategy</p>
-                      <p className="text-sm font-medium text-gray-700">{getStrategyText(searchSource)}</p>
-                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <p className="font-medium text-gray-700 mb-2">Emotions used for recommendations:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {searchEmotions?.map((emotion, idx) => {
+                      const isSuggested = suggestedEmotions?.includes(emotion);
+                      return (
+                        <span key={idx} className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${isSuggested ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50 border border-gray-200'}`}>
+                          {isSuggested ? <Sparkles className="w-3 h-3 text-blue-500" /> : <Target className="w-3 h-3 text-gray-500" />}
+                          <span className="text-gray-700 capitalize">{emotion}</span>
+                        </span>
+                      );
+                    })}
+                  </div>
+                  <p className="text-xs text-gray-400 mt-2">
+                    {suggestedEmotions?.length > 0 && matchedEmotions?.length > 0
+                      ? `${suggestedEmotions.join(", ")} are uplifting suggestions • ${matchedEmotions.join(", ")} match your current mood`
+                      : "We used these emotions to find the perfect books for you"}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 pt-2">
+                  <div className="bg-gray-50 rounded-lg p-2 text-center">
+                    <p className="text-xs text-gray-500">Books found for you</p>
+                    <p className="text-lg font-bold text-blue-600">{totalBooksFound}</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-2 text-center">
+                    <p className="text-xs text-gray-500">Recommendation strategy</p>
+                    <p className="text-sm font-medium text-gray-700">{getStrategyText(searchSource)}</p>
                   </div>
                 </div>
-              )}
+              </div>
             </div>
           )}
 
@@ -576,11 +519,57 @@ export default function RecommendationsPage() {
             </div>
           )}
 
+          {/* Emotion Chips Section */}
+          {searchEmotions?.length > 0 && (
+            <div className="mb-6 bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+              <div className="flex items-center gap-2 mb-3">
+                <Heart className="w-4 h-4 text-gray-600" />
+                <span className="text-sm font-medium text-gray-700">Show books related to:</span>
+                {selectedEmotions.length < searchEmotions.length && (
+                  <button
+                    onClick={() => setSelectedEmotions([...searchEmotions])}
+                    className="ml-auto text-xs text-blue-600 hover:text-blue-700"
+                  >
+                    Select all
+                  </button>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {searchEmotions.map((emotion, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => toggleEmotion(emotion)}
+                    className={`
+                      inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm capitalize transition-all
+                      ${selectedEmotions.includes(emotion)
+                        ? 'bg-blue-600 text-white shadow-sm'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }
+                    `}
+                  >
+                    <span className={`w-2 h-2 rounded-full ${selectedEmotions.includes(emotion) ? 'bg-white' : getEmotionColor(emotion)}`} />
+                    {emotion}
+                  </button>
+                ))}
+              </div>
+              {selectedEmotions.length < searchEmotions.length && (
+                <p className="text-xs text-gray-500 mt-3">
+                  Showing {filteredBooks.length} of {books.length} books
+                </p>
+              )}
+              {selectedEmotions.length === searchEmotions.length && (
+                <p className="text-xs text-gray-500 mt-3">
+                  All {books.length} books are shown
+                </p>
+              )}
+            </div>
+          )}
+
           {books.length > 0 ? (
             <>
               <div className="mb-4 flex justify-between items-center flex-wrap gap-2">
                 <h2 className="text-lg font-semibold text-gray-800">
-                  Your personalized reading list ({books.length} books)
+                  Your personalized reading list ({filteredBooks.length} books)
                 </h2>
                 {appliedRule && (
                   <div className="text-xs text-blue-600 bg-blue-50 px-3 py-1 rounded-full flex items-center gap-1">
@@ -590,7 +579,7 @@ export default function RecommendationsPage() {
                 )}
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-                {books.map((book) => (
+                {filteredBooks.map((book) => (
                   <BookCard
                     key={book.id}
                     id={book.id}
@@ -599,9 +588,22 @@ export default function RecommendationsPage() {
                     price={book.price}
                     rating={book.rating || 0}
                     image={buildStorageUrl(book.cover_img)}
+                    mood_tags={book.mood_tags}
                   />
                 ))}
               </div>
+
+              {filteredBooks.length === 0 && (
+                <div className="text-center py-12">
+                  <p className="text-gray-500">No books match your selected emotions.</p>
+                  <button
+                    onClick={() => setSelectedEmotions([...searchEmotions])}
+                    className="mt-2 text-blue-600 hover:text-blue-700 text-sm"
+                  >
+                    Select all emotions
+                  </button>
+                </div>
+              )}
 
               <div className="mt-10 text-center text-sm text-gray-400 border-t border-gray-200 pt-6">
                 <p>Every book is chosen with care — {ratio}% to lift your spirits, {100 - ratio}% to meet you where you are.</p>
