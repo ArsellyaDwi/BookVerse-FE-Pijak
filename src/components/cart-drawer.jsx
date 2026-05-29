@@ -25,7 +25,7 @@ export default function CartDrawer({ isOpen, onClose }) {
   const [isMobile, setIsMobile] = useState(false);
 
   // Fetch collaborative recommendations
-  const { data: collaborativeData, loading: collaborativeLoading } = useQuery({
+  const { data: collaborativeData, loading: collaborativeLoading, refetch } = useQuery({
     url: "collaborative",
     mustLogin: true,
   });
@@ -43,14 +43,17 @@ export default function CartDrawer({ isOpen, onClose }) {
 
   const handleIncrement = async (bookId) => {
     await addToCart(bookId, 1);
+    refetch();
   };
 
   const handleDecrement = async (bookId) => {
     await minusCart(bookId, 1);
+    refetch();
   };
 
   const handleRemove = async (bookId) => {
     await removeByBookId(bookId);
+    refetch();
   };
 
   const handleCheckout = () => {

@@ -154,9 +154,6 @@ export default function PersonalitySection() {
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 md:mb-8">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center">
-                            <Brain className="w-5 h-5 text-blue-600" />
-                        </div>
                         <div>
                             <h2 className="text-xl md:text-2xl lg:text-[26px] font-bold text-gray-800 font-poppins">
                                 Your Reading Personality
@@ -189,7 +186,6 @@ export default function PersonalitySection() {
                             <div key={trait.label} className="group">
                                 <div className="flex justify-between text-sm mb-1.5">
                                     <div className="flex items-center gap-2">
-                                        <span className="text-base">{trait.icon}</span>
                                         <span className="text-gray-700 font-medium font-poppins">{trait.label}</span>
                                     </div>
                                     <span className="text-gray-600 text-xs font-medium font-poppins">
