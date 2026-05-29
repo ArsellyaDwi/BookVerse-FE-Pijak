@@ -152,8 +152,8 @@ export default function PersonalitySection() {
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-20">
 
                 {/* Header */}
-                <div className="w-full flex flex-col sm:flex-row items-center md:items-start justify-between gap-4 mb-6 md:mb-8">
-                    <div className="flex items-center gap-3">
+                <div className="w-full flex flex-col md:flex-row items-center md:items-start justify-between gap-4 mb-6 md:mb-8">
+                    <div className="flex items-center gap-3 justify-center md:justify-start">
                         <div>
                             <h2 className="text-xl md:text-2xl lg:text-[26px] font-bold text-gray-800 font-poppins">
                                 Your Reading Personality
