@@ -230,7 +230,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                     </p>
 
                     <div className="flex flex-col gap-3">
-                      {collaborativeRecommendations.slice(0, 4).map((book) => (
+                      {collaborativeRecommendations.map((book) => (
                         <div
                           key={book.id}
                           className="p-3 rounded-xl border border-gray-200 bg-white hover:shadow-md transition-all duration-200 cursor-pointer"
@@ -264,9 +264,10 @@ export default function CartDrawer({ isOpen, onClose }) {
                                   Rp {parseFloat(book.price).toLocaleString("id-ID")}
                                 </p>
                                 <button
-                                  onClick={(e) => {
+                                  onClick={async (e) => {
                                     e.stopPropagation();
-                                    addToCart(book.id);
+                                    await addToCart(book.id);
+                                    refetch();
                                   }}
                                   className="px-3 py-1 bg-blue-600 text-white text-xs font-poppins font-medium rounded-lg hover:bg-blue-700 transition-all"
                                 >
@@ -278,18 +279,6 @@ export default function CartDrawer({ isOpen, onClose }) {
                         </div>
                       ))}
                     </div>
-
-                    {collaborativeRecommendations.length > 4 && (
-                      <button
-                        onClick={() => {
-                          onClose();
-                          navigate("/recommendations");
-                        }}
-                        className="mt-3 w-full py-2 text-center text-blue-600 font-poppins text-sm font-medium hover:text-blue-700 transition-colors"
-                      >
-                        View more recommendations →
-                      </button>
-                    )}
                   </div>
                 )}
 
