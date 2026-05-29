@@ -152,7 +152,7 @@ export default function PersonalitySection() {
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-20">
 
                 {/* Header */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 md:mb-8">
+                <div className="w-full flex flex-col sm:flex-row items-center md:items-start justify-between gap-4 mb-6 md:mb-8">
                     <div className="flex items-center gap-3">
                         <div>
                             <h2 className="text-xl md:text-2xl lg:text-[26px] font-bold text-gray-800 font-poppins">
@@ -237,9 +237,8 @@ export default function PersonalitySection() {
                 {/* Recommended Books Section */}
                 {recommendedBooks.length > 0 && (
                     <>
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4 md:mb-6">
+                        <div className="w-full flex flex-col md:flex-row items-center md:items-start justify-between gap-4 mb-4 md:mb-6">
                             <div className="flex items-center gap-2">
-                                <Sparkles className="w-5 h-5 text-blue-600" />
                                 <h3 className="text-lg md:text-xl font-semibold text-gray-800 font-poppins">
                                     Recommended for You
                                 </h3>
