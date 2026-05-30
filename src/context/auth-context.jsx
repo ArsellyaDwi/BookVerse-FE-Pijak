@@ -67,8 +67,10 @@ export const AuthProvider = ({ children }) => {
       navigate("/dashboard");
     },
     onError: (error) => {
-      const message = error.response?.data?.message || "Registration failed";
-      toast.error(message);
+      const errors = error.response?.data?.errors;
+      const firstKey = errors ? Object.keys(errors)[0] : null;
+      const firstMessage = firstKey ? errors[firstKey]?.[0] : null;
+      toast.error(firstMessage);
     },
   });
 
