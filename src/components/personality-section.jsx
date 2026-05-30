@@ -153,15 +153,13 @@ export default function PersonalitySection() {
 
                 {/* Header */}
                 <div className="w-full flex flex-col md:flex-row items-center md:items-start justify-between gap-4 mb-6 md:mb-8">
-                    <div className="flex items-center gap-3 justify-center md:justify-start">
-                        <div>
-                            <h2 className="text-xl md:text-2xl lg:text-[26px] font-bold text-gray-800 font-poppins">
-                                Your Reading Personality
-                            </h2>
-                            <p className="text-xs md:text-sm text-gray-500 font-poppins">
-                                Based on your quiz answers
-                            </p>
-                        </div>
+                    <div className="flex flex-col items-center justify-center md:justify-start md:items-start">
+                        <h2 className="text-xl md:text-2xl lg:text-[26px] font-bold text-gray-800 font-poppins">
+                            Your Reading Personality
+                        </h2>
+                        <p className="text-xs md:text-sm text-gray-500 font-poppins">
+                            Based on your quiz answers
+                        </p>
                     </div>
 
                     <button
