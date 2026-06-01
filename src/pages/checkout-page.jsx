@@ -8,6 +8,7 @@ import { Loader2, MapPin, Calendar, Truck, Store, Users } from "lucide-react";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import BookCard from "@/components/book-card";
+import { useCart } from "@/context/cart-context";
 
 const CheckoutShimmer = () => (
   <div className="bg-white min-h-screen font-poppins">
@@ -52,7 +53,7 @@ export default function CheckoutPage() {
   const [total, setTotal] = useState(0);
 
   // Fetch checkout data
-  const { data: checkoutData, loading: checkoutLoading } = useQuery({
+  const { data: checkoutData, loading: checkoutLoading, refetch: refetchCheckoutData } = useQuery({
     url: "/checkout/data",
     method: "GET",
     immediate: true,
@@ -60,7 +61,7 @@ export default function CheckoutPage() {
   });
 
   // Fetch collaborative recommendations
-  const { data: collaborativeData, loading: collaborativeLoading } = useQuery({
+  const { data: collaborativeData, loading: collaborativeLoading, refetch: refetchCollaborativeData } = useQuery({
     url: "collaborative",
     immediate: true,
     guard: false,
@@ -81,6 +82,7 @@ export default function CheckoutPage() {
     });
 
   // Extract data from checkoutData
+  const { addToCart } = useCart();
   const cartItems = checkoutData?.cart_items || [];
   const subtotal = checkoutData?.subtotal || 0;
   const addresses = checkoutData?.addresses || [];
@@ -698,10 +700,11 @@ export default function CheckoutPage() {
                             Rp {parseFloat(book.price).toLocaleString("id-ID")}
                           </p>
                           <button
-                            onClick={(e) => {
+                            onClick={async (e) => {
                               e.stopPropagation();
-                              // Add to cart functionality can be added here
-                              alert(`Added ${book.title} to cart`);
+                              await addToCart(book.id);
+                              refetchCheckoutData();
+                              refetchCollaborativeData();
                             }}
                             className="px-3 py-1.5 bg-blue-600 text-white text-xs font-poppins font-medium rounded-lg hover:bg-blue-700 transition-all opacity-0 group-hover:opacity-100 transform translate-y-1 group-hover:translate-y-0 transition-all duration-200"
                           >
